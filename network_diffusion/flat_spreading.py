@@ -291,7 +291,7 @@ def visualise_si_nodes_edges(G, nodes_infected, fig_params):
         for n in nodes_infected[i]:
             node_labels.at[n] = 'infected'
 
-            # Mark edges which were active in i epoch. These are the those who are spreading from infected nodes
+            # Mark edges which were active in i epoch. These are the those who are network_diffusion from infected nodes
             edges = list(G.edges([n]))
             for e in edges:
                 index = edge_labels[
@@ -425,7 +425,7 @@ def visualise_sir_nodes_edges(G, nodes_infected, nodes_recovered, fig_params):
         for n in nodes_infected[i]:
             node_labels.at[n] = 'infected'
 
-            # Mark edges which are active. These are the those which are spreading from infected nodes
+            # Mark edges which are active. These are the those which are network_diffusion from infected nodes
             edges = list(G.edges([n]))
             for e in edges:
                 index = edge_labels[
@@ -438,7 +438,7 @@ def visualise_sir_nodes_edges(G, nodes_infected, nodes_recovered, fig_params):
         for n in nodes_recovered[i]:
             node_labels.at[n] = 'recovered'
 
-            # Mark edges which are active. These are the those which are spreading from infected nodes
+            # Mark edges which are active. These are the those which are network_diffusion from infected nodes
             edges = list(G.edges([n]))
             for e in edges:
                 index = edge_labels[

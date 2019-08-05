@@ -1,6 +1,6 @@
 import networkx as nx
-import matplotlib.pyplot as plt
-import flat_spreading as fs
+from network_diffusion import flat_spreading as fs
+
 M = nx.les_miserables_graph()
 # M = nx.barabasi_albert_graph(200, 50)
 
