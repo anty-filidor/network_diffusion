@@ -8,19 +8,22 @@ import imageio
 
 def si_diffusion(G, fract_I, beta_coeff, track=False, name=None):
     """
-    Function to simulate Suspected - Infected diffusion on graph G
+    Function to simulate Suspected - Infected diffusion on graph G.
+
     :param G: given graph
     :param fract_I: fraction of infected nodes on start of simulation (values 0-1)
-    :param beta_coeff: probability of cognition during interaction with ill node (one interaction per
-    iteration of simulation) (values 0-1)
+    :param beta_coeff: probability of cognition during interaction with ill node (one interaction per iteration of simulation) (values 0-1)
     :param track: boolean value to mark if function has to print graph logs on console
     :param name: name of given graph - none by default. It is used in further visualisations
-    :return: list of number of suspected nodesby epoch,
-             list of number of infected nodes by epoch,
-             list of epochs,
-             list of names of new infected nodes by epoch
-             list of metadata of experiment: name_of_graph, beta_coeff, fract_coeff
+
+    :return:
+        * list of number of suspected nodesby epoch,
+        * list of number of infected nodes by epoch,
+        * list of epochs,
+        * list of names of new infected nodes by epoch,
+        * list of metadata of experiment: ``name_of_graph, beta_coeff, fract_coeff``
     """
+
     # Check if given parameters are good
     assert fract_I <= 100 and fract_I > 0
     assert beta_coeff <= 100 and beta_coeff > 0
@@ -88,21 +91,22 @@ def si_diffusion(G, fract_I, beta_coeff, track=False, name=None):
 
 def sir_diffusion(G, fract_I, beta_coeff, gamma_coeff, track=False, name=None):
     """
-    Function to simulate Suspected - Infected - Recovered diffusion on graph G
+    Function to simulate Suspected - Infected - Recovered diffusion on graph G.
+
     :param G: given graph
     :param fract_I: fraction of infected nodes on start of simulation (values 0-1)
-    :param beta_coeff: probability of cognition during interaction with ill node (one interaction per
-    iteration of simulation) (values 0-1)
+    :param beta_coeff: probability of cognition during interaction with ill node (one interaction per iteration of simulation) (values 0-1)
     :param gamma_coeff: probability of recovery
     :param track: boolean value to mark if function has to print graph logs on console
     :param name: name of given graph - none by default. It is used in further visualisations
-    :return: list of number of suspected nodesby epoch,
-             list of number of infected nodes by epoch,
-             list of number of recovered nodes by epoch,
-             list of epochs,
-             list of names of new infected nodes by epoch
-             list of names of new recovered nodes by epoch
-             list of metadata of experiment: name_of_graph, beta_coeff, gamma_coeff, fract_coeff
+    :return:
+        * list of number of suspected nodesby epoch,
+        * list of number of infected nodes by epoch,
+        * list of number of recovered nodes by epoch,
+        * list of epochs,
+        * list of names of new infected nodes by epoch,
+        * list of names of new recovered nodes by epoch,
+        * list of metadata of experiment: ``name_of_graph, beta_coeff, gamma_coeff, fract_coeff``
     """
 
     # Check if given parameters are good
@@ -194,8 +198,10 @@ def sir_diffusion(G, fract_I, beta_coeff, gamma_coeff, track=False, name=None):
 def _print_si_params(fig_params):
     """
     Function to print parameters of plotted visualisation of SI diffusion
+
     :param fig_params: list with 3 elements (printable) - name of graph,  beta coefficient and fraction of ill
      nodes on start
+
     :return: formatted string which is a subtitle of gif
     """
     return r'Graph - {}, $\beta$ - {}, $I/N$ - {}'.\
@@ -204,11 +210,13 @@ def _print_si_params(fig_params):
 
 def visualise_si_nodes(G, nodes_infected, fig_params):
     """
-    Function to visualise SI diffusion. It plots a gif from given experiment results with state of NODES
-    :param G: given graph on which the experiment has been performed
-    :param nodes_infected: list of lists which contains nodes infected in each epoch
-    :param fig_params: parameters_of experiment to plot as the title of figure. List with - name of graph,
-    beta coefficient, fraction of infected nodes on start
+    Function to visualise SI diffusion. It plots a gif from given experiment results with state of NODES.
+
+    :param G: given graph on which the experiment has been performed.
+    :param nodes_infected: list of lists which contains nodes infected in each epoch.
+    :param fig_params: parameters_of experiment to plot as the title of figure. List with - name of graph, beta coefficient, fraction of infected nodes on start.
+
+    :return: After call, this function saves rendered gif into program's directory.
     """
 
     # Data frame with characteristics for nodes
@@ -251,11 +259,13 @@ def visualise_si_nodes(G, nodes_infected, fig_params):
 
 def visualise_si_nodes_edges(G, nodes_infected, fig_params):
     """
-    Function to visualise SI diffusion. It plots a gif from given experiment results with state of EDGES and NODES
-    :param G: given graph on which the experiment has been performed
-    :param nodes_infected: list of lists which contains nodes infected in each epoch
-    :param fig_params: parameters_of experiment to plot as the title of figure. List with - name of graph,
-    beta coefficient, fraction of infected nodes on start
+    Function to visualise SI diffusion. It plots a gif from given experiment results with state of EDGES and NODES.
+
+    :param G: given graph on which the experiment has been performed.
+    :param nodes_infected: list of lists which contains nodes infected in each epoch.
+    :param fig_params: parameters_of experiment to plot as the title of figure. List with - name of graph, beta coefficient, fraction of infected nodes on start.
+
+    :return: After call, this function saves rendered gif into program's directory.
     """
 
     # Data frame with characteristics for nodes - on start all nodes are 'suspected'
@@ -318,10 +328,12 @@ def visualise_si_nodes_edges(G, nodes_infected, fig_params):
 
 def _print_sir_params(fig_params):
     """
-    Function to print parameters of plotted visualisation of SIR diffusion
+    Function to print parameters of plotted visualisation of SIR diffusion.
+
     :param fig_params: list with 4 elements (printable) - name of graph, beta coefficient, gamma coefficient and
-     fraction of ill nodes on start
-    :return: formatted string which is a subtitle of gif
+     fraction of ill nodes on start.
+
+    :return: formatted string which is a subtitle of gif.
     """
     return r'Graph - {}, $\beta$ - {}, $\gamma$ - {}, $I/N$ - {}'.\
         format(fig_params[0], fig_params[1], fig_params[2], fig_params[3])
@@ -329,11 +341,13 @@ def _print_sir_params(fig_params):
 
 def visualise_sir_nodes(G, nodes_infected, nodes_recovered, fig_params):
     """
-    Function to visualise SIR diffusion. It plots a gif from given experiment results with state of NODES
-    :param G: given graph on which the experiment has been performed
-    :param nodes_infected: list of lists which contains nodes infected in each epoch
-    :param fig_params: parameters_of experiment to plot as the title of figure. List with - name of graph,
-    beta coefficient, fraction of infected nodes on start
+    Function to visualise SIR diffusion. It plots a gif from given experiment results with state of NODES.
+
+    :param G: given graph on which the experiment has been performed.
+    :param nodes_infected: list of lists which contains nodes infected in each epoch.
+    :param fig_params: parameters_of experiment to plot as the title of figure. List with - name of graph, beta coefficient, fraction of infected nodes on start.
+
+    :return: After call, this function saves rendered gif into program's directory.
     """
 
     # Data frame with characteristics for nodes
@@ -350,6 +364,7 @@ def visualise_sir_nodes(G, nodes_infected, nodes_recovered, fig_params):
     for i in range(len(nodes_infected)):
 
         # Mark nodes which were infected in i epoch as infected in the node labels dataframe
+
         for n in nodes_infected[i]:
             node_labels.at[n] = 'infected'
 
@@ -381,11 +396,13 @@ def visualise_sir_nodes(G, nodes_infected, nodes_recovered, fig_params):
 
 def visualise_sir_nodes_edges(G, nodes_infected, nodes_recovered, fig_params):
     """
-    Function to visualise SIR diffusion. It plots a gif from given experiment results with state of NODES and EDGES
-    :param G: given graph on which the experiment has been performed
-    :param nodes_infected: list of lists which contains nodes infected in each epoch
-    :param fig_params: parameters_of experiment to plot as the title of figure. List with - name of graph,
-    beta coefficient, fraction of infected nodes on start
+    Function to visualise SIR diffusion. It plots a gif from given experiment results with state of NODES and EDGES.
+
+    :param G: given graph on which the experiment has been performed.
+    :param nodes_infected: list of lists which contains nodes infected in each epoch.
+    :param fig_params: parameters_of experiment to plot as the title of figure. List with - name of graph, beta coefficient, fraction of infected nodes on start.
+
+    :return: After call, this function saves rendered gif into program's directory.
     """
 
     # Data frame with characteristics for nodes
