@@ -1,7 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import flat_spreading as fs
-
 M = nx.les_miserables_graph()
 # M = nx.barabasi_albert_graph(200, 50)
 
@@ -27,7 +26,7 @@ fs.visualise_si_nodes_edges(M, nodes_infected, par)
 
 list_S, list_I, list_R, list_iter, nodes_infected, nodes_recovered, par = \
     fs.sir_diffusion(M, fract_I=0.08, beta_coeff=0.2, gamma_coeff=0.2, name='Les_miserables_W_Hugo_graph')
-
+'''
 plt.plot(list_iter, list_S, label='suspected')
 plt.plot(list_iter, list_I, label='infected')
 plt.plot(list_iter, list_R, label='recovered')
@@ -39,3 +38,4 @@ plt.show()
 
 fs.visualise_sir_nodes(M, nodes_infected, nodes_recovered, par)
 fs.visualise_sir_nodes_edges(M, nodes_infected, nodes_recovered, par)
+'''
