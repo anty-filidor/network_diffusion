@@ -1,16 +1,17 @@
+=======================
 Use cases of given code
 =======================
 
-
 Module  ``flat_spreading``
---------------------------
+==========================
 
 
-SI diffusion
-____________
 
-Performing an experiment
-++++++++++++++++++++++++
+
+SI diffusion - experiment and visualisation
+________________________________________________
+
+**Experiment**
 
 To perform an experiment, user has to upload graph **G** using ``networkx`` library. After that there is need to define
 parameters of experiment - beta coefficient and fraction of infected nodes. Here is an example code::
@@ -27,8 +28,7 @@ parameters of experiment - beta coefficient and fraction of infected nodes. Here
 
 By saving results of ``si_diffusion`` to variables above there is a possibility to visualise experiment.
 
-Visualisation
-+++++++++++++
+**Visualisation**
 
 User is able to visualise SI diffusion in two ways:
     * by cumulative figure of state of all nodes
@@ -72,12 +72,10 @@ Here are some examples::
 
 
 
+SIR diffusion - experiment and visualisation
+________________________________________________
 
-SIR diffusion
-_____________
-
-Performing an experiment
-++++++++++++++++++++++++
+**Experiment**
 
 To perform an experiment, user has to upload graph **G** using ``networkx`` library. After that there is need to define
 parameters of experiment - beta coefficient and fraction of infected nodes. Here is an example code::
@@ -94,8 +92,7 @@ parameters of experiment - beta coefficient and fraction of infected nodes. Here
 
 By saving results of ``sir_diffusion`` to variables above there is a possibility to visualise experiment.
 
-Visualisation
-+++++++++++++
+**Visualisation**
 
 User is able to visualise SIR diffusion in two ways:
     * by cumulative figure of state of all nodes
