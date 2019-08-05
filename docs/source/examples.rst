@@ -47,7 +47,7 @@ Here are some examples::
     plt.savefig("{}.png".format(par[0]), dpi=150)
     plt.show()
 
-.. figure::  ../../Les_miserables_V_Hugo_graph.png
+.. figure::  images/Les_miserables_V_Hugo_graph.png
     :align:   center
     :width: 400
 
@@ -57,7 +57,7 @@ Here are some examples::
 
     fs.visualise_si_nodes(M, nodes_infected, par)
 
-.. figure::  ../../Les_miserables_V_Hugo_graph_si_n.gif
+.. figure::  images/Les_miserables_V_Hugo_graph_si_n.gif
     :align:   center
     :width: 400
 
@@ -65,7 +65,7 @@ Here are some examples::
 
     fs.visualise_si_nodes_edges(M, nodes_infected, par)'
 
-.. figure::  ../../Les_miserables_V_Hugo_graph_si_ne.gif
+.. figure::  images/Les_miserables_V_Hugo_graph_si_ne.gif
     :align:   center
     :width: 400
 
@@ -115,7 +115,7 @@ Here are some examples::
     plt.savefig("{}.png".format(par[0]), dpi=150)
     plt.show()
 
-.. figure::  ../../Les_miserables_W_Hugo_graph.png
+.. figure::  images/Les_miserables_W_Hugo_graph.png
     :align:   center
     :width: 400
 
@@ -125,7 +125,7 @@ Here are some examples::
 
     fs.visualise_sir_nodes(M, nodes_infected, nodes_recovered, par)
 
-.. figure::  ../../Les_miserables_W_Hugo_graph_sir_n.gif
+.. figure::  images/Les_miserables_W_Hugo_graph_sir_n.gif
     :align:   center
     :width: 400
 
@@ -134,7 +134,7 @@ Here are some examples::
     fs.visualise_sir_nodes_edges(M, nodes_infected,
         nodes_recovered, par)
 
-.. figure::  ../../Les_miserables_W_Hugo_graph_sir_ne.gif
+.. figure::  images/Les_miserables_W_Hugo_graph_sir_ne.gif
     :align:   center
     :width: 400
 
