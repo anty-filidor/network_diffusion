@@ -6,7 +6,6 @@ kiwisolver==1.1.0
 matplotlib==3.1.0
 networkx==2.3
 numpy==1.16.4
-object-detection==0.1
 olefile==0.46
 pandas==0.25.0
 Pillow==6.1.0
