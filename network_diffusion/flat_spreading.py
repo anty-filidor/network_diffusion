@@ -17,7 +17,7 @@ def si_diffusion(G, fract_I, beta_coeff, track=False, name=None):
     :param name: name of given graph - none by default. It is used in further visualisations
 
     :return:
-        * list of number of suspected nodesby epoch,
+        * list of number of suspected nodes by epoch,
         * list of number of infected nodes by epoch,
         * list of epochs,
         * list of names of new infected nodes by epoch,

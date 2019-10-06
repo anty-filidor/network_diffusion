@@ -7,3 +7,7 @@ setup(
    author='Michał Czuba',
    packages=['network_diffusion'],  #same as name
 )
+
+
+
+# do ulepszenia!!!
