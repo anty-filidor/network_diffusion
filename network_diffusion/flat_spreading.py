@@ -59,7 +59,7 @@ def si_diffusion(G, fract_I, beta_coeff, track=False, name=None):
 
     # Main loop of simulation - do it unless all nodes are ill
     while N > I:
-        # One epoch of simulation - iterate through all nodes
+        # One epoch of simulation - iteration_nodes through all nodes
         for n in G.nodes():
             # Omit nodes which are infected yet
             if G.node[n]['status'] != 'infected':
@@ -153,7 +153,7 @@ def sir_diffusion(G, fract_I, beta_coeff, gamma_coeff, track=False, name=None):
 
     # Main loop of simulation - do it unless all nodes are recovered and no node is ill
     while N > R and I != 0:
-        # One epoch of simulation - iterate through all nodes
+        # One epoch of simulation - iteration_nodes through all nodes
         for n in G.nodes():
             #  If node is infected try to make it recovered by drawing a value from given binomial distribution
             if G.node[n]['status'] == 'infected' and np.random.choice(np.arange(0, 2),
