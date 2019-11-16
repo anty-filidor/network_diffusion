@@ -3,7 +3,7 @@ import networkx as nx
 from random import choice
 
 
-class Model:
+class PropagationModel:
 
     def add(self, layer, type):
         """
@@ -31,6 +31,17 @@ class Model:
             else:
                 print(name, ':', val)
         print('\n')
+
+    def get_model_hyperparams(self):
+        """
+        Auxiliary method to get model hyperparameters, that is names of 'layers' and states in each layer
+        :return: dictionary; key (string) is a name of layer and values are tuples of states labels
+        """
+        hiperparams = {}
+        for name, val in self.__dict__.items():
+            if name is not 'graph':
+                hiperparams[name] = val
+        return hiperparams
 
     def compile(self, track_changes=False):
         """
@@ -112,15 +123,14 @@ class Model:
                 self.set_transition(name, edge, w)
 
 
-
-model = Model()
-#model.add('layer_0', ('A', 'B'))
+'''
+model = PropagationModel()
 model.add('layer_1', ('A', 'B'))
 model.add('layer_2', ('A', 'B'))
 model.add('layer_3', ('A', 'B', 'C'))
 model.compile()
 model.describe(full_graph=True)
-
 model.set_transition('layer_1', (('layer_1.A', 'layer_2.A', 'layer_3.A'), ('layer_1.B', 'layer_2.A', 'layer_3.A')), 0.5)
 model.set_transitions_in_random_edges([[0.2, 0.3, 0.4], [0.2], [0.3]])
 model.describe()
+'''

@@ -15,9 +15,9 @@ from abc import ABC, abstractmethod
 class MultilayerAbstractNetwork(ABC):
 
     @abstractmethod
-    def iteration_nodes(self):
+    def iterate_nodes_layer(self, layer):
         pass
 
     @abstractmethod
-    def iteration_edges(self):
+    def iterate_edges_layer(self, layer):
         pass
