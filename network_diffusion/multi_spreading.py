@@ -73,7 +73,6 @@ class MultiSpreading:
 
 
 
-
 import networkx as nx
 from multiplex_network import MultiplexNetwork
 from propagation_model import PropagationModel
