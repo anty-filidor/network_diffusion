@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 # https://drive.google.com/drive/folders/0B_M5Zh3gg4LkNWZ5WmpoRlJhMVE
 
+#TODO Consider delete it
 
 #TYPE
 #LAYERS

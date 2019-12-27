@@ -1,6 +1,8 @@
 from network_diffusion.multilayer_abstract_network import MultilayerAbstractNetwork
 from network_diffusion.utils import read_mlx
 
+# TODO Consider delete it
+
 
 class MultLayerNetwork(MultilayerAbstractNetwork):
 

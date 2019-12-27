@@ -1,6 +1,7 @@
 import itertools
 import networkx as nx
 from random import choice
+from multipledispatch import dispatch
 
 
 class PropagationModel:
@@ -9,7 +10,7 @@ class PropagationModel:
         """
         This method adds propagation model for the given layer
         :param layer: (str) name of network's layer
-        :param type: (table of string) type of model, generally names of states, i.e. ['s', 'i', 'r']
+        :param type: (list of strings) type of model, generally names of states, i.e. ['s', 'i', 'r']
         """
         self.__setattr__(layer, type)
 
@@ -37,11 +38,11 @@ class PropagationModel:
         Auxiliary method to get model hyperparameters, that is names of 'layers' and states in each layer
         :return: dictionary; key (string) is a name of layer and values are tuples of states labels
         """
-        hiperparams = {}
+        hyperparams = {}
         for name, val in self.__dict__.items():
             if name is not 'graph':
-                hiperparams[name] = val
-        return hiperparams
+                hyperparams[name] = val
+        return hyperparams
 
     def compile(self, track_changes=False):
         """
@@ -87,25 +88,45 @@ class PropagationModel:
         # save created graphs as attribute of the object
         self.graph = transitions_graphs
 
+    @dispatch(str, tuple, object)
     def set_transition(self, layer, transition, weight):
         """
-        This method sets weight (activate) of certain transition in propagation model
+        This method sets (activate) weight of certain transition in propagation model
         :param layer: (str) name of the later in model
         :param transition: (tuple of strings) name of transition to be activated
-        :param weight: weight (number [0, 1]) of activation
+        :param weight: in range (number [0, 1]) of activation
         """
         assert 1 >= weight >= 0, 'Weight value should be in [0, 1] range'
         self.graph[layer].edges[transition]['weight'] = weight
+
+    @dispatch(str, str, tuple, object)
+    def set_transition(self, initial_layer_attribute, final_layer_attribute, other_attributes, weight):
+        """
+        This method sets (activate) weight of certain transition in model                                                                                                                                    ain transition in propagation model
+        :param initial_layer_attribute: (str) value of initial attribute which is being transited
+        :param final_layer_attribute: (str) value of final attribute which is being transition
+        :param other_attributes: (tuple) other attributes available in the propagation model
+        :param weight: weight (in range [0, 1]) of activation
+        """
+        # check data validate
+        assert 1 >= weight >= 0, 'Weight value should be in [0, 1] range'
+        layer_name = initial_layer_attribute.split('.')[0]
+        assert layer_name == final_layer_attribute.split('.')[0], 'Layers must  have one name!'
+
+        # make transitions
+        initial_state = tuple(sorted([initial_layer_attribute, *other_attributes]))
+        final_state = tuple(sorted([final_layer_attribute, *other_attributes]))
+        self.graph[layer_name].edges[(initial_state, final_state)]['weight'] = weight
 
     def set_transitions_in_random_edges(self, weights):
         """
         This method sets out random transitions in propagation model using given weights
         :param weights: list of weights to be set in random nodes e.g. for model of 3 layers that list [[0.1, 0.2],
-        [0.03, 0.45], [0.55]] will change 2 weights in first layer, 2, i second and 1 in thirs
+                        [0.03, 0.45], [0.55]] will change 2 weights in first layer, 2, i second and 1 in third
         """
         # check if given probabilities list is the same as number of layers
         assert len(weights) == len(self.graph), 'Len probabilities list and number of layers in model ' \
-                                                      'should be the same!'
+                                                'should be the same!'
 
         # main loop
         for (name, graph), wght in zip(self.graph.items(), weights):
@@ -121,6 +142,29 @@ class PropagationModel:
 
                 # assign weight to picked edge
                 self.set_transition(name, edge, w)
+
+    def get_possible_transitions(self, state, layer):
+        """
+        Method which returns possible (with weights > 0) transitions from given state in given layer of model
+        :param state: (tuple) state of the propagation model, i.e. ('awareness.UA', 'illness.I', 'vaccination.V')
+        :param layer: (str) name of the layer of propagation model from which possible transitions are being returned
+        :return: list with possible transitions in shape of:
+                 [[possible different state in given layer, weight], [], ..., []]
+        """
+
+        # check if model has been compiled
+        assert self.__dict__['graph'] is not None, 'Failed to process. Compile model first!'
+
+        # read possible states
+        states = {}
+        for neighbour in self.graph[layer].neighbors(state):
+            if self.graph[layer].edges[(state, neighbour)]['weight'] > 0:
+                # parse general state to keep only state name in given layer
+                for n in neighbour:
+                    if layer in n:
+                        states[n.split('.')[1]] = self.graph[layer].edges[(state, neighbour)]['weight']
+        # print('Possible transitions from state {} in layer {}:\n{}'.format(state, layer, states))
+        return states
 
 
 '''

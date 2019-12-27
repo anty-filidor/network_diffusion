@@ -22,23 +22,38 @@ class MultiplexNetwork(MultilayerAbstractNetwork):
 
     def get_nodes_states(self):
         """
-        Method which returns summary of network's nodes states
+        Method which returns summary of network's nodes states.
         :return: dictionary with items representing each of layers and with summary of node states in values
         """
         assert len(self.layers) > 0, 'Import network to the object first!'
-        statiscics = {}
+        statistics = {}
         for name, layer in self.layers.items():
             tab = []
             for node in layer.nodes():
                 tab.append(layer.node[node]['status'])
-            statiscics[name] = tuple(Counter(tab).items())
-        return statiscics
+            statistics[name] = tuple(Counter(tab).items())
+        return statistics
+
+    def get_node_state(self, node):
+        """
+        Method which returns general state of node in network. In format acceptable by PropagationModel object, which
+        means a tuple of sorted strings in form <layer name>.<state>
+        :param node: a node which status has to be returned
+        :return: dictionary with layer names as keys and states of node in values
+        """
+        assert len(self.layers) > 0, 'Import network to the object first!'
+        statistics = []
+        for name, layer in self.layers.items():
+            statistics.append('{}.{}'.format(name, layer.node[node]['status']))
+        statistics = sorted(statistics)
+        return tuple(statistics)
 
     def _prepare_nodes_attribute(self):
         for layer in self.layers.values():
             status_dict = {n: None for n in layer.nodes()}
             nx.set_node_attributes(layer, status_dict, 'status')
 
+    # TODO
     def load_ntework_mlx(self):
         """
         To do !!!!!!
@@ -63,6 +78,7 @@ class MultiplexNetwork(MultilayerAbstractNetwork):
 
         self._prepare_nodes_attribute()
 
+    # TODO
     def load_from_one_layer_nx(self, layer, metadata_list=None):
         """
         To do !!!!!!
@@ -87,6 +103,8 @@ class MultiplexNetwork(MultilayerAbstractNetwork):
         for neighbour in neighbours:
              attributes.append(self.layers[layer].node[neighbour])
         return attributes
+
+
 
 
 '''
