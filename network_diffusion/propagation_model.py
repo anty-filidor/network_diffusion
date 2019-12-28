@@ -2,6 +2,7 @@ import itertools
 import networkx as nx
 from random import choice
 from multipledispatch import dispatch
+import numpy as np
 
 
 class PropagationModel:
@@ -14,24 +15,43 @@ class PropagationModel:
         """
         self.__setattr__(layer, type)
 
-    def describe(self, full_graph=False):
+    def describe(self, to_print=True, full_graph=False):
         """
         Method to quickly print out parameters of the object
+        :param to_print: (bool) flag, if true method prints out description to console, otherwise it returns string
+        :param full_graph: (bool) flag, if true metrod prints out all propagation model states with those with 0 weight
+        :return:
         """
+        s = ''
+        o = '============================================\n' \
+            'model of propagation\n' \
+            '--------------------------------------------\n'
+        o += 'phenomenas and their states:'
         for name, val in self.__dict__.items():
             if name is 'graph':
-                print('\n')
+                s += '\n'
                 for g_name, g in val.items():
                     if full_graph:
-                        print(g_name, 'transitions:', g.edges().data())
+                        s += '\n{} transitions: {}\n'.format(g_name, g.edges().data())
                     else:
-                        print(g_name, 'nonzero transitions:')
+                        s += '\nlayer \'{}\' transitions with nonzero probability:\n'.format(g_name)
                         for edge in g.edges():
                             if g.edges[edge]['weight'] != 0.0:
-                                print(edge, g.edges[edge])
+                                mask = [True if g_name in _ else False for _ in edge[0]]
+                                start = np.array(edge[0])[mask][0].split('.')[1]
+                                finish = np.array(edge[1])[mask][0].split('.')[1]
+                                constraints = np.array(edge[0])[[not _ for _ in mask]]
+                                weight = g.edges[edge]['weight']
+                                s += '\tfrom {} to {} with probability {} and constrains {}\n'.\
+                                    format(start, finish, weight, constraints)
             else:
-                print(name, ':', val)
-        print('\n')
+                o += '\n\t{}: {}'.format(name, val)
+
+        s += '============================================'
+        if to_print:
+            print(o, s)
+        else:
+            return o + s
 
     def get_model_hyperparams(self):
         """
@@ -100,12 +120,12 @@ class PropagationModel:
         self.graph[layer].edges[transition]['weight'] = weight
 
     @dispatch(str, str, tuple, object)
-    def set_transition(self, initial_layer_attribute, final_layer_attribute, other_attributes, weight):
+    def set_transition(self, initial_layer_attribute, final_layer_attribute, constraint_attributes, weight):
         """
         This method sets (activate) weight of certain transition in model                                                                                                                                    ain transition in propagation model
         :param initial_layer_attribute: (str) value of initial attribute which is being transited
         :param final_layer_attribute: (str) value of final attribute which is being transition
-        :param other_attributes: (tuple) other attributes available in the propagation model
+        :param constraint_attributes: (tuple) other attributes available in the propagation model
         :param weight: weight (in range [0, 1]) of activation
         """
         # check data validate
@@ -114,8 +134,8 @@ class PropagationModel:
         assert layer_name == final_layer_attribute.split('.')[0], 'Layers must  have one name!'
 
         # make transitions
-        initial_state = tuple(sorted([initial_layer_attribute, *other_attributes]))
-        final_state = tuple(sorted([final_layer_attribute, *other_attributes]))
+        initial_state = tuple(sorted([initial_layer_attribute, *constraint_attributes]))
+        final_state = tuple(sorted([final_layer_attribute, *constraint_attributes]))
         self.graph[layer_name].edges[(initial_state, final_state)]['weight'] = weight
 
     def set_transitions_in_random_edges(self, weights):
@@ -165,6 +185,8 @@ class PropagationModel:
                         states[n.split('.')[1]] = self.graph[layer].edges[(state, neighbour)]['weight']
         # print('Possible transitions from state {} in layer {}:\n{}'.format(state, layer, states))
         return states
+
+    #TODO - write method which will add noisy transition in all edges
 
 
 '''

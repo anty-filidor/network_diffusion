@@ -1,4 +1,6 @@
 import string
+import os.path
+from os import path
 
 
 def read_mlx(file_path):
@@ -73,6 +75,19 @@ def read_mlx(file_path):
     del net_dict['foo']
 
     return net_dict
+
+
+def create_directory(dest_path):
+    """
+    Method checks out if given directory exists and if doesn't it just creates it
+    :param dest_path: (str) absolute path to create folder
+    :return: (int) 0 if directory has been created, 1 if directory had been existed before method call
+    """
+    if path.exists(dest_path):
+        return 1
+    else:
+        os.mkdir(dest_path)
+        return 0
 
 '''
 a = read_mlx('/Users/michal/PycharmProjects/network_diffusion/network_records/florentine.mpx')
