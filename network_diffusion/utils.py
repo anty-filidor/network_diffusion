@@ -5,8 +5,8 @@ from os import path
 
 def read_mlx(file_path):
     """
-    This function reads multilayer network from mlx file. Note that for now API allows only to create a multiplex net.
-    Thus some parts of file are un unuseful, but they are returned to maintain further scalability of this project.
+    This function reads multilayer network from mlx file to the dictionary of arrays which is then readed by multilayer
+    network class
 
     **A mlx file format**
         A mlx file is text file which is divided into several parts:
@@ -37,7 +37,7 @@ def read_mlx(file_path):
 
 
     :param file_path: path to file
-    :return: a dictionary with net to create class
+    :return: a dictionary with network to create class
     """
 
     # initialise empty containers
@@ -83,11 +83,13 @@ def create_directory(dest_path):
     :param dest_path: (str) absolute path to create folder
     :return: (int) 0 if directory has been created, 1 if directory had been existed before method call
     """
+
     if path.exists(dest_path):
         return 1
     else:
         os.mkdir(dest_path)
         return 0
+
 
 '''
 a = read_mlx('/Users/michal/PycharmProjects/network_diffusion/network_records/florentine.mpx')
@@ -95,5 +97,7 @@ a = read_mlx('/Users/michal/PycharmProjects/network_diffusion/network_records/te
 a = read_mlx('/Users/michal/PycharmProjects/network_diffusion/network_records/fftwyt.mpx')
 a = read_mlx('/Users/michal/PycharmProjects/network_diffusion/network_records/monastery.mpx')
 a = read_mlx('/Users/michal/PycharmProjects/network_diffusion/requirements.txt')
-print(a.keys(), '\n', a)
+print(a.keys())
+for k, v in a.items():
+    print(k, '\n', v)
 '''

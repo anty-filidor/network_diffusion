@@ -15,6 +15,7 @@ class MultiSpreading:
         :param model: (PropagationModel) model of propagation which determines how experiment looks like
         :param network: (MultiplexNetwork) a network which is being examined during experiment
         """
+
         assert network.layers.keys() == model.get_model_hyperparams().keys(), \
             'Layer names in network should be the same as layer names in propagation model'
         self._model = model
@@ -142,6 +143,7 @@ class ExperimentLogger:
         :param network_description: (str) z description of the network (MultiplexNetwork.describe()) which is used for
                                     saving in logs
         """
+
         self._model_description = model_description
         self._network_description = network_description
         self._raw_stats = []
@@ -152,6 +154,7 @@ class ExperimentLogger:
         Method which adds raw log from single epoch to the object
         :param log: (dict) raw log - MultiplexNetwork.get_nodes_states()
         """
+
         self._raw_stats.append(log)
 
     def convert_logs(self, model_hyperparameters):
@@ -160,6 +163,7 @@ class ExperimentLogger:
         self._stats attribute
         :param model_hyperparameters: (dict) parameters of the propagation model to store
         """
+
         # initialise container for splatted data
         self._stats = {k: pd.DataFrame(columns=model_hyperparameters[k]) for k in model_hyperparameters.keys()}
 
@@ -173,6 +177,10 @@ class ExperimentLogger:
             self._stats[layer] = vals.fillna(0).astype(int)
 
     def __str__(self):
+        """
+        Method which allows to print out object
+        :return: (str) string representing object
+        """
         return str(self._stats)
 
     def plot(self, to_file=False, path=None):
@@ -181,6 +189,7 @@ class ExperimentLogger:
         :param to_file: (bool) flag, if true save figure to file, otherwise it is plotted on screen
         :param path: (str) path to save figure
         """
+
         fig = plt.figure()
 
         for i, layer in enumerate(self._stats, 1):
@@ -210,6 +219,7 @@ class ExperimentLogger:
         :param path: (str) path to folder where report will be saved
         :param visualisation: (bool) a flag, if true visualisation is being plotted
         """
+
         if to_file:
             # create directory from given path
             create_directory(path)
