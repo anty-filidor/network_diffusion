@@ -7,6 +7,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from network_diffusion.utils import create_directory
 
+def foo(off):
+    """
+    jsd;lfjsel;gfkds;lgfjk;ldfj
+    :param off:
+    :return:
+    """
+    return  off
+
+
 
 class MultiSpreading:
     """
