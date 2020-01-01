@@ -13,7 +13,7 @@ See dedicated guide for these functions See `here. <examples.html>`_
 Module ``multi_spreading``
 =========================
 
-.. autoclass:: MultiSpreading
+.. autoclass:: multi_spreading.MultiSpreading
    :members:
 .. automodule:: multi_spreading
    :members:
