@@ -1,5 +1,5 @@
 =======================
-Use cases of given code
+Examples
 =======================
 
 Module  ``flat_spreading``
