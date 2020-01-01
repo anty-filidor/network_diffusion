@@ -9,6 +9,10 @@ from network_diffusion.utils import create_directory
 
 
 class MultiSpreading:
+    """
+    aaa kotki dwa
+    """
+
     def __init__(self, model, network):
         """
         This class is to perform experiments defined by Model class on given network
