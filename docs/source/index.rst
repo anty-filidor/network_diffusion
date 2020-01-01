@@ -19,6 +19,7 @@ Content of the website:
    :maxdepth: 2
 
    quick_info
+   installation
    reference_guide
    examples
 
