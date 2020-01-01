@@ -14,7 +14,7 @@ Module ``multi_spreading``
 =========================
 
 .. automodule:: multi_spreading
-   :members:
+   :members: MultiSpreading
 
 Module ``multilayer_network``
 =========================
