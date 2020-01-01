@@ -14,6 +14,7 @@ Module ``multi_spreading``
 =========================
 
 .. autoclass:: MultiSpreading
+   :members:
 .. automodule:: multi_spreading
    :members:
 
