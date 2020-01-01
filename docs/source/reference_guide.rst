@@ -13,8 +13,9 @@ See dedicated guide for these functions See `here. <examples.html>`_
 Module ``multi_spreading``
 =========================
 
+.. autoclass:: MultiSpreading
 .. automodule:: multi_spreading
-   :members: MultiSpreading
+   :members:
 
 Module ``multilayer_network``
 =========================
