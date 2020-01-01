@@ -2,11 +2,6 @@
 Quick info
 ===============
 
-Github repository
-=================
-
-All code can be catched in github repository which is `here. <https://github.com/anty-filidor/network_diffusion>`_
-
 
 Information about this project
 ==============================
@@ -21,3 +16,8 @@ vel varius. Sed vulputate, est in efficitur tempus, mauris mauris commodo nibh, 
 Vivamus vehicula nibh sed purus eleifend ultrices. Nunc quis vulputate dui. Maecenas et dolor iaculis, varius nibh ac,
 mollis velit. Cras sit amet tellus ut ipsum lacinia vehicula ut non dolor.
 
+
+Github repository
+=================
+
+All code can be catched in github repository which is `here. <https://github.com/anty-filidor/network_diffusion>`_
