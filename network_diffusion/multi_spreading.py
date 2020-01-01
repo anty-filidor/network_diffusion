@@ -10,7 +10,7 @@ from network_diffusion.utils import create_directory
 
 class MultiSpreading:
     """
-    aaa kotki dwa
+    aaa kotki dwaa
     """
 
     def __init__(self, model, network):
