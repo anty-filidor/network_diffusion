@@ -64,7 +64,7 @@ ______________________________
         - visualisation of propagation
 
 
-    .. figure:: images/multi_spreading.png
-        :width: 600
+.. figure:: images/multi_spreading.png
+    :width: 600
 
 
