@@ -7,38 +7,26 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from network_diffusion.utils import create_directory
 
-def foo(off):
-    """
-    jsd;lfjsel;gfkds;lgfjk;ldfj
-    :param off:
-    :return:
-    """
-    return  off
-
-
 
 class MultiSpreading:
     """
-    aaa kotki dwaa
+    This class is to perform experiments defined by Model class on given network
+
+    :param model: (PropagationModel) model of propagation which determines how experiment looks like
+    :param network: (MultiplexNetwork) a network which is being examined during experiment
     """
 
     def __init__(self, model, network):
-        """
-        This class is to perform experiments defined by Model class on given network
-        :param model: (PropagationModel) model of propagation which determines how experiment looks like
-        :param network: (MultiplexNetwork) a network which is being examined during experiment
-        """
-
         assert network.layers.keys() == model.get_model_hyperparams().keys(), \
             'Layer names in network should be the same as layer names in propagation model'
         self._model = model
         self._network = deepcopy(network)
 
-    #TODO - change states to be defined as percentages not absolute nodes amounts
     def set_initial_states(self, states_seeds, track_changes=False):
         """
         This method prepares network to be used during simulation. It changes status of certain nodes following given
         seeds in function argument
+
         :param states_seeds: dictionary with numbers of nodes to be initialise in each layer of network.
                              For example following argument: {'illness': (75, 2, 0), 'awareness': (60, 17),
                              'vaccination': (70, 7)} is correct with this model of propagation:
@@ -96,6 +84,7 @@ class MultiSpreading:
     def perform_propagation(self, n_epochs):
         """
         This method performs experiment on given network and given model. It saves logs in ExperimentLogger object
+
         :param n_epochs: number of epochs to do experiment
         :return: (ExperimentLogger) logs of experiment stored in special object
         """
@@ -104,7 +93,7 @@ class MultiSpreading:
         logger = ExperimentLogger(self._model.describe(to_print=False), self._network.describe(to_print=False))
 
         # add logs from initial state
-        logger.add_log(self._network.get_nodes_states())
+        logger._add_log(self._network.get_nodes_states())
 
         # iterate through epochs
         progress_bar = tqdm(range(n_epochs))
@@ -139,10 +128,10 @@ class MultiSpreading:
                                 break
 
             # add logs from current epoch
-            logger.add_log(self._network.get_nodes_states())
+            logger._add_log(self._network.get_nodes_states())
 
         # convert logs to dataframe
-        logger.convert_logs(self._model.get_model_hyperparams())
+        logger._convert_logs(self._model.get_model_hyperparams())
 
         return logger
 
@@ -151,6 +140,7 @@ class ExperimentLogger:
     def __init__(self, model_description, network_description):
         """
         This class is to store and process logs aggregated during propagation experiment of MultiSpreading class
+
         :param model_description: (str) a description of the model (PropagationModel.describe()) which is used for
                                   saving in logs
         :param network_description: (str) z description of the network (MultiplexNetwork.describe()) which is used for
@@ -162,18 +152,20 @@ class ExperimentLogger:
         self._raw_stats = []
         self._stats = None
 
-    def add_log(self, log):
+    def _add_log(self, log):
         """
         Method which adds raw log from single epoch to the object
+
         :param log: (dict) raw log - MultiplexNetwork.get_nodes_states()
         """
 
         self._raw_stats.append(log)
 
-    def convert_logs(self, model_hyperparameters):
+    def _convert_logs(self, model_hyperparameters):
         """
         Method to convert raw logs into pandas dataframe. Used after finishing aggregation of logs. It fulfill
         self._stats attribute
+
         :param model_hyperparameters: (dict) parameters of the propagation model to store
         """
 
@@ -192,6 +184,7 @@ class ExperimentLogger:
     def __str__(self):
         """
         Method which allows to print out object
+
         :return: (str) string representing object
         """
         return str(self._stats)
@@ -199,6 +192,7 @@ class ExperimentLogger:
     def plot(self, to_file=False, path=None):
         """
         Method to plot out visualisation of performed experiment
+
         :param to_file: (bool) flag, if true save figure to file, otherwise it is plotted on screen
         :param path: (str) path to save figure
         """
@@ -228,6 +222,7 @@ class ExperimentLogger:
         """
         Method to create report of experiment. It consits of report of the network, report of the model, record of
         propagation progress and optionally visualisation of the progress.
+
         :param to_file: (bool) a flag, if true report is saved in files, otherwise it is printed out on the screen
         :param path: (str) path to folder where report will be saved
         :param visualisation: (bool) a flag, if true visualisation is being plotted

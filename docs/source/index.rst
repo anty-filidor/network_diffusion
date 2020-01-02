@@ -21,12 +21,11 @@ Content of the website:
    quick_info
    installation
    reference_guide
-   examples
+   module_examples
 
 
-And here are indices and tables:
+Quick search:
 =============================================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`

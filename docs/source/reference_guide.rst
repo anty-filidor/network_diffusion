@@ -2,34 +2,52 @@
 Reference guide
 ===============
 
+
 Module ``flat_spreading``
 =========================
 
-See dedicated guide for these functions See `here. <examples.html>`_
+See dedicated guide for these functions See `here. <flat_spreading_example.html>`_
 
-.. automodule:: flat_spreading
+.. automodule:: network_diffusion.flat_spreading
    :members:
+   :undoc-members:
+
 
 Module ``multi_spreading``
-=========================
+==========================
 
-.. automodule:: multi_spreading
-   :members: MultiSpreading
+See dedicated guide for these functions See `here. <multi_spreading_example.html>`_
+
+.. automodule:: network_diffusion.multi_spreading
+   :members:
+   :undoc-members:
+
 
 Module ``multilayer_network``
-=========================
+=============================
 
-.. automodule:: multilayer_network
+See dedicated guide for these functions See `here. <multilayer_network_example.html>`_
+
+.. automodule:: network_diffusion.multilayer_network
    :members:
+   :undoc-members:
+
 
 Module ``propagation_model``
-=========================
+============================
 
-.. automodule:: propagation_model
-   :members:
+See dedicated guide for these functions See `here. <propagation_model_example.html>`_
+
+.. automodule:: network_diffusion.propagation_model
+    :members:
+    :undoc-members:
+    :private-members:
+    :show-inheritance:
+
 
 Module ``utils``
-=========================
+================
 
-.. automodule:: utils
+.. automodule:: network_diffusion.utils
    :members:
+   :undoc-members:

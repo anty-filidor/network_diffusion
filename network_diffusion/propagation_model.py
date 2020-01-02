@@ -10,6 +10,7 @@ class PropagationModel:
     def add(self, layer, type):
         """
         This method adds propagation model for the given layer
+
         :param layer: (str) name of network's layer
         :param type: (list of strings) type of model, generally names of states, i.e. ['s', 'i', 'r']
         """
@@ -19,6 +20,7 @@ class PropagationModel:
     def describe(self, to_print=True, full_graph=False):
         """
         Method to quickly print out parameters of the object
+
         :param to_print: (bool) flag, if true method prints out description to console, otherwise it returns string
         :param full_graph: (bool) flag, if true metrod prints out all propagation model states with those with 0 weight
         :return: if to_print == True method returns string describing object, otherwise it returns nothing, but prints
@@ -59,6 +61,7 @@ class PropagationModel:
     def get_model_hyperparams(self):
         """
         Auxiliary method to get model hyperparameters, that is names of 'layers' and states in each layer
+
         :return: dictionary keyed (string) by names of layer, values are tuples of states labels
         """
 
@@ -73,6 +76,7 @@ class PropagationModel:
         This method creates transition matrices for defined models of propagation in each layer. All transitions
         probabilities are set to 0. To be more specific, transitions matrices are stored as a networkx one-directional
         graph. After compilation user is able to set certain transitions in model
+
         :param background_weight: (float [0,1]) describes default weight of transition to make propagation more
                                  realistic by default it is set to 0
         :param track_changes: (boolean) flag to track progress of matrices creation
@@ -123,6 +127,7 @@ class PropagationModel:
     def set_transition(self, layer, transition, weight):
         """
         This method sets (activate) weight of certain transition in propagation model
+
         :param layer: (str) name of the later in model
         :param transition: (tuple of strings) name of transition to be activated
         :param weight: in range (number [0, 1]) of activation
@@ -134,7 +139,8 @@ class PropagationModel:
     @dispatch(str, str, list, object)
     def set_transition(self, initial_layer_attribute, final_layer_attribute, constraint_attributes, weight):
         """
-        This method sets (activate) weight of certain transition in model                                                                                                                                    ain transition in propagation model
+        This method sets (activate) weight of certain transition in model
+
         :param initial_layer_attribute: (str) value of initial attribute which is being transited
         :param final_layer_attribute: (str) value of final attribute which is being transition
         :param constraint_attributes: (tuple) other attributes available in the propagation model
@@ -154,6 +160,7 @@ class PropagationModel:
     def set_transitions_in_random_edges(self, weights):
         """
         This method sets out random transitions in propagation model using given weights
+
         :param weights: list of weights to be set in random nodes e.g. for model of 3 layers that list [[0.1, 0.2],
                         [0.03, 0.45], [0.55]] will change 2 weights in first layer, 2, i second and 1 in third
         """
@@ -180,6 +187,7 @@ class PropagationModel:
     def get_possible_transitions(self, state, layer):
         """
         Method which returns possible (with weights > 0) transitions from given state in given layer of model
+
         :param state: (tuple) state of the propagation model, i.e. ('awareness.UA', 'illness.I', 'vaccination.V')
         :param layer: (str) name of the layer of propagation model from which possible transitions are being returned
         :return: list with possible transitions in shape of:
@@ -210,23 +218,3 @@ class PropagationModel:
         # print('Possible transitions from state {} in layer {}:\n{}'.format(state, layer, states))
         return states
 
-
-'''
-model = PropagationModel()
-model.add('layer_1', ('A', 'B'))
-model.add('layer_2', ('A', 'B'))
-model.add('layer_3', ('A', 'B', 'C'))
-model.compile()
-model.describe(full_graph=True)
-model.set_transition('layer_1', (('layer_1.A', 'layer_2.A', 'layer_3.A'), ('layer_1.B', 'layer_2.A', 'layer_3.A')), 0.5)
-model.set_transitions_in_random_edges([[0.2, 0.3, 0.4], [0.2], [0.3]])
-
-import matplotlib.pyplot as plt
-for n, l in model.graph.items():
-    plt.title(n)
-    nx.draw_networkx_nodes(l, pos=nx.circular_layout(l))
-    nx.draw_networkx_edges(l, pos=nx.circular_layout(l))
-    nx.draw_networkx_edge_labels(l, pos=nx.circular_layout(l))
-    nx.draw_networkx_labels(l, pos=nx.circular_layout(l))
-    plt.show()
-'''

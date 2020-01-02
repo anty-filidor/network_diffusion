@@ -1,8 +1,8 @@
-from network_diffusion.utils import read_mlx
 import networkx as nx
 from collections import Counter
 import numpy as np
 from copy import deepcopy
+from network_diffusion.utils import read_mlx
 
 
 class MultilayerNetwork:
@@ -17,7 +17,8 @@ class MultilayerNetwork:
     def load_mlx(self, file_path):
         """
         This function loads multilayer network saved in mlx file. Note, that is omits some nonimportant attributes of
-        network defined in the file, i.e. node attributes.
+        network defined in the file, i.e. node attributes
+
         :param file_path: path to the file
         """
 
@@ -59,6 +60,7 @@ class MultilayerNetwork:
     def load_layers_nx(self, network_list, layer_names=None):
         """
         This function loads multilayer network as list of layers (nx. networks) and list of its labels
+
         :param network_list: list of nx networks
         :param layer_names: list of layer names. It can be none, then labels are set automatically
         """
@@ -81,6 +83,7 @@ class MultilayerNetwork:
         """
         This function creates multiplex network from layers defined in layer_names and network_layer which is replicated
         through all layers
+
         :param network_layer: (networkx.Graph) basic layer which is replicated througa all layers
         :param layer_names: (list of iterables) names for layers in multiplex network
         """
@@ -138,6 +141,7 @@ class MultilayerNetwork:
         """
         Method to compute multiplexing coefficient defined as proportion of number of nodes common to all layers to
         number of all unique nodes in entire network
+
         :return: (float) multiplexing coefficient
         """
 
@@ -166,7 +170,8 @@ class MultilayerNetwork:
 
     def get_nodes_states(self):
         """
-        Method which returns summary of network's nodes states.
+        Method which returns summary of network's nodes states
+
         :return: dictionary with items representing each of layers and with summary of node states in values
         """
 
@@ -183,6 +188,7 @@ class MultilayerNetwork:
         """
         Method which returns general state of node in network. In format acceptable by PropagationModel object, which
         means a tuple of sorted strings in form <layer name>.<state>
+
         :param node: a node which status has to be returned
         :return: dictionary with layer names as keys and states of node in values
         """
@@ -198,6 +204,7 @@ class MultilayerNetwork:
     def get_neighbours_attributes(self, node, layer):
         """
         Method which returns attributes in given layer of given node's neighbours
+
         :param node: name of node
         :param layer: layer from which neighbours are being examined
         :return: list of neighbours' attributes
@@ -213,6 +220,7 @@ class MultilayerNetwork:
     def get_layer_names(self):
         """
         Method which gets names of layers in the network
+
         :return: list of layers' names
         """
 
@@ -221,6 +229,7 @@ class MultilayerNetwork:
     def iterate_nodes_layer(self, layer):
         """
         Generator, yields node by node selected layer of the network
+
         :param layer: layer from nodes are yield
         :return: node names
         """
@@ -231,43 +240,11 @@ class MultilayerNetwork:
     def iterate_edges_layer(self, layer):
         """
         Generator, yields edge by edge selected layer of the network
+
         :param layer: layer from edges are yield
         :return: edge names
         """
 
         for e in self.layers[layer].nodes():
             yield(e)
-
-
-'''
-# example of creating net from networkx graphs
-M = [nx.les_miserables_graph(), nx.les_miserables_graph(), nx.les_miserables_graph()]
-
-mpx = MultiplexNetwork()
-mpx.load_layers_nx(M, ['layer1', 'layer2', 'layer3'])
-print(mpx.layers)
-
-mpx.layers = {}
-mpx.load_layers_nx(M)
-print(mpx.layers)
-
-for n in mpx.iterate_nodes_layer('layer_1'):
-    print(mpx.get_neighbours_attributes(n, 'layer_1'))
-
-# example of creating nets from mpx files
-nets = ['/Users/michal/PycharmProjects/network_diffusion/network_records/florentine.mpx',
-        '/Users/michal/PycharmProjects/network_diffusion/network_records/fftwyt.mpx',
-        '/Users/michal/PycharmProjects/network_diffusion/network_records/monastery.mpx']
-        # '/Users/michal/PycharmProjects/network_diffusion/network_records/test_bad',
-        # '/Users/michal/PycharmProjects/network_diffusion/requirements.txt']
-
-import glob
-nets = glob.glob('/Users/michal/PycharmProjects/network_diffusion/network_records/*.mpx')
-
-for net in nets:
-    print(net)
-    mpx = MultiplexNetwork()
-    mpx.load_mlx(net)
-    mpx.describe()
-'''
 

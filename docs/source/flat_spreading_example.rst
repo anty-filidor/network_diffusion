@@ -1,11 +1,5 @@
-=======================
-Examples
-=======================
-
 Module  ``flat_spreading``
 ==========================
-
-
 
 
 SI diffusion - experiment and visualisation

@@ -12,17 +12,17 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../network_diffusion'))
+sys.path.insert(0, os.path.abspath('../../'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'Network Diffusion'
-copyright = '2019, Michał Czuba'
+copyright = '2020, Michał Czuba'
 author = 'Michał Czuba'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '0.5.0'
 
 
 # -- General configuration ---------------------------------------------------
