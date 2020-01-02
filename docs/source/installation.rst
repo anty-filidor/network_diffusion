@@ -3,3 +3,4 @@ Installation
 ===============
 
 TODO!!!!
+conda & requirements
