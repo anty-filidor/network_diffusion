@@ -18,6 +18,7 @@ setup(
       'cycler == 0.10.0',
       'decorator == 4.4.1',
       'kiwisolver == 1.1.0',
+      'imageio==2.6.1',
       'matplotlib == 3.1.1',
       'multipledispatch == 0.6.0',
       'networkx == 2.4',
@@ -26,11 +27,11 @@ setup(
       'pandas == 0.25.3',
       'Pillow == 6.2.1',
       'pyparsing == 2.4.5',
-      'python - dateutil == 2.8.1',
+      'dateutil == 2.8.1',
       'pytz == 2019.3',
       'six == 1.13.0',
       'tornado == 6.0.3',
       'tqdm == 4.40.2'
-         ],
+      ],
 )
 
