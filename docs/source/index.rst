@@ -12,7 +12,7 @@ This library allows to design and run diffusion phenomena processes in networks.
 work with multi and single layer networks. User is also bale to define model of propagation from scratch or use predefined ones.
 
 
-Content of the website:
+Content of the website
 =============================================
 
 .. toctree::
@@ -24,7 +24,7 @@ Content of the website:
    module_examples
 
 
-Quick search:
+Quick search
 =============================================
 
 * :ref:`genindex`
