@@ -50,7 +50,7 @@ logs.report(to_file=False, path=None, visualisation=True)
 '''
 # initialise multilayer network from mlx file
 network = MultilayerNetwork()
-network.load_mlx('/Users/michal/PycharmProjects/network_diffusion/network_records/florentine.mpx')
+network.load_mlx('/Users/michal/PycharmProjects/network_diffusion/networks/florentine.mpx')
 
 # initialise propagation model and set possible transitions with probabilities
 model = PropagationModel()
@@ -79,7 +79,7 @@ logs.report(to_file=True, path=getcwd()+'/results', visualisation=True)
 '''
 # initialise multilayer network from mlx file
 network = MultilayerNetwork()
-network.load_mlx('/Users/michal/PycharmProjects/network_diffusion/network_records/aucs.mpx')
+network.load_mlx('/Users/michal/PycharmProjects/network_diffusion/networks/aucs.mpx')
 network.describe()
 
 # initialise propagation model and set possible transitions with probabilities

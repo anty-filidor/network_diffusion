@@ -9,6 +9,10 @@ Multilayer network is a class to extend functionality of ``networkx`` library to
 which is a fundamental thing in diffusion experiments. Module also allows to read network from *mlx* text files which
 stores such a structures.
 
+Available data
+______________
+Multilayer networks are not widely available to public. They are very rare. Thus author decided to make multilayer module
+compatible with one of the biggest `hub <http://multilayer.it.uu.se/datasets.html>`_ for such a files.
 
 Example of usage of the module
 ______________________________

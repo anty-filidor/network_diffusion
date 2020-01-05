@@ -1,0 +1,65 @@
+#LAYERS
+marriage,UNDIRECTED
+business,UNDIRECTED
+
+#ACTOR ATTRIBUTES
+priorates, NUMERIC
+totalties, NUMERIC
+wealth, NUMERIC
+
+#TYPE multiplex
+
+#ACTORS
+Acciaiuoli,53,2,10
+Albizzi,65,3,36
+Barbadori,0,14,55
+Bischeri,12,9,44
+Castellani,22,18,20
+Ginori,0,9,32
+Guadagni,21,14,8
+Lamberteschi,0,14,42
+Medici,53,54,103
+Pazzi,0,7,48
+Peruzzi,42,32,49
+Pucci,0,1,3
+Ridolfi,38,4,27
+Salviati,35,5,10
+Strozzi,74,29,146
+Tornabuoni,0,7,48
+
+#EDGES
+Ridolfi,Tornabuoni,marriage
+Ridolfi,Strozzi,marriage
+Peruzzi,Strozzi,marriage
+Pazzi,Salviati,marriage
+Medici,Tornabuoni,marriage
+Medici,Tornabuoni,business
+Medici,Salviati,business
+Medici,Salviati,marriage
+Medici,Ridolfi,marriage
+Medici,Pazzi,business
+Lamberteschi,Peruzzi,business
+Guadagni,Tornabuoni,marriage
+Guadagni,Lamberteschi,marriage
+Guadagni,Lamberteschi,business
+Ginori,Medici,business
+Castellani,Strozzi,marriage
+Castellani,Peruzzi,marriage
+Castellani,Peruzzi,business
+Castellani,Lamberteschi,business
+Bischeri,Strozzi,marriage
+Bischeri,Peruzzi,marriage
+Bischeri,Peruzzi,business
+Bischeri,Lamberteschi,business
+Bischeri,Guadagni,business
+Bischeri,Guadagni,marriage
+Barbadori,Peruzzi,business
+Barbadori,Medici,marriage
+Barbadori,Medici,business
+Barbadori,Ginori,business
+Barbadori,Castellani,business
+Barbadori,Castellani,marriage
+Albizzi,Medici,marriage
+Albizzi,Guadagni,marriage
+Albizzi,Ginori,marriage
+Acciaiuoli,Medici,marriage
