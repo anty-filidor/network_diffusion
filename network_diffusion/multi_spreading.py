@@ -78,7 +78,7 @@ class MultiSpreading:
                 if track_changes: print(pair, state)
                 for index in range(pair[0], pair[1]):
                     if track_changes: print(index, nodes[index], layer.node[nodes[index]])
-                    layer.node[nodes[index]]['status'] = state
+                    layer.nodes[nodes[index]]['status'] = state
                     if track_changes: print(index, nodes[index], layer.node[nodes[index]])
 
     def perform_propagation(self, n_epochs):
@@ -117,14 +117,14 @@ class MultiSpreading:
 
                         # iterate through neighbours of current node
                         for nbr in nx.neighbors(layer_graph, n):
-                            status = layer_graph.node[nbr]['status']
+                            status = layer_graph.nodes[nbr]['status']
 
                             # if state of neighbour node is in possible transitions and tossed 1 due to it's weight
                             if status in possible_transitions and \
                                     np.random.choice([0, 1], p=[1 - possible_transitions[status],
                                                                 possible_transitions[status]]) == 1:
                                 # change state of current node and breag iterating through neighbours
-                                layer_graph.node[n]['status'] = layer_graph.node[nbr]['status']
+                                layer_graph.nodes[n]['status'] = layer_graph.nodes[nbr]['status']
                                 break
 
             # add logs from current epoch

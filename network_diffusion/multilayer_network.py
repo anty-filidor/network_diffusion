@@ -180,7 +180,7 @@ class MultilayerNetwork:
         for name, layer in self.layers.items():
             tab = []
             for node in layer.nodes():
-                tab.append(layer.node[node]['status'])
+                tab.append(layer.nodes[node]['status'])
             statistics[name] = tuple(Counter(tab).items())
         return statistics
 
@@ -197,7 +197,7 @@ class MultilayerNetwork:
         statistics = []
         for name, layer in self.layers.items():
             if node in layer:
-                statistics.append('{}.{}'.format(name, layer.node[node]['status']))
+                statistics.append('{}.{}'.format(name, layer.nodes[node]['status']))
         statistics = sorted(statistics)
         return tuple(statistics)
 

@@ -48,7 +48,7 @@ def si_diffusion(G, fract_I, beta_coeff, track=False, name=None):
     status_dict = {n: 'suspected' for n in G.nodes()}
     nx.set_node_attributes(G, status_dict, 'status')
     for n in infected_nodes_seed:
-        G.node[n]['status'] = 'infected'
+        G.nodes[n]['status'] = 'infected'
 
     # Fill lists with starting parameters
     list_I.append(I)
@@ -62,13 +62,13 @@ def si_diffusion(G, fract_I, beta_coeff, track=False, name=None):
         # One epoch of simulation - iteration_nodes through all nodes
         for n in G.nodes():
             # Omit nodes which are infected yet
-            if G.node[n]['status'] != 'infected':
+            if G.nodes[n]['status'] != 'infected':
                 # Check neighbours of given node, when one is infected try to infect given node too by drawing a number
                 # from binomial distribution. If infection happens skip iterating through neighbors
                 for m in nx.neighbors(G, n):
-                    if G.node[m]['status'] == 'infected' and np.random.choice(np.arange(0, 2),
-                                                                              p=[1 - beta_coeff, beta_coeff]) == 1:
-                        G.node[n]['status'] = 'infected'
+                    if G.nodes[m]['status'] == 'infected' and np.random.choice(np.arange(0, 2),
+                                                                               p=[1 - beta_coeff, beta_coeff]) == 1:
+                        G.nodes[n]['status'] = 'infected'
                         nodes_in_epoch_infected.append(n)
                         I += 1
                         break
@@ -140,7 +140,7 @@ def sir_diffusion(G, fract_I, beta_coeff, gamma_coeff, track=False, name=None):
     status_dict = {n: 'suspected' for n in G.nodes()}
     nx.set_node_attributes(G, status_dict, 'status')
     for n in infected_nodes_seed:
-        G.node[n]['status'] = 'infected'
+        G.nodes[n]['status'] = 'infected'
 
     # Fill lists with starting parameters
     list_I.append(I)
@@ -156,20 +156,20 @@ def sir_diffusion(G, fract_I, beta_coeff, gamma_coeff, track=False, name=None):
         # One epoch of simulation - iteration_nodes through all nodes
         for n in G.nodes():
             #  If node is infected try to make it recovered by drawing a value from given binomial distribution
-            if G.node[n]['status'] == 'infected' and np.random.choice(np.arange(0, 2),
+            if G.nodes[n]['status'] == 'infected' and np.random.choice(np.arange(0, 2),
                                                                       p=[1 - gamma_coeff, gamma_coeff]) == 1:
-                G.node[n]['status'] = 'recovered'
+                G.nodes[n]['status'] = 'recovered'
                 nodes_in_epoch_recovered.append(n)
                 R += 1
                 I -= 1
 
-            elif G.node[n]['status'] == 'suspected':
+            elif G.nodes[n]['status'] == 'suspected':
                 # Check neighbours of given node, when one is infected try to infect given node too by drawing a number
                 # from binomial distribution. If infection happens skip iterating through neighbors
                 for m in nx.neighbors(G, n):
-                    if G.node[m]['status'] == 'infected' and np.random.choice(np.arange(0, 2),
-                                                                              p=[1 - beta_coeff, beta_coeff]) == 1:
-                        G.node[n]['status'] = 'infected'
+                    if G.nodes[m]['status'] == 'infected' and np.random.choice(np.arange(0, 2),
+                                                                               p=[1 - beta_coeff, beta_coeff]) == 1:
+                        G.nodes[n]['status'] = 'infected'
                         nodes_in_epoch_infected.append(n)
                         I += 1
                         break
