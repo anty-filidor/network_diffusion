@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
    name="network_diffusion",
-   version="0.5.2",
+   version="0.5.21",
    url="https://github.com/anty-filidor/network_diffusion",
    project_urls={
       "Documentation": "https://network-diffusion.readthedocs.io/en/latest/",
