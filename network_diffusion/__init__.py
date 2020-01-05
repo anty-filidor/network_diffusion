@@ -1,0 +1,4 @@
+from network_diffusion.propagation_model import PropagationModel
+from network_diffusion.multi_spreading import MultiSpreading
+from network_diffusion.multilayer_network import MultilayerNetwork
+import network_diffusion.flat_spreading as FlatSpreading

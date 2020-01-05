@@ -1,7 +1,7 @@
 import string
 import os.path
 from os import path
-from functools import wraps
+
 
 def read_mlx(file_path):
     """
@@ -62,15 +62,3 @@ def create_directory(dest_path):
     else:
         os.mkdir(dest_path)
         return 0
-
-
-'''
-a = read_mlx('/Users/michal/PycharmProjects/network_diffusion/network_records/florentine.mpx')
-a = read_mlx('/Users/michal/PycharmProjects/network_diffusion/network_records/test_bad')
-a = read_mlx('/Users/michal/PycharmProjects/network_diffusion/network_records/fftwyt.mpx')
-a = read_mlx('/Users/michal/PycharmProjects/network_diffusion/network_records/monastery.mpx')
-a = read_mlx('/Users/michal/PycharmProjects/network_diffusion/requirements.txt')
-print(a.keys())
-for k, v in a.items():
-    print(k, '\n', v)
-'''
