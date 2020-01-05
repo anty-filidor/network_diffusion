@@ -25,7 +25,7 @@ setup(
       'numpy==1.17.4',
       'olefile==0.46',
       'pandas==0.25.3',
-      'Pillow==6.2.1',
+      'Pillow==7.0.0',
       'pyparsing==2.4.5',
       'pytz==2019.3',
       'six==1.13.0',
