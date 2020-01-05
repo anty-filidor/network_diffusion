@@ -55,4 +55,6 @@ html_theme = "glpi"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+html_theme_path = [sphinx_glpi_theme.get_html_themes_path()]
+
 master_doc = 'index'
