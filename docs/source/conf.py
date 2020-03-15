@@ -23,7 +23,7 @@ copyright = '2020, Michał Czuba'
 author = 'Michał Czuba'
 
 # The full version, including alpha/beta/rc tags
-release = '0.5.21'
+release = '0.5.29'
 
 
 # -- General configuration ---------------------------------------------------
