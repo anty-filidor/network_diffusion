@@ -9,7 +9,7 @@ Welcome to Network Diffusion's documentation!
 
 This library allows to design and run diffusion phenomena processes in networks. Package has been built basing on
 `networkx <https://networkx.github.io>`_ library and is fully compatible with it. By using network diffusion user is able to
-work with multi and single layer networks. User is also bale to define model of propagation from scratch or use predefined ones.
+work with multi and single layer networks. User is also able to define models of propagation from scratch or use predefined ones.
 
 
 Content of the website

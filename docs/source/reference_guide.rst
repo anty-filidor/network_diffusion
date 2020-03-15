@@ -16,7 +16,7 @@ See dedicated `flat spreading guide <flat_spreading_example.html>`_ for these fu
 Module ``multi_spreading``
 ==========================
 
-See dedicated `multi spreading guide <mult_spreading_example.html>`_ for these functions.
+See dedicated `multi spreading guide <multi_spreading_example.html>`_ for these functions.
 
 .. automodule:: network_diffusion.multi_spreading
    :members:
