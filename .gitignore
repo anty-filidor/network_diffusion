@@ -12,3 +12,5 @@ network_diffusion/__pycache__/
 tests/.DS_Store
 /.mypy_cache/*
 /.mypy_cache/
+/tests/*.png
+/tests/*.gif
