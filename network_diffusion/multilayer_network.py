@@ -239,7 +239,7 @@ class MultilayerNetwork:
         attributes = []
         neighbours = [*self.layers[layer].neighbors(node)]
         for neighbour in neighbours:
-            attributes.append(self.layers[layer].node[neighbour])
+            attributes.append(self.layers[layer].node[neighbour])  # TODO
         return attributes
 
     def get_layer_names(self) -> List[str]:

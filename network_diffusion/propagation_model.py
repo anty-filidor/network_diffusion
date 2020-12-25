@@ -245,7 +245,7 @@ class PropagationModel:
                 self.set_transition_canonical(name, edge, w)
 
     def get_possible_transitions(
-        self, state: Tuple[str], layer: str
+        self, state: Tuple[str, ...], layer: str
     ) -> Dict[str, float]:
         """
         Returns possible transitions from given state in given layer of model.
