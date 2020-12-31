@@ -9,7 +9,7 @@
 docs/.DS_Store
 docs/source/.DS_Store
 network_diffusion/__pycache__/
-tests/.DS_Store
+aaa/.DS_Store
 /.mypy_cache/*
 /.mypy_cache/
 /tests/*.png

@@ -1,4 +1,5 @@
 import os
+import pathlib
 import string
 from typing import Any, Dict, List
 
@@ -62,3 +63,8 @@ def create_directory(dest_path: str) -> None:
     """
     if not os.path.exists(dest_path):
         os.mkdir(dest_path)
+
+
+def get_absolute_path() -> str:
+    """Gets absolute path of library."""
+    return pathlib.Path(__file__).parent

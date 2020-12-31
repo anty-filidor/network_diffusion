@@ -5,8 +5,6 @@ import networkx as nx
 from network_diffusion.multi_spreading import MultiSpreading
 from network_diffusion.multilayer_network import MultilayerNetwork
 from network_diffusion.propagation_model import PropagationModel
-from network_diffusion.multi_spreading import MultiSpreading
-from os import getcwd
 
 # first example
 """
@@ -87,7 +85,7 @@ logs.report(to_file=False, path=None, visualisation=True)
 """
 # initialise multilayer network from mlx file
 network = MultilayerNetwork()
-network.load_mlx('/Users/michal/PycharmProjects/network_diffusion/tests/networks/florentine.mpx')
+network.load_mlx('/Users/michal/PycharmProjects/network_diffusion/aaa/data/florentine.mpx')
 
 # initialise propagation model and set possible transitions with probabilities
 model = PropagationModel()
@@ -116,7 +114,7 @@ logs.report(to_file=True, path=getcwd()+'/results', visualisation=True)
 """
 # initialise multilayer network from mlx file
 network = MultilayerNetwork()
-network.load_mlx('/Users/michal/PycharmProjects/network_diffusion/tests/networks/aucs.mpx')
+network.load_mlx('/Users/michal/PycharmProjects/network_diffusion/aaa/data/aucs.mpx')
 network.describe()
 
 # initialise propagation model and set possible transitions with probabilities

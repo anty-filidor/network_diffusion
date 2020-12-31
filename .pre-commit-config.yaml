@@ -49,14 +49,3 @@ repos:
     hooks:
       - id: prettier
         args: [--prose-wrap=always, --print-width=88]
-
-  - repo: local
-    hooks:
-      - id: tests
-        name: run tests
-        entry: poetry run pytest -v
-        files: "test_*"
-        verbose: true
-        language: system
-        types: [python]
-        stages: [push, manual]
