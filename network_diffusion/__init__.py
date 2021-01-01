@@ -1,4 +1,26 @@
-import network_diffusion.flat_spreading as FlatSpreading
-from network_diffusion.multi_spreading import MultiSpreading
-from network_diffusion.multilayer_network import MultilayerNetwork
-from network_diffusion.propagation_model import PropagationModel
+#!/usr/bin/env python3
+
+# Copyright 2020 by Michał Czuba. All Rights Reserved.
+#
+# This file is part of Network Diffusion.
+#
+# Network Diffusion is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 3 of the License, or (at your option) any
+# later version.
+#
+# Network Diffusion is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# =============================================================================
+
+"""Network Diffusion is package for simulating spreading phenomenas in graphs."""
+
+import network_diffusion.flat_spreading as FlatSpreading  # noqa: F401
+from network_diffusion.multi_spreading import MultiSpreading  # noqa: F401
+from network_diffusion.multilayer_network import MultilayerNetwork  # noqa: F401
+from network_diffusion.propagation_model import PropagationModel  # noqa: F401
