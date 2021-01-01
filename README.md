@@ -4,6 +4,7 @@
 [![Documentation Status](https://readthedocs.org/projects/network-diffusion/badge/?version=latest)](https://network-diffusion.readthedocs.io/en/latest)
 [![codecov](https://codecov.io/gh/anty-filidor/network_diffusion/branch/v0.6/graph/badge.svg?token=LF52GAD73F)](https://codecov.io/gh/anty-filidor/network_diffusion)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fanty-filidor%2Fnetwork_diffusion.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fanty-filidor%2Fnetwork_diffusion?ref=badge_shield)
 
 [![License: GPL](https://img.shields.io/github/license/anty-filidor/network_diffusion)](https://www.gnu.org/licenses/gpl-3.0.html)
 [![PyPI version](https://badge.fury.io/py/network-diffusion.svg)](https://badge.fury.io/py/network-diffusion)
