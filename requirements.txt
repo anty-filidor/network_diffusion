@@ -5,7 +5,7 @@ kiwisolver>=1.1.0
 imageio>=2.6.1
 matplotlib>=3.1.1
 multipledispatch>=0.6.0
-networkx>=2.4
+networkx==2.4
 numpy>=1.17.4
 olefile>=0.46
 pandas>=0.25.3
@@ -16,9 +16,3 @@ pytz>=2019.3
 six>=1.13.0
 tornado>=6.0.3
 tqdm>=4.40.2
-
-
-
-
-
-
