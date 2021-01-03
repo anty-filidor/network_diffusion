@@ -269,9 +269,9 @@ def sir_diffusion(
         # Append info to lists and reset nodes_in_epoch_list
         counter += 1
         nodes_infected.append(nodes_in_epoch_infected)
-        nodes_in_epoch_infected = list()
+        nodes_in_epoch_infected = []
         nodes_recovered.append(nodes_in_epoch_recovered)
-        nodes_in_epoch_recovered = list()
+        nodes_in_epoch_recovered = []
 
         list_I.append(num_I)
         list_R.append(R)
@@ -314,6 +314,7 @@ def _print_si_params(fig_params: List[Union[str, float]]) -> str:
     $I/N$ - {fig_params[2]}"
 
 
+# TODO - add output path option
 def visualise_si_nodes(
     G: nx.Graph,
     nodes_infected: List[List[Any]],
@@ -386,10 +387,13 @@ def visualise_si_nodes(
             image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
         )
 
+        plt.close(fig)
+
     # Convert image_list to gif
     imageio.mimsave("./{}_si_n.gif".format(fig_params[0]), image_list, fps=1.5)
 
 
+# TODO - add output path option
 def visualise_si_nodes_edges(
     G: nx.Graph,
     nodes_infected: List[List[Any]],
@@ -499,6 +503,8 @@ def visualise_si_nodes_edges(
             image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
         )
 
+        plt.close(fig)
+
         # Reset the edges dataframe
         # edge_labels = edge_labels_start.copy()
 
@@ -605,6 +611,8 @@ def visualise_sir_nodes(
         image_list.append(
             image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
         )
+
+        plt.close(fig)
 
     # Convert image_list to gif
     imageio.mimsave("./{}_sir_n.gif".format(fig_params[0]), image_list, fps=2)
@@ -736,6 +744,8 @@ def visualise_sir_nodes_edges(
         image_list.append(
             image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
         )
+
+        plt.close(fig)
 
     # Convert image_list to gif
     imageio.mimsave("./{}_sir_ne.gif".format(fig_params[0]), image_list, fps=2)
