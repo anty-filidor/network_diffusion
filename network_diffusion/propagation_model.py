@@ -26,6 +26,11 @@ import numpy as np
 class PropagationModel:
     """Class which encapsulates model of processes speared in network."""
 
+    def __init__(self) -> None:
+        """Creates empty object."""
+        self.graph: Optional[Dict[str, nx.Graph]] = None
+        self.background_weight: Optional[float] = None
+
     def add(self, layer: str, type: List[str]) -> None:
         """
         Adds propagation model for the given layer.
@@ -33,6 +38,13 @@ class PropagationModel:
         :param layer: name of network's layer
         :param type: type of model, i.e. names of states like ['s', 'i', 'r']
         """
+        assert len(type) == len(
+            set(type)
+        ), f"Phenomena names {type} must be unique!"
+        assert layer != "graph", 'Layer cannot be named "graph"'
+        assert (
+            layer != "background_weight"
+        ), 'Layer cannot be named "background_weight"'
         self.__setattr__(layer, type)
 
     def describe(
@@ -58,6 +70,9 @@ class PropagationModel:
         o += "phenomenas and their states:"
         for name, val in self.__dict__.items():
             if name == "graph":
+                if self.graph is None:
+                    o += f"\n\t{name}: not initialised\n"
+                    continue
                 s += "\n"
                 for g_name, g in val.items():
                     if full_graph:
@@ -88,6 +103,8 @@ class PropagationModel:
                                     f"probability {weight} and constrains "
                                     f"{constraints}\n"
                                 )
+            elif name == "background_weight":
+                continue
             else:
                 o += f"\n\t{name}: {val}"
 
@@ -135,6 +152,8 @@ class PropagationModel:
 
         # create transition graph for each layer
         for layer, _ in self.__dict__.items():
+            if layer == "graph" or layer == "background_weight":
+                continue
             if track_changes:
                 print(layer)
 
@@ -149,6 +168,8 @@ class PropagationModel:
             # constants for current layer
             self_dict_copy = self.__dict__.copy()
             del self_dict_copy[layer]
+            del self_dict_copy["graph"]
+            del self_dict_copy["background_weight"]
 
             # prepare names in other layers which are constant to current layer
             ol_names = []
