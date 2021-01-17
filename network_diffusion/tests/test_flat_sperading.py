@@ -2,6 +2,7 @@
 
 import os
 import random
+import shutil
 import string
 import unittest
 
@@ -19,6 +20,7 @@ class TestFlatSpreadingSI(unittest.TestCase):
         self.exp_beta = 0.1
         self.exp_I = 0.05
         self.exp_name = "".join(random.choices(string.ascii_letters, k=5))
+        self.out_dir = "".join(random.choices(string.ascii_letters, k=5))
 
         (
             self.list_S,
@@ -115,33 +117,31 @@ class TestFlatSpreadingSI(unittest.TestCase):
                 f"equal to 1 (len({i})!=1)",
             )
 
-    # TODO - after change in flat_spreading change dir of saving plots
     def test_visualise_si_node(self) -> None:
         """Checks if visualisation is being generated."""
         FlatSpreading.visualise_si_nodes(
-            self.exp_M, self.nodes_infected, self.par
+            self.exp_M, self.nodes_infected, self.par, self.out_dir
         )
         vis_si_nodes_name = f"{self.exp_name}_si_n.gif"
         self.assertTrue(
-            vis_si_nodes_name in os.listdir(),
+            vis_si_nodes_name in os.listdir(self.out_dir),
             f"After creating visualisation a gif file of name "
             f"{vis_si_nodes_name} should be saved!",
         )
-        os.remove(vis_si_nodes_name)
+        shutil.rmtree(self.out_dir)
 
-    # TODO - after change in flat_spreading change dir of saving plots
     def test_visualise_si_nodes_edges(self) -> None:
         """Checks if visualisation is being generated."""
         FlatSpreading.visualise_si_nodes_edges(
-            self.exp_M, self.nodes_infected, self.par
+            self.exp_M, self.nodes_infected, self.par, self.out_dir
         )
         vis_si_nodes_edges_name = f"{self.exp_name}_si_ne.gif"
         self.assertTrue(
-            vis_si_nodes_edges_name in os.listdir(),
+            vis_si_nodes_edges_name in os.listdir(self.out_dir),
             f"After creating visualisation a gif file of name "
             f"{vis_si_nodes_edges_name} should be saved!",
         )
-        os.remove(vis_si_nodes_edges_name)
+        shutil.rmtree(self.out_dir)
 
 
 class TestFlatSpreadingSIR(unittest.TestCase):
@@ -154,6 +154,7 @@ class TestFlatSpreadingSIR(unittest.TestCase):
         self.exp_gamma = 0.2
         self.exp_I = 0.05
         self.exp_name = "".join(random.choices(string.ascii_letters, k=5))
+        self.out_dir = "".join(random.choices(string.ascii_letters, k=5))
 
         (
             self.list_S,
@@ -218,8 +219,8 @@ class TestFlatSpreadingSIR(unittest.TestCase):
     def test_recoveries_coherency(self) -> None:
         """Tests if names of new recov. nodes in each epoch ~ numeric stats."""
         msg = (
-            "Number of new recoveried nodes in epoch should be <= to "
-            "length of all recoveried nodes in network in epoch"
+            "Number of new recovered nodes in epoch should be <= to "
+            "length of all recovered nodes in network in epoch"
         )
         for n in self.list_iter:
             self.assertTrue(
@@ -252,33 +253,39 @@ class TestFlatSpreadingSIR(unittest.TestCase):
             f"I fractions: {self.par[3]}!={self.exp_I}",
         )
 
-    # TODO - after change in flat_spreading change dir of saving plots
     def test_visualise_si_node(self) -> None:
         """Checks if visualisation is being generated."""
         FlatSpreading.visualise_sir_nodes(
-            self.exp_M, self.nodes_infected, self.nodes_recovered, self.par
+            self.exp_M,
+            self.nodes_infected,
+            self.nodes_recovered,
+            self.par,
+            self.out_dir,
         )
         vis_sir_nodes_name = f"{self.exp_name}_sir_n.gif"
         self.assertTrue(
-            vis_sir_nodes_name in os.listdir(),
+            vis_sir_nodes_name in os.listdir(self.out_dir),
             f"After creating visualisation a gif file of name "
             f"{vis_sir_nodes_name} should be saved!",
         )
-        os.remove(vis_sir_nodes_name)
+        shutil.rmtree(self.out_dir)
 
-    # TODO - after change in flat_spreading change dir of saving plots
     def test_visualise_si_nodes_edges(self) -> None:
         """Checks if visualisation is being generated."""
         FlatSpreading.visualise_sir_nodes_edges(
-            self.exp_M, self.nodes_infected, self.nodes_recovered, self.par
+            self.exp_M,
+            self.nodes_infected,
+            self.nodes_recovered,
+            self.par,
+            self.out_dir,
         )
         vis_sir_nodes_edges_name = f"{self.exp_name}_sir_ne.gif"
         self.assertTrue(
-            vis_sir_nodes_edges_name in os.listdir(),
+            vis_sir_nodes_edges_name in os.listdir(self.out_dir),
             f"After creating visualisation a gif file of name "
             f"{vis_sir_nodes_edges_name} should be saved!",
         )
-        os.remove(vis_sir_nodes_edges_name)
+        shutil.rmtree(self.out_dir)
 
 
 if __name__ == "__main__":

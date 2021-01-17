@@ -16,6 +16,8 @@ parameters of experiment - beta coefficient and fraction of infected nodes. Here
 
     M = nx.les_miserables_graph()
 
+    out_dir = '/foo/bar/bla/'
+
     list_S, list_I, list_iter, nodes_infected, par =
         fs.si_diffusion(M, fract_I=0.05, beta_coeff=0.2,
         name='Les_miserables_V_Hugo_graph')
@@ -49,7 +51,7 @@ Here are some examples::
 
 ::
 
-    fs.visualise_si_nodes(M, nodes_infected, par)
+    fs.visualise_si_nodes(M, nodes_infected, par, out_dir)
 
 .. figure::  images/Les_miserables_V_Hugo_graph_si_n.gif
     :align:   center
@@ -57,7 +59,7 @@ Here are some examples::
 
 ::
 
-    fs.visualise_si_nodes_edges(M, nodes_infected, par)'
+    fs.visualise_si_nodes_edges(M, nodes_infected, par, out_dir)
 
 .. figure::  images/Les_miserables_V_Hugo_graph_si_ne.gif
     :align:   center
@@ -79,6 +81,8 @@ parameters of experiment - beta coefficient and fraction of infected nodes. Here
     import flat_spreading as fs
 
     M = nx.les_miserables_graph()
+
+    out_dir = '/foo/bar/bla/'
 
     list_S, list_I, list_R, list_iter, nodes_infected, nodes_recovered,
         par = fs.sir_diffusion(M, fract_I=0.08, beta_coeff=0.2,
@@ -114,7 +118,7 @@ Here are some examples::
 
 ::
 
-    fs.visualise_sir_nodes(M, nodes_infected, nodes_recovered, par)
+    fs.visualise_sir_nodes(M, nodes_infected, nodes_recovered, par, out_dir)
 
 .. figure::  images/Les_miserables_W_Hugo_graph_sir_n.gif
     :align:   center
@@ -123,9 +127,8 @@ Here are some examples::
 ::
 
     fs.visualise_sir_nodes_edges(M, nodes_infected,
-        nodes_recovered, par)
+        nodes_recovered, par, out_dir)
 
 .. figure::  images/Les_miserables_W_Hugo_graph_sir_ne.gif
     :align:   center
     :width: 400
-

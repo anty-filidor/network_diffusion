@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
+import os
 import random
 from typing import Any, List, Optional, Tuple, Union
 
@@ -314,11 +315,11 @@ def _print_si_params(fig_params: List[Union[str, float]]) -> str:
     $I/N$ - {fig_params[2]}"
 
 
-# TODO - add output path option
 def visualise_si_nodes(
     G: nx.Graph,
     nodes_infected: List[List[Any]],
     fig_params: List[Union[str, float]],
+    path: str,
 ) -> None:
     """
     Function to visualise SI diffusion.
@@ -331,6 +332,7 @@ def visualise_si_nodes(
     :param fig_params: parameters_of experiment to plot as the title of figure.
         List with - name of graph, beta coefficient, fraction of infected nodes
         on start.
+    :param path: path to save figure at.
 
     :return: After call, this function saves rendered gif into program's dir.
     """
@@ -390,14 +392,16 @@ def visualise_si_nodes(
         plt.close(fig)
 
     # Convert image_list to gif
-    imageio.mimsave("./{}_si_n.gif".format(fig_params[0]), image_list, fps=1.5)
+    if not os.path.isdir(path):
+        os.mkdir(path)
+    imageio.mimsave(f"{path}/{fig_params[0]}_si_n.gif", image_list, fps=1.5)
 
 
-# TODO - add output path option
 def visualise_si_nodes_edges(
     G: nx.Graph,
     nodes_infected: List[List[Any]],
     fig_params: List[Union[str, float]],
+    path: str,
 ) -> None:
     """
     Function to visualise SI diffusion.
@@ -410,6 +414,7 @@ def visualise_si_nodes_edges(
     :param fig_params: parameters_of experiment to plot as the title of figure.
         List with - name of graph, beta coefficient, fraction of infected
         nodes on start.
+    :param path: path to save figure at.
 
     :return: After call, this function saves rendered gif into program's dir.
     """
@@ -505,13 +510,10 @@ def visualise_si_nodes_edges(
 
         plt.close(fig)
 
-        # Reset the edges dataframe
-        # edge_labels = edge_labels_start.copy()
-
     # Convert image_list to gif
-    imageio.mimsave(
-        "./{}_si_ne.gif".format(fig_params[0]), image_list, fps=1.5
-    )
+    if not os.path.isdir(path):
+        os.mkdir(path)
+    imageio.mimsave(f"{path}/{fig_params[0]}_si_ne.gif", image_list, fps=1.5)
 
 
 def _print_sir_params(fig_params: List[Union[str, float]]) -> str:
@@ -535,6 +537,7 @@ def visualise_sir_nodes(
     nodes_infected: List[List[Any]],
     nodes_recovered: List[List[Any]],
     fig_params: List[Union[str, float]],
+    path: str,
 ) -> None:
     """
     Function to visualise SIR diffusion.
@@ -547,6 +550,7 @@ def visualise_sir_nodes(
     :param fig_params: parameters_of experiment to plot as the title of figure.
      List with - name of graph, beta coefficient, fraction of infected nodes
      on start.
+    :param path: path to save figure at.
 
     :return: After call, this function saves rendered gif into program's dir.
     """
@@ -615,7 +619,9 @@ def visualise_sir_nodes(
         plt.close(fig)
 
     # Convert image_list to gif
-    imageio.mimsave("./{}_sir_n.gif".format(fig_params[0]), image_list, fps=2)
+    if not os.path.isdir(path):
+        os.mkdir(path)
+    imageio.mimsave(f"{path}/{fig_params[0]}_sir_n.gif", image_list, fps=2)
 
 
 def visualise_sir_nodes_edges(
@@ -623,6 +629,7 @@ def visualise_sir_nodes_edges(
     nodes_infected: List[List[Any]],
     nodes_recovered: List[List[Any]],
     fig_params: List[Union[str, float]],
+    path: str,
 ) -> None:
     """
     Function to visualise SIR diffusion.
@@ -635,6 +642,7 @@ def visualise_sir_nodes_edges(
     :param fig_params: parameters_of experiment to plot as the title of figure.
         List with - name of graph, beta coefficient, fraction of infected
         nodes on start.
+    :param path: path to save figure at.
 
     :return: After call, this function saves rendered gif into program's dir.
     """
@@ -748,4 +756,6 @@ def visualise_sir_nodes_edges(
         plt.close(fig)
 
     # Convert image_list to gif
-    imageio.mimsave("./{}_sir_ne.gif".format(fig_params[0]), image_list, fps=2)
+    if not os.path.isdir(path):
+        os.mkdir(path)
+    imageio.mimsave(f"{path}/{fig_params[0]}_sir_ne.gif", image_list, fps=2)
