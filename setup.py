@@ -47,8 +47,8 @@ setup(
         "phenomena",
     ],
     description="Package to design and run diffusion phenomena processes in networks",
-    author="Michał Czuba",
-    author_email="michal.czuba.1995@gmail.com",
+    author="Michał Czuba, Piotr Bródka",
+    author_email="michal.czuba.1995@gmail.com, piotr.brodka@pwr.edu.pl",
     packages=["network_diffusion"],
     install_requires=[
         "certifi>=2019.11.28",

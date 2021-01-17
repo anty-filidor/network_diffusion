@@ -25,5 +25,5 @@ conda: `conda install -c anty-filidor network_diffusion`
 
 ## Contact with author
 
-In case of questions for the author please send mails here:
+In case of questions for the maintainer please send mails here:
 <michal.czuba.1995@gmail.com>.

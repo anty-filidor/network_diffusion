@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2020 by Michał Czuba. All Rights Reserved.
+# Copyright 2020 by Michał Czuba, Piotr Bródka. All Rights Reserved.
 #
 # This file is part of Network Diffusion.
 #
