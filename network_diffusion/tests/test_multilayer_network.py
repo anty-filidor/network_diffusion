@@ -12,7 +12,7 @@ class TestMultilayerNetwork(unittest.TestCase):
     """Test class for MultilayerNetwork class."""
 
     def setUp(self) -> None:
-        """Sets up most commont testing parameters."""
+        """Sets up most common testing parameters."""
         self.network = MultilayerNetwork()
         self.network.load_mlx(
             os.path.join(

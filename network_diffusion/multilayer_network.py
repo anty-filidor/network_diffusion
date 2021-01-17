@@ -17,7 +17,7 @@
 # =============================================================================
 from collections import Counter
 from copy import deepcopy
-from typing import Any, Dict, Generator, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import networkx as nx
 import numpy as np
@@ -266,25 +266,3 @@ class MultilayerNetwork:
         :return: list of layers' names
         """
         return [*self.layers.keys()]
-
-    def iterate_nodes_layer(self, layer: str) -> Generator[Any, None, None]:
-        """
-        Generator, yields node by node selected layer of the network.
-
-        :param layer: layer from nodes are yield
-
-        :return: node names
-        """
-        for n in self.layers[layer].nodes():
-            yield (n)
-
-    def iterate_edges_layer(self, layer: Any) -> Generator[Any, None, None]:
-        """
-        Generator, yields edge by edge selected layer of the network.
-
-        :param layer: layer from edges are yield
-
-        :return: edge names
-        """
-        for e in self.layers[layer].nodes():
-            yield (e)

@@ -190,7 +190,9 @@ class MultiSpreading:
         self._network = deepcopy(network)
 
     def set_initial_states(
-        self, states_seeds: Dict[str, Tuple[int]], track_changes: bool = False
+        self,
+        states_seeds: Dict[str, Tuple[int, ...]],
+        track_changes: bool = False,
     ) -> None:
         """
         Prepares network to be used during simulation.

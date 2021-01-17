@@ -218,7 +218,7 @@ class PropagationModel:
         self,
         initial_layer_attribute: str,
         final_layer_attribute: str,
-        constraint_attributes: Tuple[str],
+        constraint_attributes: Tuple[str, ...],
         weight: float,
     ) -> None:
         """
