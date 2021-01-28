@@ -7,12 +7,13 @@ ________________________________________________
 
 **Experiment**
 
-To perform an experiment, user has to upload graph **G** using ``networkx`` library. After that there is need to define
-parameters of experiment - beta coefficient and fraction of infected nodes. Here is an example code::
+To perform an experiment, user has to upload graph **G** using ``networkx``
+library. After that there is need to define parameters of experiment - beta
+coefficient and fraction of infected nodes. Here is an exemplar code::
 
     import networkx as nx
     import matplotlib.pyplot as plt
-    import flat_spreading as fs
+    from network_diffusion import FlatSpreading as fs
 
     M = nx.les_miserables_graph()
 
@@ -22,13 +23,14 @@ parameters of experiment - beta coefficient and fraction of infected nodes. Here
         fs.si_diffusion(M, fract_I=0.05, beta_coeff=0.2,
         name='Les_miserables_V_Hugo_graph')
 
-By saving results of ``si_diffusion`` to variables above there is a possibility to visualise experiment.
+By saving results of ``si_diffusion`` to variables above there is a
+possibility to visualise experiment.
 
 **Visualisation**
 
 User is able to visualise SI diffusion in two ways:
     * by cumulative figure of state of all nodes
-    * by animated figure showing state in each eopch of:
+    * by animated figure showing state in each eopch of
         * nodes
         * nodes and edges
 
@@ -73,12 +75,14 @@ ________________________________________________
 
 **Experiment**
 
-To perform an experiment, user has to upload graph **G** using ``networkx`` library. After that there is need to define
-parameters of experiment - beta coefficient and fraction of infected nodes. Here is an example code::
+To perform an experiment, user has to upload graph **G** using ``networkx``
+library. After that there is need to define parameters of experiment - beta
+coefficient, gamma coefficient and fraction of infected nodes. Here is an
+exemplar code::
 
     import networkx as nx
     import matplotlib.pyplot as plt
-    import flat_spreading as fs
+    from network_diffusion import FlatSpreading as fs
 
     M = nx.les_miserables_graph()
 
@@ -88,13 +92,14 @@ parameters of experiment - beta coefficient and fraction of infected nodes. Here
         par = fs.sir_diffusion(M, fract_I=0.08, beta_coeff=0.2,
         gamma_coeff=0.2, name='Les_miserables_W_Hugo_graph')
 
-By saving results of ``sir_diffusion`` to variables above there is a possibility to visualise experiment.
+By saving results of ``sir_diffusion`` to variables above there is a
+possibility to visualise experiment.
 
 **Visualisation**
 
 User is able to visualise SIR diffusion in two ways:
     * by cumulative figure of state of all nodes
-    * by animated figure showing state in each eopch of:
+    * by animated figure showing state in each eopch of
         * nodes
         * nodes and edges
 

@@ -1,15 +1,13 @@
-.. Network Diffusion documentation master file, created by
-   sphinx-quickstart on Sun Aug  4 19:22:40 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 =============================================
 Welcome to Network Diffusion's documentation!
 =============================================
 
-This library allows to design and run diffusion phenomena processes in networks. Package has been built basing on
-`networkx <https://networkx.github.io>`_ library and is fully compatible with it. By using network diffusion user is able to
-work with multi and single layer networks. User is also able to define models of propagation from scratch or use predefined ones.
+Network Diffusion is a library which allows to design and run diffusion
+phenomena processes in networks. Package has been built basing on
+`networkx <https://networkx.github.io>`_ and is fully compatible with it. With
+Network Diffusion user is able to work with multi and single layer networks,
+define models of propagation from scratch or use predefined ones and perform
+simulations.
 
 
 Content of the website

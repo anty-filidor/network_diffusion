@@ -5,13 +5,18 @@ Module  ``multi_spreading``
 
 What is multilayer spreading?
 ______________________________
-Multilayer spreading is a module which enables to perform previously designed experiment. To run it we need a network of
-Multilayer class (note that it can as well have one layer) and corresponding model. After the experiment is completed
-user is able to see results in form of report and visualisation of global states of the nodes.
+Multilayer spreading is a module which enables to perform previously designed
+experiment. To run it we need a network of Multilayer class (note that it
+can as well have one layer) and corresponding model. After the experiment
+is completed user is able to see results in form of report and visualisation
+of global states of the nodes.
 
-Example of usage of the module
-______________________________
+Example of usage
+________________
 1. Initialise multilayer network from nx predefined network::
+
+    import networkx as nx
+    from network_diffusion import MultilayerNetwork
 
     network = MultilayerNetwork()
     names = ['illness', 'awareness', 'vaccination']
@@ -43,17 +48,22 @@ ______________________________
         ('awareness.UA', 'illness.I', 'vaccination.UV')), 0.7)
 
 
-3. Initialise starting parameters of propagation in network. Parameters' names must correspond with names in model and network. Numbers in tuples describe how many nodes has which local state (in alphabetic order)::
+3. Initialise starting parameters of propagation in network. Parameters' names
+must correspond with names in model and network. Numbers in tuples describe
+how many nodes has which local state (in alphabetic order)::
 
     phenomenas = {'illness': (70, 6, 1), 'awareness': (60, 17), 'vaccination': (70, 7)}
 
-4. Perform propagation experiment. Propagation lasts as many epoch as defined (here 200). After experiment Logger object is returned where are logs are stored::
+4. Perform propagation experiment. Propagation lasts as many epochs as
+defined (here 200). After the experiment, Logger object is returned where logs
+are being stored::
 
     experiment = MultiSpreading(model, network)
     experiment.set_initial_states(phenomenas)
     logs = experiment.perform_propagation(200)
 
-5. Save experiment results. User is able to save them to file or print out to the console::
+5. Save experiment results. User is able to save them to file or print out to
+the console::
 
         logs.report(to_file=True, path=getcwd()+'/results', visualisation=True)
 
@@ -66,5 +76,3 @@ ______________________________
 
 .. figure:: images/multi_spreading.png
     :width: 600
-
-

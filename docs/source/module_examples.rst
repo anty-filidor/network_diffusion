@@ -1,5 +1,5 @@
 =============================================
-Examples of usage of code
+Code usage examples
 =============================================
 
 
@@ -16,4 +16,3 @@ Multilayer spreading
     propagation_model_example
     multilayer_network_example
     multi_spreading_example
-

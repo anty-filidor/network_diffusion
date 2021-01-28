@@ -6,7 +6,8 @@ Reference guide
 Module ``flat_spreading``
 =========================
 
-See dedicated `flat spreading guide <flat_spreading_example.html>`_ for these functions.
+See dedicated `flat spreading guide <flat_spreading_example.html>`_ for these
+functions.
 
 .. automodule:: network_diffusion.flat_spreading
    :members:
@@ -16,7 +17,8 @@ See dedicated `flat spreading guide <flat_spreading_example.html>`_ for these fu
 Module ``multi_spreading``
 ==========================
 
-See dedicated `multi spreading guide <multi_spreading_example.html>`_ for these functions.
+See dedicated `multi spreading guide <multi_spreading_example.html>`_ for these
+functions.
 
 .. automodule:: network_diffusion.multi_spreading
    :members:
@@ -26,7 +28,8 @@ See dedicated `multi spreading guide <multi_spreading_example.html>`_ for these 
 Module ``multilayer_network``
 =============================
 
-See dedicated `multilayer guide <multilayer_network_example.html>`_ for these functions.
+See dedicated `multilayer guide <multilayer_network_example.html>`_ for these
+functions.
 
 .. automodule:: network_diffusion.multilayer_network
    :members:
@@ -36,7 +39,8 @@ See dedicated `multilayer guide <multilayer_network_example.html>`_ for these fu
 Module ``propagation_model``
 ============================
 
-See dedicated `propagation model guide <propagation_model_example.html>`_ for these functions.
+See dedicated `propagation model guide <propagation_model_example.html>`_ for
+these functions.
 
 .. automodule:: network_diffusion.propagation_model
     :members:
