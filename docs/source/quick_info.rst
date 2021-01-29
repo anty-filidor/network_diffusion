@@ -6,12 +6,14 @@ Quick info
 Information about this project
 ==============================
 
-This project has been created due to the lack of Python tools, which enables performing propagation experiments in the
-networks. Current version of the project contains just an library, but it's structure provides easy integration with
-dedicated GUIs.
+This project has been created due to the lack of Python tools, which allow to
+perform process-propagation experiments in the networks (graphs). Current
+version of library contains multi-process spreading toolset for discrete
+phenomenas (like 'SIS').
 
 
 Github repository
 =================
 
-All code can be reached in github repository which is `here. <https://github.com/anty-filidor/network_diffusion>`_
+All code can be reached in github repository which is
+`here. <https://github.com/anty-filidor/network_diffusion>`_

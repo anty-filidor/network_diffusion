@@ -4,3 +4,11 @@
 /network_diffusion.egg-info/
 /build/
 /conda_build/
+.DS_Store
+/.idea/
+docs/.DS_Store
+docs/source/.DS_Store
+network_diffusion/__pycache__/
+network_diffusion/tests/__pycache__/
+__py_cache__
+/.mypy_cache/*

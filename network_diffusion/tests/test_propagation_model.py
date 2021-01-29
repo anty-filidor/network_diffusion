@@ -1,0 +1,231 @@
+#!/usr/bin/env python3
+
+import unittest
+
+import networkx as nx
+
+from network_diffusion import PropagationModel
+
+
+class TestPropagationModel(unittest.TestCase):
+    """Test class for PropagationModel class."""
+
+    def get_compiled_model(self) -> PropagationModel:
+        """Prepares compiled propagation model for tests."""
+        model = PropagationModel()
+        phenomenas = [["A", "B", "C"], ["A", "B"], ["A", "B"]]
+        processes = ("1", "2", "3")
+        for l, p in zip(processes, phenomenas):
+            model.add(l, p)
+        model.compile(background_weight=0.005)
+        return model
+
+    def test_add(self) -> None:
+        """Tests if function adds process to the model."""
+        model = PropagationModel()
+        model.add("1", ["A", "B", "C"])
+        self.assertEqual(
+            model.__dict__,
+            {"graph": None, "background_weight": None, "1": ["A", "B", "C"]},
+            "add func seems to have no effect",
+        )
+
+    def test_describe_empty(self) -> None:
+        """Checks describing a model that not have been initialised."""
+        log = (
+            "============================================\n"
+            "model of propagation\n"
+            "--------------------------------------------\n"
+            "phenomenas and their states:\n\t"
+            "graph: not initialised\n"
+            "============================================"
+        )
+        self.assertEqual(
+            PropagationModel().describe(False, True),
+            log,
+            "Empty description string not in expected form",
+        )
+
+    def test_get_model_hyperparams(self) -> None:
+        """Checks if get_model_hyperparams function behaves correctly."""
+        model = self.get_compiled_model()
+        self.assertEqual(
+            {"1": ["A", "B", "C"], "2": ["A", "B"], "3": ["A", "B"]},
+            model.get_model_hyperparams(),
+            "Incorrect hyperparameters of PropagationModel!",
+        )
+
+    def test_compile(self) -> None:
+        """Checks if compilation runs correctly."""
+        model = PropagationModel()
+        model.add("1", ["A", "B", "C"])
+        model.add("2", ["A", "B"])
+
+        with self.assertRaises(
+            AttributeError,
+            msg="Model before compilation should have eempty graph field",
+        ):
+            model.graph.keys()
+
+        model.compile(background_weight=0.1)
+        self.assertEqual(
+            [*model.graph.keys()],
+            ["1", "2"],
+            "After compilation keys should be like ['1', '2']",
+        )
+
+        exp_graph_phenomena_1 = nx.DiGraph(
+            [
+                (("1.A", "2.A"), ("1.B", "2.A")),
+                (("1.A", "2.A"), ("1.C", "2.A")),
+                (("1.B", "2.A"), ("1.A", "2.A")),
+                (("1.B", "2.A"), ("1.C", "2.A")),
+                (("1.C", "2.A"), ("1.A", "2.A")),
+                (("1.C", "2.A"), ("1.B", "2.A")),
+                (("1.A", "2.B"), ("1.B", "2.B")),
+                (("1.A", "2.B"), ("1.C", "2.B")),
+                (("1.B", "2.B"), ("1.A", "2.B")),
+                (("1.B", "2.B"), ("1.C", "2.B")),
+                (("1.C", "2.B"), ("1.A", "2.B")),
+                (("1.C", "2.B"), ("1.B", "2.B")),
+            ]
+        )
+        exp_graph_phenomena_2 = nx.DiGraph(
+            [
+                (("1.A", "2.A"), ("1.A", "2.B")),
+                (("1.A", "2.B"), ("1.A", "2.A")),
+                (("1.B", "2.A"), ("1.B", "2.B")),
+                (("1.B", "2.B"), ("1.B", "2.A")),
+                (("1.C", "2.A"), ("1.C", "2.B")),
+                (("1.C", "2.B"), ("1.C", "2.A")),
+            ]
+        )
+        self.assertEqual(
+            nx.is_isomorphic(model.graph["1"], exp_graph_phenomena_1),
+            True,
+            f"Graph in layer 1 should be like {exp_graph_phenomena_1}",
+        )
+        self.assertEqual(
+            nx.is_isomorphic(model.graph["2"], exp_graph_phenomena_2),
+            True,
+            f"Graph in layer 2 should be like {exp_graph_phenomena_2}",
+        )
+
+    def test_set_transition_canonical(self) -> None:
+        """Checks if setting transitions in canonical way is possible."""
+        model = self.get_compiled_model()
+        weight = model.graph["2"][("1.C", "2.A", "3.B")][("1.C", "2.B", "3.B")]
+        self.assertEqual(
+            weight["weight"],
+            0.005,
+            f"Transition {('1.C', '2.A', '3.B'), ('1.C', '2.B', '3.A')} "
+            f"after setting weight should value {0.005}, but it has"
+            f" {weight['weight']}",
+        )
+
+        new_weight = 0.2137
+        model.set_transition_canonical(
+            "2", (("1.C", "2.A", "3.B"), ("1.C", "2.B", "3.B"),), new_weight,
+        )
+
+        weight = model.graph["2"][("1.C", "2.A", "3.B")][("1.C", "2.B", "3.B")]
+        self.assertEqual(
+            weight["weight"],
+            new_weight,
+            f"Transition {('1.C', '2.A', '3.B'), ('1.C', '2.B', '3.A')} "
+            f"after setting weight should value {new_weight}, but it has"
+            f" {weight['weight']}",
+        )
+
+    def test_set_transition_fast(self) -> None:
+        """Checks if setting transitions in fast way is possible."""
+        model = self.get_compiled_model()
+        weight = model.graph["1"][("1.C", "2.B", "3.A")][("1.A", "2.B", "3.A")]
+        self.assertEqual(
+            weight["weight"],
+            0.005,
+            f"Transition {('1.C', '2.B', '3.A'), ('1.A', '2.B', '3.A')} "
+            f"before setting weight should have it's background value (0.005),"
+            f" but it has {weight['weight']}",
+        )
+
+        new_weight = 0.1791
+        model.set_transition_fast("1.C", "1.A", ("2.B", "3.A"), new_weight)
+        weight = model.graph["1"][("1.C", "2.B", "3.A")][("1.A", "2.B", "3.A")]
+        self.assertEqual(
+            weight["weight"],
+            new_weight,
+            f"Transition {('1.C', '2.B', '3.A'), ('1.A', '2.B', '3.A')} "
+            f"after setting weight should value {new_weight}, but it has "
+            f"{weight['weight']}",
+        )
+
+    def test_set_transitions_in_random_edges(self) -> None:
+        """Checks if setting transitions in random way is possible."""
+        model = self.get_compiled_model()
+        layer_1_w = {0.4: 0, 0.5: 0}
+        layer_2_w = {0.3: 0, 0.2: 0, 0.1: 0}
+        model.set_transitions_in_random_edges(
+            [layer_1_w.keys(), layer_2_w.keys(), {}]
+        )
+
+        for i in ["1", "2"]:
+            for edge in model.graph[i].edges:
+                weigth = model.graph[i].edges[edge]["weight"]
+                if weigth in layer_1_w.keys():
+                    layer_1_w[weigth] += 1
+                elif weigth in layer_2_w.keys():
+                    layer_2_w[weigth] += 1
+
+        for i in layer_1_w:
+            self.assertEqual(
+                layer_1_w[i],
+                1,
+                f"Weight {i} in layer 1 set up {layer_1_w[i]} times (expected 1).",
+            )
+        for i in layer_2_w:
+            self.assertEqual(
+                layer_2_w[i],
+                1,
+                f"Weight {i} in layer 2 set up {layer_2_w[i]} times (expected 1).",
+            )
+
+    def test_get_possible_transitions(self) -> None:
+        """Checks if possible transforms are gave correctly."""
+        model = self.get_compiled_model()
+        case_1 = model.get_possible_transitions(
+            state=("1.C", "2.B", "3.A"), layer="1"
+        )
+        exp_res_1 = {"A": 0.005, "B": 0.005}
+        self.assertEqual(
+            case_1,
+            exp_res_1,
+            f"Possible transforms in node (1.C, 2.B, 3.A) in layer 1 should "
+            f"be {exp_res_1}, was {case_1}",
+        )
+
+        case_2 = model.get_possible_transitions(
+            state=("1.C", "2.B", "3.A"), layer="2"
+        )
+        exp_res_2 = {"A": 0.005}
+        self.assertEqual(
+            case_2,
+            exp_res_2,
+            f"Possible transforms in node (1.C, 2.B, 3.A) in layer 1 should "
+            f"be {exp_res_2}, was {case_2}",
+        )
+
+        case_3 = model.get_possible_transitions(
+            state=("1.C", "2.B", "3.A"), layer="3"
+        )
+        exp_res_3 = {"B": 0.005}
+        self.assertEqual(
+            case_3,
+            exp_res_3,
+            f"Possible transforms in node (1.C, 2.B, 3.A) in layer 3 should "
+            f"be {exp_res_3}, was {case_3}",
+        )
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

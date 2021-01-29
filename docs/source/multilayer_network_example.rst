@@ -5,22 +5,24 @@ Module  ``multilayer_network``
 
 What is a multilayer network?
 ______________________________
-Multilayer network is a class to extend functionality of ``networkx`` library to store and manipulate multilayer networks
-which is a fundamental thing in diffusion experiments. Module also allows to read network from *mlx* text files which
-stores such a structures.
+Multilayer network is a class to extend functionality of ``networkx`` library
+to store and manipulate multilayer networks, which is a fundamental thing in
+multiprocess diffusion experiments. Module also allows to read network from
+*mlx* text files which stores such a structures.
 
 Available data
 ______________
-Multilayer networks are not widely available to public. They are very rare. Thus author decided to make multilayer module
-compatible with one of the biggest `hub <http://multilayer.it.uu.se/datasets.html>`_ for such a files.
+Multilayer networks are not widely available to public. They are very rare.
+Thus authors decided to make multilayer module compatible with one of the
+biggest `hub <http://multilayer.it.uu.se/datasets.html>`_ for such a files.
 
-Example of usage of the module
-______________________________
+Example of usage
+________________
 Let's crete some multilayer networks in several ways.
 
 1. By defining separate graphs and layer names::
 
-    from network_diffusion.multilayer_network import MultilayerNetwork
+    from network_diffusion import MultilayerNetwork
     import networkx as nx
 
     M = [nx.les_miserables_graph(), nx.les_miserables_graph(), nx.les_miserables_graph()]
@@ -59,7 +61,7 @@ Let's crete some multilayer networks in several ways.
 
 2. By defining separate graphs and using default names of layers::
 
-    from network_diffusion.multilayer_network import MultilayerNetwork
+    from network_diffusion import MultilayerNetwork
     import networkx as nx
     M = [nx.les_miserables_graph(), nx.les_miserables_graph(), nx.les_miserables_graph()]
 
@@ -172,4 +174,3 @@ Let's crete some multilayer networks in several ways.
         average degree - 5.4667
         clustering coefficient - 0.1133
     ============================================
-
