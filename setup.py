@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2020 by Michał Czuba. All Rights Reserved.
+# Copyright 2020 by Michał Czuba, Piotr Bródka. All Rights Reserved.
 #
 # This file is part of Network Diffusion.
 #
@@ -21,7 +21,7 @@ from setuptools import setup
 
 setup(
     name="network_diffusion",
-    version="0.5.29",
+    version="0.6",
     url="https://github.com/anty-filidor/network_diffusion",
     project_urls={
         "Documentation": "https://network-diffusion.readthedocs.io/en/latest/",
