@@ -38,6 +38,14 @@ these functions.
     :show-inheritance:
 
 
+Module ``experiment_logger``
+================
+
+.. automodule:: network_diffusion.experiment_logger
+   :members:
+   :undoc-members:
+
+
 Module ``utils``
 ================
 

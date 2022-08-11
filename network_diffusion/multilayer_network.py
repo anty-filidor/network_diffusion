@@ -132,6 +132,22 @@ class MultilayerNetwork:
 
         :return: produced string (if to_print is False)
         """
+        description_str = self._get_description_str()
+        if not to_print:
+            return description_str
+        else:
+            print(description_str)
+            return None
+
+    def _get_description_str(self) -> str:
+        """
+        Get string describing the object.
+
+        :param full_graph: a flag, if true method prints out all propagation
+            model states with those with 0 weight
+
+        :return: string describing object
+        """
         assert len(self.layers) > 0, "Import network to the object first!"
         final_str = (
             "============================================\n"
@@ -161,10 +177,6 @@ class MultilayerNetwork:
             else:
                 final_str += "\tclustering coefficient - nan\n"
         final_str += "============================================"
-
-        if to_print:
-            print(final_str)
-            return None
 
         return final_str
 

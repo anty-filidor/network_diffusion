@@ -33,8 +33,8 @@ class PropagationModel:
 
     def __init__(self) -> None:
         """Create empty object."""
-        self.graph: Optional[Dict[str, nx.Graph]] = None
-        self.background_weight: Optional[float] = None
+        self.graph: Dict[str, nx.Graph] = {}
+        self.background_weight: float = float("inf")
 
     def add(self, layer_name: str, layer_type: List[str]) -> None:
         """
@@ -66,6 +66,22 @@ class PropagationModel:
         :return: if to_print == True returns string describing object,
             otherwise returns None, but prints out description to the console
         """
+        dscrpt_str = self._get_description_str(full_graph)
+        if not to_print:
+            return dscrpt_str
+        else:
+            print(dscrpt_str)
+            return None
+
+    def _get_description_str(self, full_graph: bool = False) -> str:
+        """
+        Get string describing the object.
+
+        :param full_graph: a flag, if true method prints out all propagation
+            model states with those with 0 weight
+
+        :return: string describing object
+        """
         # pylint: disable=R1702, R1719
         detailed_str = ""
         basic_str = (
@@ -76,7 +92,7 @@ class PropagationModel:
         basic_str += "phenomenas and their states:"
         for name, val in self.__dict__.items():
             if name == "graph":
-                if self.graph is None:
+                if len(self.graph) == 0:
                     basic_str += f"\n\t{name}: not initialised\n"
                     continue
                 detailed_str += "\n"
@@ -112,9 +128,6 @@ class PropagationModel:
                 basic_str += f"\n\t{name}: {val}"
 
         detailed_str += "============================================"
-        if to_print:
-            print(basic_str, detailed_str)
-            return None
 
         return basic_str + detailed_str
 

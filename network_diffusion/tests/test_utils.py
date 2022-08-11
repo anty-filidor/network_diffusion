@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # pylint: disable-all
+# type: ignore
 
 """Tests for the network_diffusion.utils."""
 
@@ -16,7 +17,7 @@ from network_diffusion import utils
 class TestUtils(unittest.TestCase):
     """Test class for utils script."""
 
-    def test_read_mlx(self) -> None:
+    def test_read_mlx(self):
         """Test for reading mlx file."""
         print(utils.get_absolute_path())
         data = utils.read_mlx(
@@ -168,7 +169,7 @@ class TestUtils(unittest.TestCase):
             data, expected_data, "Bankwiring file read incorrectly!"
         )
 
-    def test_create_directory_new(self) -> None:
+    def test_create_directory_new(self):
         """
         Test for creating directory.
 
@@ -193,7 +194,7 @@ class TestUtils(unittest.TestCase):
         # clean up
         shutil.rmtree(dir)
 
-    def test_create_directory_exists(self) -> None:
+    def test_create_directory_exists(self):
         """
         Test for creating directory.
 

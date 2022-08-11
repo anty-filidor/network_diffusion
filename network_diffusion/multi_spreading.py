@@ -22,163 +22,15 @@
 
 from copy import deepcopy
 from random import shuffle
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
-import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-import pandas as pd
 from tqdm import tqdm
 
+from network_diffusion.experiment_logger import ExperimentLogger
 from network_diffusion.multilayer_network import MultilayerNetwork
 from network_diffusion.propagation_model import PropagationModel
-from network_diffusion.utils import create_directory
-
-
-class ExperimentLogger:
-    """Store and processes logs acquired during performing MultiSpreading."""
-
-    def __init__(
-        self, model_description: str, network_description: str
-    ) -> None:
-        """
-        Construct object.
-
-        :param model_description: description of the model (i.e.
-            PropagationModel.describe()) which is used for saving in logs
-        :param network_description: description of the network (i.e.
-            MultiplexNetwork.describe()) which is used for saving in logs
-        """
-        self._model_description = model_description
-        self._network_description = network_description
-        self._raw_stats: List[Dict[str, Any]] = []
-        self._stats: Optional[Dict[str, Any]] = None
-
-    def _add_log(self, log: Dict[str, Any]) -> None:
-        """
-         Add raw log from single epoch to the object.
-
-        :param log: raw log (i.e. a single call of
-            MultiplexNetwork.get_nodes_states())
-        """
-        self._raw_stats.append(log)
-
-    def _convert_logs(
-        self, model_parameters: Dict[str, Tuple[Dict[str, Any]]]
-    ) -> None:
-        """
-        Convert raw logs into pandas dataframe.
-
-        Used after finishing aggregation of logs. It fulfills self._stats.
-
-        :param model_parameters: parameters of the propagation model to store
-        """
-        # initialise container for splatted data
-        self._stats = {
-            k: pd.DataFrame(columns=model_parameters[k])
-            for k in model_parameters.keys()
-        }
-
-        # fill containers
-        for epoch in self._raw_stats:
-            for layer, vals in epoch.items():
-                # self._stats[layer] = self._stats[layer].append(
-                #     dict(vals), ignore_index=True
-                # )
-                self._stats[layer] = pd.concat(
-                    [self._stats[layer], pd.DataFrame(dict(vals), index=[0])],
-                    ignore_index=True,
-                )
-
-        # change NaN values to 0 and all values to integers
-        for layer, vals in self._stats.items():
-            self._stats[layer] = vals.fillna(0).astype(int)
-
-    def __str__(self) -> str:
-        return str(self._stats)
-
-    def plot(self, to_file: bool = False, path: Optional[str] = None) -> None:
-        """
-        Plot out visualisation of performed experiment.
-
-        :param to_file: flag, if true save figure to file, otherwise it
-            is plotted on screen
-        :param path: path to save figure
-        """
-        fig = plt.figure()
-
-        for i, layer in enumerate(self._stats, 1):
-            ith_axis = fig.add_subplot(len(self._stats), 1, i)
-            self._stats[layer].plot(ax=ith_axis, legend=True)
-            ith_axis.set_title(layer)
-            ith_axis.legend(loc="upper right")
-            ith_axis.set_ylabel("Nodes")
-            if i == 1:
-                y_tics_num = self._stats[layer].iloc[0].sum()
-            ith_axis.set_yticks(np.arange(0, y_tics_num + 1, 20))
-            if i == len(self._stats):
-                ith_axis.set_xlabel("Epoch")
-            ith_axis.grid()
-
-        plt.tight_layout()
-        if to_file:
-            plt.savefig(f"{path}/visualisation.png", dpi=200)
-        else:
-            plt.show()
-
-    def report(
-        self,
-        visualisation: bool = False,
-        to_file: bool = False,
-        path: Optional[str] = None,
-    ) -> None:
-        """
-        Create report of experiment.
-
-        It consists of report of the network, report of the model, record of
-        propagation progress and optionally visualisation of the progress.
-
-        :param visualisation: (bool) a flag, if true visualisation is being
-            plotted
-        :param to_file: a flag, if true report is saved in files,
-            otherwise it is printed out on the screen
-        :param path: (str) path to folder where report will be saved
-        """
-        if to_file:
-            # create directory from given path
-            create_directory(path)
-            # save progress in propagation of each layer to csv file
-            for stat in self._stats:
-                self._stats[stat].to_csv(
-                    path + "/" + stat + "_propagation_report.csv",
-                    index_label="epoch",
-                )
-            # save description of model to txt file
-            with open(
-                file=path + "/model_report.txt", mode="w", encoding="utf=8"
-            ) as file:
-                file.write(self._model_description)
-            # save description of network to txt file
-            with open(
-                file=path + "/network_report.txt", mode="w", encoding="utf=8"
-            ) as file:
-                file.write(self._network_description)
-            # save figure
-            if visualisation:
-                self.plot(to_file=True, path=path)
-        else:
-            print(self._network_description)
-            print(self._model_description)
-            print(
-                "============================================\n"
-                "propagation report\n"
-                "--------------------------------------------"
-            )
-            for stat in self._stats:
-                print(stat, "\n", self._stats[stat], "\n")
-            print("============================================")
-            if visualisation:
-                self.plot()
 
 
 class MultiSpreading:
@@ -271,9 +123,8 @@ class MultiSpreading:
             shuffle(nodes)
 
             # set ranges
-            ranges = [sum(vals[:x]) for x in range(len(vals))]
-            ranges.append(nodes_number)
-            ranges = list(zip(ranges[:-1], ranges[1:]))
+            _rngs = [sum(vals[:x]) for x in range(len(vals))] + [nodes_number]
+            ranges: List[Tuple[int, int]] = list(zip(_rngs[:-1], _rngs[1:]))
             if track_changes:
                 print(ranges)
 
@@ -302,8 +153,8 @@ class MultiSpreading:
         """
         # pylint: disable=W0212, R1702
         logger = ExperimentLogger(
-            self._model.describe(to_print=False),
-            self._network.describe(to_print=False),
+            self._model._get_description_str(),
+            self._network._get_description_str(),
         )
 
         # add logs from initial state
