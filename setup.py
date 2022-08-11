@@ -17,6 +17,9 @@
 # You should have received a copy of the GNU General Public License along with
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
+
+"""Setup script to produce a package from the code."""
+
 from setuptools import setup
 
 setup(
@@ -46,7 +49,7 @@ setup(
         "spreading",
         "phenomena",
     ],
-    description="Package to design and run diffusion phenomena processes in networks",
+    description="Package to design and run diffusion phenomena in networks",
     author="Michał Czuba, Piotr Bródka",
     author_email="michal.czuba.1995@gmail.com, piotr.brodka@pwr.edu.pl",
     packages=["network_diffusion"],

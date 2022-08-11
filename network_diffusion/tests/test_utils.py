@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# pylint: disable-all
+
+"""Tests for the network_diffusion.utils."""
 
 import os
 import pathlib

@@ -15,6 +15,11 @@
 # You should have received a copy of the GNU General Public License along with
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
+
+"""Functions for the multilayer network definition."""
+
+# pylint: disable=W0141
+
 from collections import Counter
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Tuple
@@ -29,12 +34,12 @@ class MultilayerNetwork:
     """Container for multilayer network."""
 
     def __init__(self) -> None:
-        """Creates empty object."""
+        """Create empty object."""
         self.layers: Dict[str, nx.Graph] = {}
 
     def load_mlx(self, file_path: str) -> None:
         """
-        Loads multilayer network from mlx file.
+        Load multilayer network from mlx file.
 
         Note, that is omits some non-important attributes of network defined in
         the file, i.e. node attributes.
@@ -45,33 +50,23 @@ class MultilayerNetwork:
         self.layers = {}
 
         # read mlx file
-        # print('reading raw file')
         raw_data = read_mlx(file_path)
 
         # create layers
-        # print('creating layers')
-        if "layers" in raw_data.keys():
-            for n, t in raw_data["layers"]:
-                if "DIRECTED" in t:
-                    self.layers[n] = nx.DiGraph()
+        if "layers" in raw_data:
+            for layer_name, layer_type in raw_data["layers"]:
+                if "DIRECTED" in layer_type:
+                    self.layers[layer_name] = nx.DiGraph()
                 else:
                     print("unrecognised layer")
         else:
             raise ResourceWarning("file corrupted - no layers defined")
-        """
-        # import nodes
-        print('importing nodes')
-        if 'nodes' in raw_data.keys():
-            for layer in self.layers.keys():
-                for node in raw_data['nodes']:
-                    self.layers[layer].add_node(node[0])
-        """
+
         # import edges
-        # print('importing edges')
-        if "edges" in raw_data.keys():
+        if "edges" in raw_data:
             for edge in raw_data["edges"]:
                 # if edge definition is not corrupted go into it
-                if len(edge) >= 3 and edge[2] in self.layers.keys():
+                if len(edge) >= 3 and edge[2] in self.layers:
                     self.layers[edge[2]].add_edge(edge[0], edge[1])
 
         self._prepare_nodes_attribute()
@@ -82,7 +77,7 @@ class MultilayerNetwork:
         layer_names: Optional[List[Any]] = None,
     ) -> None:
         """
-        Loads multilayer network as list of layers and list of its labels.
+        Load multilayer network as list of layers and list of its labels.
 
         :param network_list: list of nx networks
         :param layer_names: list of layer names. It can be none, then labels
@@ -108,11 +103,11 @@ class MultilayerNetwork:
         self, network_layer: nx.Graph, layer_names: List[Any]
     ) -> None:
         """
-        Creates multiplex network from one nx.Graph layer and layers names.
+        Create multiplex network from one nx.Graph layer and layers names.
 
         Note that `network_layer` is replicated through all layers.
 
-        :param network_layer: basic layer which is replicated through all layers
+        :param network_layer: basic layer which is replicated through all ones
         :param layer_names: names for layers in multiplex network
         """
         # clear former layers of the object
@@ -124,58 +119,58 @@ class MultilayerNetwork:
         self._prepare_nodes_attribute()
 
     def _prepare_nodes_attribute(self) -> None:
-        """Prepares network to the experiment."""
+        """Prepare network to the experiment."""
         for layer in self.layers.values():
             status_dict = {n: None for n in layer.nodes()}
             nx.set_node_attributes(layer, status_dict, "status")
 
     def describe(self, to_print: bool = True) -> Optional[str]:
         """
-        Prints out quickly parameters of the object.
+        Print out quickly parameters of the object.
 
         :param to_print: a flag, if true string is printed out to the console
 
         :return: produced string (if to_print is False)
         """
         assert len(self.layers) > 0, "Import network to the object first!"
-        s = (
+        final_str = (
             "============================================\n"
             "network parameters\n"
             "--------------------------------------------\n"
         )
 
-        s += "general parameters:\n"
-        s += f"\tnumber of layers: {len(self.layers)}\n"
+        final_str += "general parameters:\n"
+        final_str += f"\tnumber of layers: {len(self.layers)}\n"
         mul_coeff = self._compute_multiplexing_coefficient()
-        s += f"\tmultiplexing coefficient: {round(mul_coeff, 4)}\n"
+        final_str += f"\tmultiplexing coefficient: {round(mul_coeff, 4)}\n"
 
         for name, graph in self.layers.items():
-            s += f"\nlayer '{name}' parameters:\n"
-            s += (
+            final_str += f"\nlayer '{name}' parameters:\n"
+            final_str += (
                 f"\tgraph type - {type(graph)}\n\tnumber of nodes - "
                 f"{len(graph.nodes())}\n\tnumber of edges - "
                 f"{len(graph.edges())}\n"
             )
             avg_deg = np.average([_[1] for _ in graph.degree()])
-            s += f"\taverage degree - {round(avg_deg, 4)}\n"
+            final_str += f"\taverage degree - {round(avg_deg, 4)}\n"
             if len(graph) > 0:
-                s += (
+                final_str += (
                     f"\tclustering coefficient - "
                     f"{round(nx.average_clustering(graph), 4)}\n"
                 )
             else:
-                s += "\tclustering coefficient - nan\n"
-        s += "============================================"
+                final_str += "\tclustering coefficient - nan\n"
+        final_str += "============================================"
 
         if to_print:
-            print(s)
+            print(final_str)
             return None
 
-        return s
+        return final_str
 
     def _compute_multiplexing_coefficient(self) -> float:
         """
-        Computes multiplexing coefficient.
+        Compute multiplexing coefficient.
 
         Multiplexing coefficient is defined as proportion of number of nodes
         common to all layers to number of all unique nodes in entire network
@@ -193,8 +188,8 @@ class MultilayerNetwork:
         common_nodes = set()
         for node in all_nodes:
             _ = True
-            for l in self.layers.values():
-                if node not in l:
+            for layer in self.layers.values():
+                if node not in layer:
                     _ = False
                     break
             if _ is True:
@@ -207,7 +202,7 @@ class MultilayerNetwork:
 
     def get_nodes_states(self) -> Dict[str, Any]:
         """
-        Returns summary of network's nodes states.
+        Return summary of network's nodes states.
 
         :return: dictionary with items representing each of layers and with
             summary of node states in values
@@ -223,7 +218,7 @@ class MultilayerNetwork:
 
     def get_node_state(self, node: Any) -> Tuple[str, ...]:
         """
-        Returns general state of node in network.
+        Return general state of node in network.
 
         In format acceptable by PropagationModel object, which means a tuple
         of sorted strings in form <layer name>.<state>
@@ -245,7 +240,7 @@ class MultilayerNetwork:
         self, node: Any, layer: str
     ) -> List[Dict[str, Any]]:
         """
-        Returns attributes in given layer of given node's neighbours.
+        Return attributes in given layer of given node's neighbours.
 
         :param node: name of node
         :param layer: layer from which neighbours are being examined
@@ -261,7 +256,7 @@ class MultilayerNetwork:
 
     def get_layer_names(self) -> List[str]:
         """
-        Gets names of layers in the network.
+        Get names of layers in the network.
 
         :return: list of layers' names
         """

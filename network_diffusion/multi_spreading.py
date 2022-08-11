@@ -15,6 +15,11 @@
 # You should have received a copy of the GNU General Public License along with
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
+
+"""Functions for the phenomena spreading definition."""
+
+# pylint: disable=W0141
+
 from copy import deepcopy
 from random import shuffle
 from typing import Any, Dict, List, Optional, Tuple
@@ -31,13 +36,13 @@ from network_diffusion.utils import create_directory
 
 
 class ExperimentLogger:
-    """Stores and processes logs acquired during performing MultiSpreading."""
+    """Store and processes logs acquired during performing MultiSpreading."""
 
     def __init__(
         self, model_description: str, network_description: str
     ) -> None:
         """
-        Default constructor.
+        Construct object.
 
         :param model_description: description of the model (i.e.
             PropagationModel.describe()) which is used for saving in logs
@@ -51,7 +56,7 @@ class ExperimentLogger:
 
     def _add_log(self, log: Dict[str, Any]) -> None:
         """
-         Adds raw log from single epoch to the object.
+         Add raw log from single epoch to the object.
 
         :param log: raw log (i.e. a single call of
             MultiplexNetwork.get_nodes_states())
@@ -62,7 +67,7 @@ class ExperimentLogger:
         self, model_parameters: Dict[str, Tuple[Dict[str, Any]]]
     ) -> None:
         """
-        Converts raw logs into pandas dataframe.
+        Convert raw logs into pandas dataframe.
 
         Used after finishing aggregation of logs. It fulfills self._stats.
 
@@ -80,8 +85,10 @@ class ExperimentLogger:
                 # self._stats[layer] = self._stats[layer].append(
                 #     dict(vals), ignore_index=True
                 # )
-                self._stats[layer] = pd.concat([self._stats[layer], pd.DataFrame(dict(vals), index=[0])], ignore_index=True)
-
+                self._stats[layer] = pd.concat(
+                    [self._stats[layer], pd.DataFrame(dict(vals), index=[0])],
+                    ignore_index=True,
+                )
 
         # change NaN values to 0 and all values to integers
         for layer, vals in self._stats.items():
@@ -92,27 +99,26 @@ class ExperimentLogger:
 
     def plot(self, to_file: bool = False, path: Optional[str] = None) -> None:
         """
-        Plots out visualisation of performed experiment.
+        Plot out visualisation of performed experiment.
 
         :param to_file: flag, if true save figure to file, otherwise it
             is plotted on screen
         :param path: path to save figure
         """
-        """Allows to print out object."""
         fig = plt.figure()
 
         for i, layer in enumerate(self._stats, 1):
-            ax = fig.add_subplot(len(self._stats), 1, i)
-            self._stats[layer].plot(ax=ax, legend=True)
-            ax.set_title(layer)
-            ax.legend(loc="upper right")
-            ax.set_ylabel("Nodes")
+            ith_axis = fig.add_subplot(len(self._stats), 1, i)
+            self._stats[layer].plot(ax=ith_axis, legend=True)
+            ith_axis.set_title(layer)
+            ith_axis.legend(loc="upper right")
+            ith_axis.set_ylabel("Nodes")
             if i == 1:
-                nn = self._stats[layer].iloc[0].sum()
-            ax.set_yticks(np.arange(0, nn + 1, 20))
+                y_tics_num = self._stats[layer].iloc[0].sum()
+            ith_axis.set_yticks(np.arange(0, y_tics_num + 1, 20))
             if i == len(self._stats):
-                ax.set_xlabel("Epoch")
-            ax.grid()
+                ith_axis.set_xlabel("Epoch")
+            ith_axis.grid()
 
         plt.tight_layout()
         if to_file:
@@ -127,7 +133,7 @@ class ExperimentLogger:
         path: Optional[str] = None,
     ) -> None:
         """
-        Creates report of experiment.
+        Create report of experiment.
 
         It consists of report of the network, report of the model, record of
         propagation progress and optionally visualisation of the progress.
@@ -148,10 +154,14 @@ class ExperimentLogger:
                     index_label="epoch",
                 )
             # save description of model to txt file
-            with open(path + "/model_report.txt", "w") as file:
+            with open(
+                file=path + "/model_report.txt", mode="w", encoding="utf=8"
+            ) as file:
                 file.write(self._model_description)
             # save description of network to txt file
-            with open(path + "/network_report.txt", "w") as file:
+            with open(
+                file=path + "/network_report.txt", mode="w", encoding="utf=8"
+            ) as file:
                 file.write(self._network_description)
             # save figure
             if visualisation:
@@ -172,13 +182,13 @@ class ExperimentLogger:
 
 
 class MultiSpreading:
-    """Performs experiment defined by PropagationModel on MultiLayerNetwork."""
+    """Perform experiment defined by PropagationModel on MultiLayerNetwork."""
 
     def __init__(
         self, model: PropagationModel, network: MultilayerNetwork
     ) -> None:
         """
-        Default constructor.
+        Construct an object..
 
         :param model: model of propagation which determines how experiment
             looks like
@@ -197,7 +207,7 @@ class MultiSpreading:
         track_changes: bool = False,
     ) -> None:
         """
-        Prepares network to be used during simulation.
+        Prepare network to be used during simulation.
 
         It changes status of certain nodes as passed in states_seeds. After
         execution of this method experiment is reeady to be done.
@@ -219,6 +229,8 @@ class MultiSpreading:
              state <x> at the beginning of the experiment.
         :param track_changes: flag, if true changes are being printed out
         """
+        # pylint: disable=R0914
+
         model_hyperparams = self._model.get_model_hyperparams()
 
         # check if argument has good shape
@@ -250,9 +262,9 @@ class MultiSpreading:
         for name, layer in self._network.layers.items():
             states = model_hyperparams[name]
             vals = states_seeds[name]
-            N = len(layer.nodes())
+            nodes_number = len(layer.nodes())
             if track_changes:
-                print(name, states, vals, N)
+                print(name, states, vals, nodes_number)
 
             # shuffle nodes
             nodes = [*layer.nodes()]
@@ -260,13 +272,13 @@ class MultiSpreading:
 
             # set ranges
             ranges = [sum(vals[:x]) for x in range(len(vals))]
-            ranges.append(N)
-            ranges = [(i, j) for i, j in zip(ranges[:-1], ranges[1:])]
+            ranges.append(nodes_number)
+            ranges = list(zip(ranges[:-1], ranges[1:]))
             if track_changes:
                 print(ranges)
 
             # append states to nodes
-            for i in range(len(ranges)):
+            for i, _ in enumerate(ranges):
                 pair = ranges[i]
                 state = states[i]
                 if track_changes:
@@ -280,7 +292,7 @@ class MultiSpreading:
 
     def perform_propagation(self, n_epochs: int) -> ExperimentLogger:
         """
-        Performs experiment on given network and given model.
+        Perform experiment on given network and given model.
 
         It saves logs in ExperimentLogger object which can be used for further
         analysis.
@@ -288,7 +300,7 @@ class MultiSpreading:
         :param n_epochs: number of epochs to do experiment
         :return: logs of experiment stored in special object
         """
-        # initialise container for logs
+        # pylint: disable=W0212, R1702
         logger = ExperimentLogger(
             self._model.describe(to_print=False),
             self._network.describe(to_print=False),
@@ -312,8 +324,8 @@ class MultiSpreading:
                     state = self._network.get_node_state(n)
 
                     # import possible transitions for state of the node
-                    possible_transitions = self._model.get_possible_transitions(
-                        state, layer_name
+                    possible_transitions = (
+                        self._model.get_possible_transitions(state, layer_name)
                     )
 
                     # if there is no possible transition don't do anything,

@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License along with
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
+
+"""Functions for the auxiliary operations."""
+
+
 import os
 import pathlib
 import string
@@ -24,7 +28,7 @@ from typing import Any, Dict, List
 # TODO - json
 def read_mlx(file_path: str) -> Dict[str, List[Any]]:
     """
-    Handler of MLX files for the MultilayerNetwork class.
+    Handle MLX file for the MultilayerNetwork class.
 
     :param file_path: path to file
 
@@ -35,7 +39,7 @@ def read_mlx(file_path: str) -> Dict[str, List[Any]]:
     tab: List[Any] = []
     name = "foo"
 
-    with open(file_path, "r") as file:
+    with open(file=file_path, mode="r", encoding="utf-8") as file:
         line = file.readline()
 
         # omit trash
@@ -74,7 +78,7 @@ def read_mlx(file_path: str) -> Dict[str, List[Any]]:
 
 def create_directory(dest_path: str) -> None:
     """
-    Checks out if given directory exists and if doesn't it creates it.
+    Check out if given directory exists and if doesn't it creates it.
 
     :param dest_path: absolute path to create folder
     """
@@ -83,5 +87,5 @@ def create_directory(dest_path: str) -> None:
 
 
 def get_absolute_path() -> str:
-    """Gets absolute path of library."""
+    """Get absolute path of library."""
     return str(pathlib.Path(__file__).parent)

@@ -18,8 +18,10 @@
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
-"""Network Diffusion is package for simulating spreading phenomenas in graphs."""
+"""Network Diffusion is package for simulating spreading phenomenas."""
 
 from network_diffusion.multi_spreading import MultiSpreading  # noqa: F401
-from network_diffusion.multilayer_network import MultilayerNetwork  # noqa: F401
+from network_diffusion.multilayer_network import (  # noqa: F401
+    MultilayerNetwork,
+)
 from network_diffusion.propagation_model import PropagationModel  # noqa: F401

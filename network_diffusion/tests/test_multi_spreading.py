@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
+# pylint: disable-all
+
+"""Tests for the network_diffusion.multi_spreading."""
 
 import os
-import random
-import shutil
-import string
 import unittest
-from typing import Any, Dict, Tuple
 from tempfile import TemporaryDirectory
+from typing import Any, Dict, Tuple
 
 import networkx as nx
 import numpy as np
@@ -23,21 +23,21 @@ from network_diffusion.multi_spreading import ExperimentLogger
 def prepare_data() -> Tuple[
     PropagationModel, Dict[str, Tuple[str, ...]], MultilayerNetwork
 ]:
-    """Sets up data needed to perform tests."""
+    """Set up data needed to perform tests."""
     # init propagation model and set transitions with probabilities
     model = PropagationModel()
-    phenomenas = {
+    phenomena = {
         "ill": ("S", "I", "R"),
         "aware": ("UA", "A"),
         "vacc": ("UV", "V"),
     }
-    for l, p in phenomenas.items():
-        model.add(l, p)
+    for layer, phenomenon in phenomena.items():
+        model.add(layer, phenomenon)
     model.compile(background_weight=0)
 
     # init multilayer network from nx predefined network
     network = MultilayerNetwork()
-    network.load_layer_nx(nx.les_miserables_graph(), [*phenomenas.keys()])
+    network.load_layer_nx(nx.les_miserables_graph(), [*phenomena.keys()])
 
     model.set_transition_fast("ill.S", "ill.I", ("vacc.UV", "aware.UA"), 0.9)
     model.set_transition_fast("ill.S", "ill.I", ("vacc.V", "aware.A"), 0.05)
@@ -53,11 +53,11 @@ def prepare_data() -> Tuple[
     model.set_transition_fast("aware.UA", "aware.A", ("vacc.V", "ill.S"), 1)
     model.set_transition_fast("aware.UA", "aware.A", ("vacc.UV", "ill.I"), 0.2)
 
-    return model, phenomenas, network
+    return model, phenomena, network
 
 
 def prepare_logs() -> Tuple[Dict[str, Tuple[Any, ...]]]:
-    """Prepares logs for tests of ExperimentLogger class."""
+    """Prepare logs for tests of ExperimentLogger class."""
     return (
         {
             "ill": (("S", 47), ("I", 30)),
@@ -116,14 +116,14 @@ class TestMultiSpreading(unittest.TestCase):
     """Test class for MultilayerNetwork class."""
 
     def setUp(self) -> None:
-        """Sets up most common testing parameters."""
+        """Set up most common testing parameters."""
         model, phenomenas, network = prepare_data()
         self.model = model
         self.phenomenas = phenomenas
         self.network = network
 
     def test_set_initial_states(self) -> None:
-        """Checks if set_initial_states appends good statuses to nodes."""
+        """Check if set_initial_states appends good statuses to nodes."""
         model = self.model
         network = self.network
         experiment = MultiSpreading(model, network)
@@ -157,7 +157,7 @@ class TestMultiSpreading(unittest.TestCase):
             )
 
     def test_perform_propagation(self) -> None:
-        """Checks if perform_propagation returns correct values."""
+        """Check if perform_propagation returns correct values."""
         experiment = MultiSpreading(self.model, self.network)
         initial_states = {
             "ill": (65, 10, 2),
@@ -189,7 +189,7 @@ class TestExperimentLogger(unittest.TestCase):
     """Test class for MultilayerNetwork class."""
 
     def setUp(self) -> None:
-        """Sets up most common testing parameters."""
+        """Set up most common testing parameters."""
         model, phenomenas, network = prepare_data()
         self.model = model
         self.phenomenas = phenomenas
@@ -204,7 +204,7 @@ class TestExperimentLogger(unittest.TestCase):
         self.logs = experiment.perform_propagation(70)
 
     def test_plot(self) -> None:
-        """Checks if visualisation is being stored."""
+        """Check if visualisation is being stored."""
         with TemporaryDirectory() as out_dir:
             self.logs.plot(True, out_dir)
             self.assertTrue(
@@ -214,7 +214,7 @@ class TestExperimentLogger(unittest.TestCase):
             )
 
     def test_report(self) -> None:
-        """Checks if report function writes out all files that it should."""
+        """Check if report function writes out all files that it should."""
         with TemporaryDirectory() as out_dir:
             self.logs.report(visualisation=True, to_file=True, path=out_dir)
             exp_files = {
@@ -229,12 +229,12 @@ class TestExperimentLogger(unittest.TestCase):
             self.assertEqual(
                 real_files,
                 exp_files,
-                f"Report function should produce following files: {exp_files}, "
-                f"but produced {real_files}",
+                f"Report function should produce following files: {exp_files},"
+                f" but produced {real_files}",
             )
 
     def test__convert_logs(self) -> None:
-        """Checks if logs convention is done properly."""
+        """Check if logs convention is done properly."""
         raw_logs = prepare_logs()
 
         model_hyperparams = {
@@ -364,7 +364,7 @@ class TestExperimentLogger(unittest.TestCase):
             )
 
     def test__add_log(self) -> None:
-        """Checks if logs are being colledded proprely during simulation."""
+        """Check if logs are being colledded proprely during simulation."""
         raw_logs = prepare_logs()
         logger = ExperimentLogger("model", "network")
 

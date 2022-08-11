@@ -12,9 +12,9 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fanty-filidor%2Fnetwork_diffusion.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fanty-filidor%2Fnetwork_diffusion?ref=badge_shield)
 
-This repository contains a a package to design and run diffusion phenomena processes in
-networks. Package has been built basing on [NetworkX](https://networkx.github.io)
-library and is fully compatible with it.
+This repository contains a a package to design and run diffusion phenomena
+processes in networks. Package has been built basing on
+[NetworkX](https://networkx.github.io) library and is fully compatible with it.
 
 Documentation and tutorials are available
 [here](https://network-diffusion.readthedocs.io/en/latest/).

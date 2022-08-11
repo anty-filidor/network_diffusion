@@ -15,6 +15,11 @@
 # You should have received a copy of the GNU General Public License along with
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
+
+"""Functions for the propagation model definition."""
+
+# pylint: disable=W0141
+
 import itertools
 from random import choice
 from typing import Any, Dict, List, Optional, Tuple
@@ -27,31 +32,31 @@ class PropagationModel:
     """Class which encapsulates model of processes speared in network."""
 
     def __init__(self) -> None:
-        """Creates empty object."""
+        """Create empty object."""
         self.graph: Optional[Dict[str, nx.Graph]] = None
         self.background_weight: Optional[float] = None
 
-    def add(self, layer: str, type: List[str]) -> None:
+    def add(self, layer_name: str, layer_type: List[str]) -> None:
         """
-        Adds propagation model for the given layer.
+        Add propagation model for the given layer.
 
         :param layer: name of network's layer
         :param type: type of model, i.e. names of states like ['s', 'i', 'r']
         """
-        assert len(type) == len(
-            set(type)
-        ), f"Phenomena names {type} must be unique!"
-        assert layer != "graph", 'Layer cannot be named "graph"'
+        assert len(layer_type) == len(
+            set(layer_type)
+        ), f"Phenomena names {layer_type} must be unique!"
+        assert layer_name != "graph", 'Layer cannot be named "graph"'
         assert (
-            layer != "background_weight"
+            layer_name != "background_weight"
         ), 'Layer cannot be named "background_weight"'
-        self.__setattr__(layer, type)
+        self.__setattr__(layer_name, layer_type)
 
     def describe(
         self, to_print: bool = True, full_graph: bool = False
     ) -> Optional[str]:
         """
-        Prints out parameters of the object.
+        Print out parameters of the object.
 
         :param to_print: a flag, if true method prints out description to
             console, otherwise it returns string
@@ -59,72 +64,70 @@ class PropagationModel:
             model states with those with 0 weight
 
         :return: if to_print == True returns string describing object,
-            otherwise it returns None, but prints out description to the console
+            otherwise returns None, but prints out description to the console
         """
-        s = ""
-        o = (
+        # pylint: disable=R1702, R1719
+        detailed_str = ""
+        basic_str = (
             "============================================\n"
             "model of propagation\n"
             "--------------------------------------------\n"
         )
-        o += "phenomenas and their states:"
+        basic_str += "phenomenas and their states:"
         for name, val in self.__dict__.items():
             if name == "graph":
                 if self.graph is None:
-                    o += f"\n\t{name}: not initialised\n"
+                    basic_str += f"\n\t{name}: not initialised\n"
                     continue
-                s += "\n"
-                for g_name, g in val.items():
+                detailed_str += "\n"
+                for g_name, g_net in val.items():
                     if full_graph:
-                        s += f"\n{g_name} transitions: {g.edges().data()}\n"
+                        detailed_str += f"\n{g_name} transitions: "
+                        detailed_str += f"{g_net.edges().data()}\n"
                     else:
-                        s += (
+                        detailed_str += (
                             f"\nlayer '{g_name}' transitions with nonzero "
                             f"probability:\n"
                         )
-                        for edge in g.edges():
-                            if g.edges[edge]["weight"] != 0.0:
-                                mask = [
-                                    True if g_name in _ else False
-                                    for _ in edge[0]
-                                ]
-                                start = np.array(edge[0])[mask][0].split(".")[
-                                    1
-                                ]
-                                finish = np.array(edge[1])[mask][0].split(".")[
-                                    1
-                                ]
-                                constraints = np.array(edge[0])[
-                                    [not _ for _ in mask]
-                                ]
-                                weight = g.edges[edge]["weight"]
-                                s += (
-                                    f"\tfrom {start} to {finish} with "
-                                    f"probability {weight} and constrains "
-                                    f"{constraints}\n"
-                                )
+                        for edge in g_net.edges():
+                            if g_net.edges[edge]["weight"] == 0.0:
+                                continue
+                            mask = [
+                                True if g_name in _ else False for _ in edge[0]
+                            ]
+                            start = np.array(edge[0])[mask][0].split(".")[1]
+                            finish = np.array(edge[1])[mask][0].split(".")[1]
+                            constraints = np.array(edge[0])[
+                                [not _ for _ in mask]
+                            ]
+                            weight = g_net.edges[edge]["weight"]
+                            detailed_str += (
+                                f"\tfrom {start} to {finish} with "
+                                f"probability {weight} and constrains "
+                                f"{constraints}\n"
+                            )
             elif name == "background_weight":
                 continue
             else:
-                o += f"\n\t{name}: {val}"
+                basic_str += f"\n\t{name}: {val}"
 
-        s += "============================================"
+        detailed_str += "============================================"
         if to_print:
-            print(o, s)
+            print(basic_str, detailed_str)
             return None
 
-        return o + s
+        return basic_str + detailed_str
 
     def get_model_hyperparams(self) -> Dict[str, Tuple[Dict[str, Any]]]:
         """
-        Gets model parameters, i.e. names of layers and states in each layer.
+        Get model parameters, i.e. names of layers and states in each layer.
 
         :return: dictionary keyed by names of layer, valued by tuples of
             states labels
         """
         hyperparams = {}
         for name, val in self.__dict__.items():
-            if name != "graph" and name != "background_weight":
+            if name not in {"graph", "background_weight"}:
                 hyperparams[name] = val
         return hyperparams
 
@@ -132,7 +135,7 @@ class PropagationModel:
         self, background_weight: float = 0.0, track_changes: bool = False
     ) -> None:
         """
-        Creates transition matrices for models of propagation in each layer.
+        Create transition matrices for models of propagation in each layer.
 
         All transition probabilities are set to 0. To be more specific,
         transitions matrices are stored as a networkx one-directional graph.
@@ -142,32 +145,28 @@ class PropagationModel:
             to make propagation more realistic by default it is set to 0
         :param track_changes: a flag to track progress of matrices creation
         """
-        # check data validity
-        assert (
-            1 >= background_weight >= 0
-        ), "Weight value should be in [0, 1] range"
+        # pylint: disable=R0914
+        assert 1 >= background_weight >= 0, "Weight value not in [0, 1] range"
 
         # initialise dictionary to store transition graphs for each later
         transitions_graphs = {}
 
         # create transition graph for each layer
-        for layer, _ in self.__dict__.items():
-            if layer == "graph" or layer == "background_weight":
+        for layer_name, layer_type in self.__dict__.items():
+            if layer_name in {"graph", "background_weight"}:
                 continue
             if track_changes:
-                print(layer)
+                print(layer_name)
 
             # prepare names in current layer
-            cl_names = [
-                str(layer) + "." + str(v) for v in self.__dict__[layer]
-            ]
+            cl_names = [str(layer_name) + "." + str(v) for v in layer_type]
             if track_changes:
                 print("crtlr", cl_names)
 
             # copy layers description and delete current layer to prepare
             # constants for current layer
             self_dict_copy = self.__dict__.copy()
-            del self_dict_copy[layer]
+            del self_dict_copy[layer_name]
             del self_dict_copy["graph"]
             del self_dict_copy["background_weight"]
 
@@ -194,7 +193,7 @@ class PropagationModel:
                     if track_changes:
                         print(edge)
                     graph.add_edge(*edge, weight=background_weight)
-            transitions_graphs.update({layer: graph})
+            transitions_graphs.update({layer_name: graph})
 
         # save created graphs as attribute of the object
         self.graph = transitions_graphs
@@ -204,7 +203,7 @@ class PropagationModel:
         self, layer: str, transition: nx.Graph.edges.__class__, weight: float
     ) -> None:
         """
-        This method sets weight of certain transition in propagation model.
+        Set weight of certain transition in propagation model.
 
         :param layer: name of the later in model
         :param transition: name of transition to be activated, edge in
@@ -222,7 +221,7 @@ class PropagationModel:
         weight: float,
     ) -> None:
         """
-        This method sets weight of certain transition in propagation model.
+        Set weight of certain transition in propagation model.
 
         :param initial_layer_attribute: value of initial attribute which is
             being transited
@@ -254,7 +253,7 @@ class PropagationModel:
         self, weights: List[List[float]]
     ) -> None:
         """
-        Sets out random transitions in propagation model using given weights.
+        Set out random transitions in propagation model using given weights.
 
         :param weights: list of weights to be set in random nodes e.g.
             for model of 3 layers that list [[0.1, 0.2], [0.03, 0.45], [0.55]]
@@ -267,10 +266,10 @@ class PropagationModel:
         )
 
         # main loop
-        for (name, graph), wght in zip(self.graph.items(), weights):
+        for (name, graph), weight in zip(self.graph.items(), weights):
 
             edges_list = []
-            for w in wght:
+            for wght in weight:
 
                 # select random edge and check if it has not been selected
                 # previously
@@ -280,13 +279,13 @@ class PropagationModel:
                 edges_list.append(edge)
 
                 # assign weight to picked edge
-                self.set_transition_canonical(name, edge, w)
+                self.set_transition_canonical(name, edge, wght)
 
     def get_possible_transitions(
         self, state: Tuple[str, ...], layer: str
     ) -> Dict[str, float]:
         """
-        Returns possible transitions from given state in given layer of model.
+        Return possible transitions from given state in given layer of model.
 
         Note that possible transition is a transition with weight > 0.
 
@@ -310,8 +309,8 @@ class PropagationModel:
         # as possible transitions
         if state not in self.graph[layer]:
             _ = self.get_model_hyperparams()[layer]
-            for s in _:
-                states[s] = self.background_weight
+            for s_name in _:
+                states[s_name] = self.background_weight
             return states
 
         # otherwise read possible states from model

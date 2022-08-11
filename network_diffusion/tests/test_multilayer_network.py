@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# pylint: disable-all
+
+"""Tests for the network_diffusion.multilayer_network."""
 
 import os
 import unittest
@@ -9,10 +12,10 @@ from network_diffusion import MultilayerNetwork, utils
 
 
 class TestMultilayerNetwork(unittest.TestCase):
-    """Test class for MultilayerNetwork class."""
+    """Test MultilayerNetwork class."""
 
     def setUp(self) -> None:
-        """Sets up most common testing parameters."""
+        """Set up most common testing parameters."""
         self.network = MultilayerNetwork()
         self.network.load_mlx(
             os.path.join(
