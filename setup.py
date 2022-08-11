@@ -37,7 +37,7 @@ setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Scientific/Engineering :: Information Analysis",
         "License :: OSI Approved :: GNU General Public License (GPL)",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.10",
     ],
     keywords=[
         "disease",
