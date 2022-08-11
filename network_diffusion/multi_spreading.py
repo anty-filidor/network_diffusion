@@ -77,16 +77,17 @@ class ExperimentLogger:
         # fill containers
         for epoch in self._raw_stats:
             for layer, vals in epoch.items():
-                self._stats[layer] = self._stats[layer].append(
-                    dict(vals), ignore_index=True
-                )
+                # self._stats[layer] = self._stats[layer].append(
+                #     dict(vals), ignore_index=True
+                # )
+                self._stats[layer] = pd.concat([self._stats[layer], pd.DataFrame(dict(vals), index=[0])], ignore_index=True)
+
 
         # change NaN values to 0 and all values to integers
         for layer, vals in self._stats.items():
             self._stats[layer] = vals.fillna(0).astype(int)
 
     def __str__(self) -> str:
-        """Allows to print out object."""
         return str(self._stats)
 
     def plot(self, to_file: bool = False, path: Optional[str] = None) -> None:
@@ -97,6 +98,7 @@ class ExperimentLogger:
             is plotted on screen
         :param path: path to save figure
         """
+        """Allows to print out object."""
         fig = plt.figure()
 
         for i, layer in enumerate(self._stats, 1):
@@ -112,7 +114,7 @@ class ExperimentLogger:
                 ax.set_xlabel("Epoch")
             ax.grid()
 
-        plt.tight_layout(0.3)
+        plt.tight_layout()
         if to_file:
             plt.savefig(f"{path}/visualisation.png", dpi=200)
         else:

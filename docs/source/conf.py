@@ -24,7 +24,7 @@ copyright = "2021, Michał Czuba, Piotr Bródka"
 author = "Michał Czuba, Piotr Bródka"
 
 # The full version, including alpha/beta/rc tags
-release = "0.6"
+release = "0.7"
 
 
 # -- General configuration ---------------------------------------------------

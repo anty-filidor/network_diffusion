@@ -20,7 +20,6 @@
 
 """Network Diffusion is package for simulating spreading phenomenas in graphs."""
 
-import network_diffusion.flat_spreading as FlatSpreading  # noqa: F401
 from network_diffusion.multi_spreading import MultiSpreading  # noqa: F401
 from network_diffusion.multilayer_network import MultilayerNetwork  # noqa: F401
 from network_diffusion.propagation_model import PropagationModel  # noqa: F401

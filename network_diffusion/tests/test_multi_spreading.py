@@ -6,6 +6,7 @@ import shutil
 import string
 import unittest
 from typing import Any, Dict, Tuple
+from tempfile import TemporaryDirectory
 
 import networkx as nx
 import numpy as np
@@ -204,36 +205,33 @@ class TestExperimentLogger(unittest.TestCase):
 
     def test_plot(self) -> None:
         """Checks if visualisation is being stored."""
-        out_dir = "".join(random.choices(string.ascii_letters, k=5))
-        os.makedirs(out_dir)
-        self.logs.plot(True, out_dir)
-        self.assertTrue(
-            "visualisation.png" in os.listdir(out_dir),
-            f"After creating visualisation a gif file of name "
-            f"visualisation.png in {out_dir} should be saved!",
-        )
-        shutil.rmtree(out_dir)
+        with TemporaryDirectory() as out_dir:
+            self.logs.plot(True, out_dir)
+            self.assertTrue(
+                "visualisation.png" in os.listdir(out_dir),
+                f"After creating visualisation a gif file of name "
+                f"visualisation.png in {out_dir} should be saved!",
+            )
 
     def test_report(self) -> None:
         """Checks if report function writes out all files that it should."""
-        out_dir = "".join(random.choices(string.ascii_letters, k=5))
-        self.logs.report(visualisation=True, to_file=True, path=out_dir)
-        exp_files = {
-            "ill_propagation_report.csv",
-            "model_report.txt",
-            "network_report.txt",
-            "visualisation.png",
-            "vacc_propagation_report.csv",
-            "aware_propagation_report.csv",
-        }
-        real_files = set(os.listdir(out_dir))
-        self.assertEqual(
-            real_files,
-            exp_files,
-            f"Report function should produce following files: {exp_files}, "
-            f"but produced {real_files}",
-        )
-        shutil.rmtree(out_dir)
+        with TemporaryDirectory() as out_dir:
+            self.logs.report(visualisation=True, to_file=True, path=out_dir)
+            exp_files = {
+                "ill_propagation_report.csv",
+                "model_report.txt",
+                "network_report.txt",
+                "visualisation.png",
+                "vacc_propagation_report.csv",
+                "aware_propagation_report.csv",
+            }
+            real_files = set(os.listdir(out_dir))
+            self.assertEqual(
+                real_files,
+                exp_files,
+                f"Report function should produce following files: {exp_files}, "
+                f"but produced {real_files}",
+            )
 
     def test__convert_logs(self) -> None:
         """Checks if logs convention is done properly."""
