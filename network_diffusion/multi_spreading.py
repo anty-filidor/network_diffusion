@@ -66,19 +66,11 @@ class MultiSpreading:
 
         :param states_seeds: dictionary with numbers of nodes to be initialised
             in each layer of network. For example following argument:
-            {
-                illness': (75, 2, 0),
-                'awareness': (60, 17),
-                'vaccination': (70, 7)
-            }
-            is correct with this model of propagation:
-            [
-                illness : ('S', 'I', 'R'),
-                awareness : ('UA', 'A'),
-                vaccination : ('UV', 'V')
-            ].
-            Note, that values in dictionary says how many nodes should have
-             state <x> at the beginning of the experiment.
+            {'illness': (75, 2, 0), 'awareness': (60, 17), 'vaccination':
+            (70, 7) } is correct with this model of propagation: [ illness :
+            ('S', 'I', 'R'), awareness : ('UA', 'A'), vaccination : ('UV', 'V')
+            ]. Note, that values in dictionary says how many nodes should have
+            state <x> at the beginning of the experiment.
         :param track_changes: flag, if true changes are being printed out
         """
         # pylint: disable=R0914

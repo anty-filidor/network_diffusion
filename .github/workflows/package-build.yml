@@ -1,20 +1,15 @@
-name: Build and upload Client Package
+name: Build and upload Package
 
 on:
   push:
     branches: [package-simplification]
-  pull_request:
-    branches: [package-simplification]
 
 jobs:
-  Check-Quality-Of-Code:
+  Build-Package:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.ACCESS_TOKEN }}
-          submodules: recursive
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -24,30 +19,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements/production.txt
           pip install -r requirements/develop.txt
-      - name: Validate
-        run: |
-          pre-commit install --config submodules/template-python/.pre-commit-config.yaml
-          pre-commit run --all-files --config submodules/template-python/.pre-commit-config.yaml
-      - name: Compute coverage
-        run: |
-          coverage run -m unittest discover
-          bash <(curl -s https://codecov.io/bash)
-  Build-Package-PyPI:
-    runs-on: ubuntu-latest
-    needs: [Check-Quality-Of-Code]
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
       - name: Build for PyPI
         run: python setup.py sdist bdist_wheel
-      - name: Publish package
+  Publish package:
+    runs-on: ubuntu-latest
+    needs: [Build-Package]
+    steps:
+      - name: Publishing to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
   Create-Tag:
     runs-on: ubuntu-latest
-    needs: [Check-Quality-Of-Code]
+    needs: [Build-Package]
     env:
       VER: Nil
     steps:
@@ -62,10 +47,3 @@ jobs:
         with:
           tag: ${{ env.VER }}
           message: "Added tag"
-
-  #     - name: Build for Anaconda
-#       run: ddd
-# Publish package
-
-# send to pypi
-# send to conda
