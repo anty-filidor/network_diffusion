@@ -1,0 +1,49 @@
+name: Build and upload Client Package
+
+on:
+  push:
+    branches: [package-simplification]
+  pull_request:
+    branches: [package-simplification]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # set up environment
+    # run pre-commit
+    # build package
+    # send to pypi
+    # send to conda
+    # push tag
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requirements/production.txt
+          pip install requirements/develop.txt
+      - name: Validate
+        run: |
+          pre-commit install --config submodules/template-python/.pre-commit-config.yaml
+          pre-commit run --all-files --config submodules/template-python/.pre-commit-config.yaml
+
+  # build:
+  #     - name: Build package
+  #       run: |
+  #         cd client
+  #         python setup.py bdist_wheel
+  #         mv dist ../dist
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Publish package
+  #       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+  #       with:
+  #         user: __token__
+  #         password: ${{ secrets.PYPI_API_TOKEN }}
