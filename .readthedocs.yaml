@@ -16,6 +16,7 @@ formats:
 
 python:
   install:
+    - requirements: requirements/production.txt
     - requirements: requirements/develop.txt
 
 submodules:
