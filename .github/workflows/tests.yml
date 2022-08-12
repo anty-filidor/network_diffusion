@@ -1,4 +1,4 @@
-name: Check code against linters and run tests
+name: tests&linters
 
 on:
   pull_request:
