@@ -7,7 +7,7 @@ on:
     branches: [package-simplification]
 
 jobs:
-  test:
+  Check-Quality-Of-Code:
     runs-on: ubuntu-latest
 
     # set up environment
@@ -31,7 +31,7 @@ jobs:
           pip install -r requirements/develop.txt
       - name: Validate
         run: |
-          git submodule update --remote
+          git submodule update --init
           pre-commit install --config submodules/template-python/.pre-commit-config.yaml
           pre-commit run --all-files --config submodules/template-python/.pre-commit-config.yaml
 
