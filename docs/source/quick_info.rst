@@ -24,4 +24,4 @@ Code Ocean capsule
 
 There is an option to make a dry run of the package using an interactive
 capsule published at CodeOcean. Visit
-[this](https://codeocean.com/capsule/8807709/tree) page and make a dry run!
+`this <https://codeocean.com/capsule/8807709/tree>`_ page and make a dry run!

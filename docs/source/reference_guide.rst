@@ -39,7 +39,7 @@ these functions.
 
 
 Module ``experiment_logger``
-================
+============================
 
 .. automodule:: network_diffusion.experiment_logger
    :members:
