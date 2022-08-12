@@ -60,7 +60,7 @@ jobs:
       - name: Add tag
         uses: rickstaa/action-create-tag@v1
         with:
-          tag: ${{ VER }}
+          tag: ${{ env.VER }}
           message: "Added tag"
 
   #     - name: Build for Anaconda
