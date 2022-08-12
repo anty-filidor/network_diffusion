@@ -51,15 +51,16 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+        env:
+          VER:
+            ${{ cat network_diffusion/__init__.py | grep __version__ | cut
+            -d'"' -f2 }}
       - name: Add tag
         uses: rickstaa/action-create-tag@v1
         with:
           tag: ${{ VER }}
           message: "Added tag"
-        env:
-          VER:
-            ${{ cat network_diffusion/__init__.py | grep __version__ | cut
-            -d'"' -f2 }}
+
   #     - name: Build for Anaconda
 #       run: ddd
 # Publish package
