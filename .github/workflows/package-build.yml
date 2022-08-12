@@ -21,10 +21,20 @@ jobs:
           pip install -r requirements/develop.txt
       - name: Build for PyPI
         run: python setup.py sdist bdist_wheel
+      - name: Save artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: build
+          path: ./dist
   Publish-Package:
     runs-on: ubuntu-latest
     needs: [Build-Package]
     steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@master
+        with:
+          name: build
+          path: ./dist
       - name: Publishing to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
