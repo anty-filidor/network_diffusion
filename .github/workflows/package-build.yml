@@ -2,7 +2,7 @@ name: Build and upload Package
 
 on:
   push:
-    branches: [package-simplification]
+    branches: [master]
 
 jobs:
   Build-Package:
