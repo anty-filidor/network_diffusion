@@ -1,4 +1,4 @@
-name: tests&linters
+name: tests & linters
 
 on:
   pull_request:
