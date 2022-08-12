@@ -32,24 +32,21 @@ jobs:
         run: |
           coverage run -m unittest discover
           bash <(curl -s https://codecov.io/bash)
+  Build-Package-PyPI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build for PyPI
+        run: python setup.py sdist bdist_wheel
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
 
-# Build-Package:
-#   runs-on: ubuntu-latest
-#   steps:
-#     - name: Build for PyPI
-#       run: python setup.py sdist bdist_wheel
-#     - name: Build for Anaconda
+  #     - name: Build for Anaconda
 #       run: ddd
 # Publish package
 # build package
 # send to pypi
 # send to conda
 # push tag
-# deploy:
-#   runs-on: ubuntu-latest
-#   steps:
-#     - name: Publish package
-#       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-#       with:
-#         user: __token__
-#         password: ${{ secrets.PYPI_API_TOKEN }}
