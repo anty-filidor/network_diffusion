@@ -52,9 +52,10 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Obtain package version
-        run:
-          VER=$(cat network_diffusion/__init__.py | grep __version__ | cut
-          -d'"' -f2)
+        env:
+          VER:
+            ${{ cat network_diffusion/__init__.py | grep __version__ | cut
+            -d'"' -f2 }}
       - name: Add tag
         uses: rickstaa/action-create-tag@v1
         with:
