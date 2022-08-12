@@ -31,6 +31,7 @@ jobs:
           pip install -r requirements/develop.txt
       - name: Validate
         run: |
+          git submodule update --remote
           pre-commit install --config submodules/template-python/.pre-commit-config.yaml
           pre-commit run --all-files --config submodules/template-python/.pre-commit-config.yaml
 
