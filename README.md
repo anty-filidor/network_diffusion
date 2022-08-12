@@ -8,7 +8,7 @@
 
 [![Build Status](https://travis-ci.com/anty-filidor/network_diffusion.svg?branch=master)](https://travis-ci.com/anty-filidor/network_diffusion)
 [![Documentation Status](https://readthedocs.org/projects/network-diffusion/badge/?version=latest)](https://network-diffusion.readthedocs.io/en/latest)
-[![codecov](https://codecov.io/gh/anty-filidor/network_diffusion/branch/master/graph/badge.svg?token=LF52GAD73F)](https://codecov.io/gh/anty-filidor/network_diffusion)
+[![codecov](https://codecov.io/gh/anty-filidor/network_diffusion/branch/package-simplification/graph/badge.svg?token=LF52GAD73F)](https://codecov.io/gh/anty-filidor/network_diffusion)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fanty-filidor%2Fnetwork_diffusion.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fanty-filidor%2Fnetwork_diffusion?ref=badge_shield)
 
