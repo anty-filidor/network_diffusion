@@ -22,12 +22,11 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: "3.10"
+      - uses: actions/checkout@v2
       - name: Install dependencies
-        uses: actions/checkout@v2
-        run: |
-          python -m pip install --upgrade pip
-          pip install requirements/production.txt
-          pip install requirements/develop.txt
+        run:
+          python -m pip install --upgrade pip pip install
+          requirements/production.txt pip install requirements/develop.txt
       - name: Validate
         run: |
           pre-commit install --config submodules/template-python/.pre-commit-config.yaml
