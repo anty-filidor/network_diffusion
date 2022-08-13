@@ -2,7 +2,7 @@ name: package builds
 
 on:
   push:
-    branches: [master]
+    branches: [package-simplification]
 
 jobs:
   Build-Package:
@@ -40,7 +40,7 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-  Create-Tag:
+  Create-Tag-Release:
     runs-on: ubuntu-latest
     needs: [Build-Package]
     env:
@@ -57,3 +57,15 @@ jobs:
         with:
           tag: ${{ env.VER }}
           message: "Added tag"
+      - name: Download artifacts
+        uses: actions/download-artifact@master
+        with:
+          name: build
+          path: ./dist
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ env.VER }}
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
