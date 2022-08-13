@@ -18,4 +18,4 @@ processes in networks. Package has been built basing on
 Documentation and tutorials are available
 [here](https://network-diffusion.readthedocs.io/en/latest/).
 
-**To install package run: `pip install network_diffusion`**
+**To install package run this command: `pip install network_diffusion`**
