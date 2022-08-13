@@ -26,4 +26,4 @@ from network_diffusion.multilayer_network import (  # noqa: F401
 )
 from network_diffusion.propagation_model import PropagationModel  # noqa: F401
 
-__version__ = "0.7"
+__version__ = "0.6.2"

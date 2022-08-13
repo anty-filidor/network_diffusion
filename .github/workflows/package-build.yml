@@ -65,7 +65,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          name: ${{ env.VER }}
+          tag_name: ${{ env.VER }}
           files: |
             dist/*.whl
             dist/*.tar.gz
