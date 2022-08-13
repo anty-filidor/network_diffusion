@@ -11,11 +11,11 @@
 [![codecov](https://codecov.io/gh/anty-filidor/network_diffusion/branch/package-simplification/graph/badge.svg?token=LF52GAD73F)](https://codecov.io/gh/anty-filidor/network_diffusion)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fanty-filidor%2Fnetwork_diffusion.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fanty-filidor%2Fnetwork_diffusion?ref=badge_shield)
 
-This repository contains a a package to design and run diffusion phenomena
+This repository contains a package to design and run diffusion phenomena
 processes in networks. Package has been built basing on
 [NetworkX](https://networkx.github.io) library and is fully compatible with it.
 
 Documentation and tutorials are available
 [here](https://network-diffusion.readthedocs.io/en/latest/).
 
-**Install package: `pip install network_diffusion`**
+**To install package run: `pip install network_diffusion`**
