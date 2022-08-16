@@ -1,0 +1,3 @@
+[submodule "submodules/template-python"]
+	path = submodules/template-python
+	url = https://github.com/anty-filidor/template-python.git

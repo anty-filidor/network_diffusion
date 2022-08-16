@@ -44,8 +44,6 @@ This can be easily visualized by graph:
     :align: center
     :width: 250
 
-::
-
 Note that with 3 phenomenas of respectively 2, 2, 3 local states we have 12
 global states with (sic!) 48 possible transitions. This is so big value, that
 without computer assistance it is difficult to handle cases like this. Thus

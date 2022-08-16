@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# pylint: disable-all
+# type: ignore
+
+"""Tests for the network_diffusion.multilayer_network."""
 
 import os
 import unittest
@@ -9,10 +13,10 @@ from network_diffusion import MultilayerNetwork, utils
 
 
 class TestMultilayerNetwork(unittest.TestCase):
-    """Test class for MultilayerNetwork class."""
+    """Test MultilayerNetwork class."""
 
-    def setUp(self) -> None:
-        """Sets up most common testing parameters."""
+    def setUp(self):
+        """Set up most common testing parameters."""
         self.network = MultilayerNetwork()
         self.network.load_mlx(
             os.path.join(
@@ -20,7 +24,7 @@ class TestMultilayerNetwork(unittest.TestCase):
             )
         )
 
-    def test_load_mlx(self) -> None:
+    def test_load_mlx(self):
         """Tests loading network from mpx file."""
         network = MultilayerNetwork()
         network.load_mlx(
@@ -50,7 +54,7 @@ class TestMultilayerNetwork(unittest.TestCase):
             "Node should have None in status attr",
         )
 
-    def test_load_layers_nx(self) -> None:
+    def test_load_layers_nx(self):
         """Tests loading network from several graphs."""
         network = MultilayerNetwork()
 
@@ -72,7 +76,7 @@ class TestMultilayerNetwork(unittest.TestCase):
             "Node should have None in status attr",
         )
 
-    def test_load_layer_nx(self) -> None:
+    def test_load_layer_nx(self):
         """Checks if creating MLN is correct by load_layer_nx func."""
         network = MultilayerNetwork()
         names = ["a", "b"]
@@ -97,7 +101,7 @@ class TestMultilayerNetwork(unittest.TestCase):
             "Node should have None in status attr",
         )
 
-    def test_compute_multiplexing_coefficient(self) -> None:
+    def test_compute_multiplexing_coefficient(self):
         """Tests if multiplexing coefficient is computed correctly."""
         network = MultilayerNetwork()
         names = ["a", "b"]
@@ -118,7 +122,7 @@ class TestMultilayerNetwork(unittest.TestCase):
             "almost 0.73",
         )
 
-    def test_get_nodes_states(self) -> None:
+    def test_get_nodes_states(self):
         """Tests if nodes states are being returned correctly."""
         exp_result = {"marriage": ((None, 15),), "business": ((None, 11),)}
         self.assertEqual(
@@ -127,7 +131,7 @@ class TestMultilayerNetwork(unittest.TestCase):
             "Network states are not same as expected.",
         )
 
-    def test_get_node_state(self) -> None:
+    def test_get_node_state(self):
         """Tests if node state is being returned correctly."""
         self.assertEqual(
             self.network.get_node_state("Acciaiuoli"),
@@ -135,7 +139,7 @@ class TestMultilayerNetwork(unittest.TestCase):
             "Nodes states are not same as expected.",
         )
 
-    def test_get_layer_names(self) -> None:
+    def test_get_layer_names(self):
         """Tests if layer names are read correctly."""
         self.assertEqual(
             self.network.get_layer_names(),

@@ -3,12 +3,6 @@ Code usage examples
 =============================================
 
 
-Flat spreading
-==============
-
-.. toctree::
-    flat_spreading_example
-
 Multilayer spreading
 ====================
 

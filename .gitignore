@@ -1,4 +1,3 @@
-/deployment.sh
 /docs/build/
 /dist/
 /network_diffusion.egg-info/
@@ -11,5 +10,6 @@ docs/source/.DS_Store
 network_diffusion/__pycache__/
 network_diffusion/tests/__pycache__/
 __py_cache__
-/.mypy_cache/*
+/.mypy_cache/
 /conda_build/
+/.vscode/

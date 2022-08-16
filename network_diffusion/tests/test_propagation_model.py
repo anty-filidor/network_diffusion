@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# pylint: disable-all
+# type: ignore
+
+"""Tests for the network_diffusion.propagation_model."""
 
 import unittest
 
@@ -10,28 +14,32 @@ from network_diffusion import PropagationModel
 class TestPropagationModel(unittest.TestCase):
     """Test class for PropagationModel class."""
 
-    def get_compiled_model(self) -> PropagationModel:
-        """Prepares compiled propagation model for tests."""
+    def get_compiled_model(self):
+        """Prepare compiled propagation model for tests."""
         model = PropagationModel()
         phenomenas = [["A", "B", "C"], ["A", "B"], ["A", "B"]]
         processes = ("1", "2", "3")
-        for l, p in zip(processes, phenomenas):
-            model.add(l, p)
+        for proc, phenom in zip(processes, phenomenas):
+            model.add(proc, phenom)
         model.compile(background_weight=0.005)
         return model
 
-    def test_add(self) -> None:
-        """Tests if function adds process to the model."""
+    def test_add(self):
+        """Test if function adds process to the model."""
         model = PropagationModel()
         model.add("1", ["A", "B", "C"])
         self.assertEqual(
             model.__dict__,
-            {"graph": None, "background_weight": None, "1": ["A", "B", "C"]},
+            {
+                "graph": {},
+                "background_weight": float("inf"),
+                "1": ["A", "B", "C"],
+            },
             "add func seems to have no effect",
         )
 
-    def test_describe_empty(self) -> None:
-        """Checks describing a model that not have been initialised."""
+    def test_describe_empty(self):
+        """Check describing a model that not have been initialised."""
         log = (
             "============================================\n"
             "model of propagation\n"
@@ -46,8 +54,8 @@ class TestPropagationModel(unittest.TestCase):
             "Empty description string not in expected form",
         )
 
-    def test_get_model_hyperparams(self) -> None:
-        """Checks if get_model_hyperparams function behaves correctly."""
+    def test_get_model_hyperparams(self):
+        """Check if get_model_hyperparams function behaves correctly."""
         model = self.get_compiled_model()
         self.assertEqual(
             {"1": ["A", "B", "C"], "2": ["A", "B"], "3": ["A", "B"]},
@@ -55,17 +63,17 @@ class TestPropagationModel(unittest.TestCase):
             "Incorrect hyperparameters of PropagationModel!",
         )
 
-    def test_compile(self) -> None:
-        """Checks if compilation runs correctly."""
+    def test_compile(self):
+        """Check if compilation runs correctly."""
         model = PropagationModel()
         model.add("1", ["A", "B", "C"])
         model.add("2", ["A", "B"])
 
-        with self.assertRaises(
-            AttributeError,
-            msg="Model before compilation should have eempty graph field",
-        ):
-            model.graph.keys()
+        self.assertEqual(
+            len(model.graph),
+            0,
+            msg="Model before compilation should have empty graph field",
+        )
 
         model.compile(background_weight=0.1)
         self.assertEqual(
@@ -111,7 +119,7 @@ class TestPropagationModel(unittest.TestCase):
             f"Graph in layer 2 should be like {exp_graph_phenomena_2}",
         )
 
-    def test_set_transition_canonical(self) -> None:
+    def test_set_transition_canonical(self):
         """Checks if setting transitions in canonical way is possible."""
         model = self.get_compiled_model()
         weight = model.graph["2"][("1.C", "2.A", "3.B")][("1.C", "2.B", "3.B")]
@@ -125,7 +133,12 @@ class TestPropagationModel(unittest.TestCase):
 
         new_weight = 0.2137
         model.set_transition_canonical(
-            "2", (("1.C", "2.A", "3.B"), ("1.C", "2.B", "3.B"),), new_weight,
+            "2",
+            (
+                ("1.C", "2.A", "3.B"),
+                ("1.C", "2.B", "3.B"),
+            ),
+            new_weight,
         )
 
         weight = model.graph["2"][("1.C", "2.A", "3.B")][("1.C", "2.B", "3.B")]
@@ -137,7 +150,7 @@ class TestPropagationModel(unittest.TestCase):
             f" {weight['weight']}",
         )
 
-    def test_set_transition_fast(self) -> None:
+    def test_set_transition_fast(self):
         """Checks if setting transitions in fast way is possible."""
         model = self.get_compiled_model()
         weight = model.graph["1"][("1.C", "2.B", "3.A")][("1.A", "2.B", "3.A")]
@@ -160,8 +173,8 @@ class TestPropagationModel(unittest.TestCase):
             f"{weight['weight']}",
         )
 
-    def test_set_transitions_in_random_edges(self) -> None:
-        """Checks if setting transitions in random way is possible."""
+    def test_set_transitions_in_random_edges(self):
+        """Check if setting transitions in random way is possible."""
         model = self.get_compiled_model()
         layer_1_w = {0.4: 0, 0.5: 0}
         layer_2_w = {0.3: 0, 0.2: 0, 0.1: 0}
@@ -181,17 +194,19 @@ class TestPropagationModel(unittest.TestCase):
             self.assertEqual(
                 layer_1_w[i],
                 1,
-                f"Weight {i} in layer 1 set up {layer_1_w[i]} times (expected 1).",
+                f"Weight {i} in layer 1 set up "
+                + f"{layer_1_w[i]} times (expected 1).",
             )
         for i in layer_2_w:
             self.assertEqual(
                 layer_2_w[i],
                 1,
-                f"Weight {i} in layer 2 set up {layer_2_w[i]} times (expected 1).",
+                f"Weight {i} in layer 2 set up "
+                + f"{layer_2_w[i]} times (expected 1).",
             )
 
-    def test_get_possible_transitions(self) -> None:
-        """Checks if possible transforms are gave correctly."""
+    def test_get_possible_transitions(self):
+        """Check if possible transforms are gave correctly."""
         model = self.get_compiled_model()
         case_1 = model.get_possible_transitions(
             state=("1.C", "2.B", "3.A"), layer="1"

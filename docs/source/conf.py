@@ -11,20 +11,27 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # docs root, use os.path.abspath to make it absolute, like shown here.
+
+"""Configuration of the documentation."""
+
+# pylint: disable-all
+# flake8: noqa
+
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath("../../"))
 
+from network_diffusion import __version__
 
 # -- Project information -----------------------------------------------------
 
 project = "Network Diffusion"
-copyright = "2021, Michał Czuba, Piotr Bródka"
+copyright = "2022, Michał Czuba, Piotr Bródka"
 author = "Michał Czuba, Piotr Bródka"
 
 # The full version, including alpha/beta/rc tags
-release = "0.6"
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
