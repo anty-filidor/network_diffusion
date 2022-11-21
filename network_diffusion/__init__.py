@@ -24,6 +24,5 @@ from network_diffusion.multi_spreading import MultiSpreading  # noqa: F401
 from network_diffusion.multilayer_network import (  # noqa: F401
     MultilayerNetwork,
 )
-from network_diffusion.propagation_model import PropagationModel  # noqa: F401
 
-__version__ = "0.7.1"
+__version__ = "1.0.0"

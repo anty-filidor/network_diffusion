@@ -24,29 +24,28 @@ from copy import deepcopy
 from random import shuffle
 from typing import Dict, List, Tuple
 
-import networkx as nx
-import numpy as np
 from tqdm import tqdm
 
 from network_diffusion.experiment_logger import ExperimentLogger
+from network_diffusion.models.base import BaseModel
 from network_diffusion.multilayer_network import MultilayerNetwork
-from network_diffusion.propagation_model import PropagationModel
 
 
 class MultiSpreading:
     """Perform experiment defined by PropagationModel on MultiLayerNetwork."""
 
-    def __init__(
-        self, model: PropagationModel, network: MultilayerNetwork
-    ) -> None:
+    def __init__(self, model: BaseModel, network: MultilayerNetwork) -> None:
         """
-        Construct an object..
+        Construct an object.
 
         :param model: model of propagation which determines how experiment
             looks like
         :param network: a network which is being examined during experiment
         """
-        assert network.layers.keys() == model.get_model_hyperparams().keys(), (
+        assert (
+            network.layers.keys()
+            == model.compartments.get_model_hyperparams().keys()
+        ), (
             "Layer names in network should be the same as layer names in "
             "propagation model"
         )
@@ -75,7 +74,7 @@ class MultiSpreading:
         """
         # pylint: disable=R0914
 
-        model_hyperparams = self._model.get_model_hyperparams()
+        model_hyperparams = self._model.compartments.get_model_hyperparams()
 
         # check if argument has good shape
         ass_states_arg = [len(s) for s in states_seeds.values()]
@@ -145,7 +144,7 @@ class MultiSpreading:
         """
         # pylint: disable=W0212, R1702
         logger = ExperimentLogger(
-            self._model._get_description_str(),
+            self._model.compartments._get_description_str(),
             self._network._get_description_str(),
         )
 
@@ -156,53 +155,15 @@ class MultiSpreading:
         progress_bar = tqdm(range(n_epochs))
         for epoch in progress_bar:
             progress_bar.set_description_str(f"Processing epoch {epoch}")
-
-            # in each epoch iterate through layers
-            for layer_name, layer_graph in self._network.layers.items():
-
-                # in each layer iterate through nodes
-                for n in layer_graph.nodes():
-
-                    # read state of node
-                    state = self._network.get_node_state(n)
-
-                    # import possible transitions for state of the node
-                    possible_transitions = (
-                        self._model.get_possible_transitions(state, layer_name)
-                    )
-
-                    # if there is no possible transition don't do anything,
-                    # otherwise:
-                    if len(possible_transitions) > 0:
-
-                        # iterate through neighbours of current node
-                        for nbr in nx.neighbors(layer_graph, n):
-                            status = layer_graph.nodes[nbr]["status"]
-
-                            # if state of neighbour node is in possible
-                            # transitions and tossed 1 due to it's weight
-                            if (
-                                status in possible_transitions
-                                and np.random.choice(
-                                    [0, 1],
-                                    p=[
-                                        1 - possible_transitions[status],
-                                        possible_transitions[status],
-                                    ],
-                                )
-                                == 1
-                            ):
-                                # change state of current node and breag
-                                # iterating through neighbours
-                                layer_graph.nodes[n][
-                                    "status"
-                                ] = layer_graph.nodes[nbr]["status"]
-                                break
+            nodes_to_update = self._model.network_evaluation_step(
+                self._network
+            )
+            self._model.update_network(self._network, nodes_to_update)
 
             # add logs from current epoch
             logger._add_log(self._network.get_nodes_states())
 
         # convert logs to dataframe
-        logger._convert_logs(self._model.get_model_hyperparams())
+        logger._convert_logs(self._model.compartments.get_model_hyperparams())
 
         return logger

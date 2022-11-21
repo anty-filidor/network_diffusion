@@ -13,3 +13,4 @@ __py_cache__
 /.mypy_cache/
 /conda_build/
 /.vscode/
+**/__pycache__/

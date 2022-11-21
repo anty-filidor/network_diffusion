@@ -8,15 +8,15 @@ import unittest
 
 import networkx as nx
 
-from network_diffusion import PropagationModel
+from network_diffusion.models.utils.compartmental import CompartmentalGraph
 
 
-class TestPropagationModel(unittest.TestCase):
-    """Test class for PropagationModel class."""
+class TestCompartmentalGraph(unittest.TestCase):
+    """Test class for CompartmentalGraph class."""
 
     def get_compiled_model(self):
         """Prepare compiled propagation model for tests."""
-        model = PropagationModel()
+        model = CompartmentalGraph()
         phenomenas = [["A", "B", "C"], ["A", "B"], ["A", "B"]]
         processes = ("1", "2", "3")
         for proc, phenom in zip(processes, phenomenas):
@@ -26,7 +26,7 @@ class TestPropagationModel(unittest.TestCase):
 
     def test_add(self):
         """Test if function adds process to the model."""
-        model = PropagationModel()
+        model = CompartmentalGraph()
         model.add("1", ["A", "B", "C"])
         self.assertEqual(
             model.__dict__,
@@ -49,7 +49,7 @@ class TestPropagationModel(unittest.TestCase):
             "============================================"
         )
         self.assertEqual(
-            PropagationModel().describe(False, True),
+            CompartmentalGraph().describe(False, True),
             log,
             "Empty description string not in expected form",
         )
@@ -60,12 +60,12 @@ class TestPropagationModel(unittest.TestCase):
         self.assertEqual(
             {"1": ["A", "B", "C"], "2": ["A", "B"], "3": ["A", "B"]},
             model.get_model_hyperparams(),
-            "Incorrect hyperparameters of PropagationModel!",
+            "Incorrect hyperparameters of CompartmentalGraph!",
         )
 
     def test_compile(self):
         """Check if compilation runs correctly."""
-        model = PropagationModel()
+        model = CompartmentalGraph()
         model.add("1", ["A", "B", "C"])
         model.add("2", ["A", "B"])
 

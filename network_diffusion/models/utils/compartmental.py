@@ -28,7 +28,7 @@ import networkx as nx
 import numpy as np
 
 
-class PropagationModel:
+class CompartmentalGraph:
     """Class which encapsulates model of processes speared in network."""
 
     def __init__(self) -> None:

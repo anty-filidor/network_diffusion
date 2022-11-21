@@ -9,17 +9,15 @@ import unittest
 import networkx as nx
 import numpy as np
 
-from network_diffusion import (
-    MultilayerNetwork,
-    MultiSpreading,
-    PropagationModel,
-)
+from network_diffusion import MultilayerNetwork, MultiSpreading
+from network_diffusion.models import DSAAAlgo
+from network_diffusion.models.utils.compartmental import CompartmentalGraph
 
 
 def prepare_data():
     """Set up data needed to perform tests."""
     # init propagation model and set transitions with probabilities
-    model = PropagationModel()
+    model = CompartmentalGraph()
     phenomena = {
         "ill": ("S", "I", "R"),
         "aware": ("UA", "A"),
@@ -56,7 +54,7 @@ class TestMultiSpreading(unittest.TestCase):
     def setUp(self):
         """Set up most common testing parameters."""
         model, phenomenas, network = prepare_data()
-        self.model = model
+        self.model = DSAAAlgo(model)
         self.phenomenas = phenomenas
         self.network = network
 

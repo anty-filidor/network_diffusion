@@ -12,18 +12,16 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 
-from network_diffusion import (
-    MultilayerNetwork,
-    MultiSpreading,
-    PropagationModel,
-)
+from network_diffusion import MultilayerNetwork, MultiSpreading
+from network_diffusion.models import DSAAAlgo
+from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.multi_spreading import ExperimentLogger
 
 
 def prepare_data():
     """Set up data needed to perform tests."""
     # init propagation model and set transitions with probabilities
-    model = PropagationModel()
+    model = CompartmentalGraph()
     phenomena = {
         "ill": ("S", "I", "R"),
         "aware": ("UA", "A"),
@@ -51,7 +49,7 @@ def prepare_data():
     model.set_transition_fast("aware.UA", "aware.A", ("vacc.V", "ill.S"), 1)
     model.set_transition_fast("aware.UA", "aware.A", ("vacc.UV", "ill.I"), 0.2)
 
-    return model, phenomena, network
+    return DSAAAlgo(model), phenomena, network
 
 
 def prepare_logs():
