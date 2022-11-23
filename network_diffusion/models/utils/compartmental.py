@@ -27,6 +27,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import networkx as nx
 import numpy as np
 
+from network_diffusion.multilayer_network import MultilayerNetwork
+
 
 class CompartmentalGraph:
     """Class which encapsulates model of processes speared in network."""
@@ -35,6 +37,72 @@ class CompartmentalGraph:
         """Create empty object."""
         self.graph: Dict[str, nx.Graph] = {}
         self.background_weight: float = float("inf")
+        self.seeding_budget: Dict[str, Tuple[int, ...]] = {}
+
+    @property
+    def seeding_budget(self) -> Dict[str, Tuple[int, ...]]:
+        """
+        Get seeding budget as %s of the nodes in form of compartments as a dict.
+
+        E.g. something like that: {"ill": (90, 8, 2), "aware": (60, 40),
+        "vacc": (70, 30)} for compartments such as: "ill": [s, i, r], "aware":
+        [u, a], "vacc": [n, v]
+        """
+        return self.seeding_budget
+
+    @seeding_budget.setter
+    def seeding_budget(self, proposed_is: Dict[str, Tuple[int, ...]]) -> None:
+        """Set seeding budget in each of compartments."""
+
+        # check if proposed dict contains proper processes
+        assert proposed_is.keys() == self.get_model_hyperparams().keys(), (
+            "Layer names in argument should be the same as layer names in "
+            "propagation model!"
+        )
+
+        # check if proposed dict contains proper compartments in processes
+        ass_states_arg = [len(s) for s in proposed_is.values()]
+        ass_states_net = [
+            len(s) for s in self.get_model_hyperparams().values()
+        ]
+        assert ass_states_net == ass_states_arg, (
+            f"Shape of argument {ass_states_arg} should be the same as shape "
+            f"of states in propagation model {ass_states_net}!"
+        )
+
+        # check if proposed dict has values that sum to 100 in each process
+        for s in proposed_is.items():
+            if sum(s) != 100:
+                raise ValueError("Sum in each process must equals to 100!")
+
+        self.seeding_budget = proposed_is
+
+    def get_seeding_budget_for_network(self, net: MultilayerNetwork):
+        """
+        Transform initial_stages from %-s to num. of nodes according to network.
+
+        :param net: input network to generate initial stages for
+        :return: dictionary in form as e.g.: {"ill": (45, 4, 1), "aware":
+        (30, 20), "vacc": (35, 15)} for initial_states dict: {"ill": (90, 8, 2),
+        "aware": (60, 40), "vacc": (70, 30)} and 50 nodes in each layer.
+        """
+        return {
+            process: self._int_to_bins(
+                percentages, len(net.layers[process].nodes())
+            )
+            for process, percentages in self.seeding_budget.items()
+        }
+
+    @staticmethod
+    def _int_to_bins(bins: Tuple[int, ...], base_num: int) -> Tuple[int, ...]:
+        binned_number = []
+        for percentage in bins:
+            size_of_bin = int(percentage * base_num / 100)
+            while sum(binned_number) + size_of_bin > base_num:
+                size_of_bin -= 1
+            binned_number.append(size_of_bin)
+
+        return binned_number
 
     def add(self, layer_name: str, layer_type: List[str]) -> None:
         """
