@@ -1,41 +1,47 @@
 """Definition of the base propagation model used in the library."""
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import List
 
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
+from network_diffusion.models.utils.types import NetworkUpdateBuffer
 from network_diffusion.multilayer_network import MultilayerNetwork
-
-
-@dataclass
-class NetworkUpdateBuffer:
-    """Auxiliary class to keep info about nodes that needs to be udated."""
-
-    node_name: str
-    layer_name: str
-    new_state: str
-
-    def __str__(self) -> str:
-        return f"{self.layer_name}:{self.node_name}:{self.new_state}"
+from network_diffusion.seeding.base_selector import BaseSeedSelector
 
 
 class BaseModel(ABC):
     """Base abstract propagation model."""
 
-    def __init__(self, compartmental_graph: CompartmentalGraph) -> None:
+    def __init__(
+        self,
+        compartmental_graph: CompartmentalGraph,
+        seed_selector: BaseSeedSelector,
+    ) -> None:
         """
         Create the object.
 
-        :param compartmental_graph: a compartmental model that defines
-            allowed transitions and states
+        :param compartmental_graph: a compartmental model that defines allowed
+            transitions and states
+        :param seed_selector: definition of the influence seeds choice
         """
         self._compartmental_graph = compartmental_graph
+        self._seed_selector = seed_selector
+        self._seeds: List[NetworkUpdateBuffer] = []
 
     @property
     def compartments(self) -> CompartmentalGraph:
         """Return defined compartments and allowed transitions."""
         return self._compartmental_graph
+
+    def set_initial_states(self, net: MultilayerNetwork) -> MultilayerNetwork:
+        """
+        Set up network to reflect given initial states in the model.
+
+        :param net: a network where the node exists
+        """
+        if len(self._seeds) == 0:
+            self._seeds = self._seed_selector(self._compartmental_graph, net)
+        raise NotImplementedError
 
     @abstractmethod
     def node_evaluation_step(
@@ -46,7 +52,7 @@ class BaseModel(ABC):
 
         :param node_id: id of the node to evaluate
         :param layer_name: a layer where the node exists
-        :param network: a network where the node exists
+        :param net: a network where the node exists
 
         :return: state of the model after evaluation
         """

@@ -17,17 +17,10 @@
 # =============================================================================
 
 """Functions for the phenomena spreading definition."""
-
-# pylint: disable=W0141
-
-from copy import deepcopy
-from random import shuffle
-from typing import Dict, List, Tuple
-
 from tqdm import tqdm
 
 from network_diffusion.experiment_logger import ExperimentLogger
-from network_diffusion.models.base import BaseModel
+from network_diffusion.models.base_model import BaseModel
 from network_diffusion.multilayer_network import MultilayerNetwork
 
 
@@ -50,87 +43,7 @@ class MultiSpreading:
             "propagation model"
         )
         self._model = model
-        self._network = deepcopy(network)
-
-    def set_initial_states(
-        self,
-        states_seeds: Dict[str, Tuple[int, ...]],
-        track_changes: bool = False,
-    ) -> None:
-        """
-        Prepare network to be used during simulation.
-
-        It changes status of certain nodes as passed in states_seeds. After
-        execution of this method experiment is reeady to be done.
-
-        :param states_seeds: dictionary with numbers of nodes to be initialised
-            in each layer of network. For example following argument:
-            {'illness': (75, 2, 0), 'awareness': (60, 17), 'vaccination':
-            (70, 7) } is correct with this model of propagation: [ illness :
-            ('S', 'I', 'R'), awareness : ('UA', 'A'), vaccination : ('UV', 'V')
-            ]. Note, that values in dictionary says how many nodes should have
-            state <x> at the beginning of the experiment.
-        :param track_changes: flag, if true changes are being printed out
-        """
-        # pylint: disable=R0914
-
-        model_hyperparams = self._model.compartments.get_model_hyperparams()
-
-        # check if argument has good shape
-        ass_states_arg = [len(s) for s in states_seeds.values()]
-        ass_states_net = [len(s) for s in model_hyperparams.values()]
-        assert ass_states_net == ass_states_arg, (
-            f"Shape of argument {ass_states_arg} should be the same as shape "
-            f"of states in propagation model {ass_states_net}"
-        )
-
-        # check if given argument has good keys
-        assert states_seeds.keys() == model_hyperparams.keys(), (
-            "Layer names in argument should be the same as layer names in "
-            "propagation model"
-        )
-
-        # check if given argument has good values
-        ass_states_sum = [
-            sum(s[1]) == len(self._network.layers[s[0]].nodes())
-            for s in states_seeds.items()
-        ]
-        for ssum in ass_states_sum:
-            assert ssum, (
-                "Sum of size of states for each layer should be equal to "
-                "number of its nodes!"
-            )
-
-        # set initial states in each layer of network
-        for name, layer in self._network.layers.items():
-            states = model_hyperparams[name]
-            vals = states_seeds[name]
-            nodes_number = len(layer.nodes())
-            if track_changes:
-                print(name, states, vals, nodes_number)
-
-            # shuffle nodes
-            nodes = [*layer.nodes()]
-            shuffle(nodes)
-
-            # set ranges
-            _rngs = [sum(vals[:x]) for x in range(len(vals))] + [nodes_number]
-            ranges: List[Tuple[int, int]] = list(zip(_rngs[:-1], _rngs[1:]))
-            if track_changes:
-                print(ranges)
-
-            # append states to nodes
-            for i, _ in enumerate(ranges):
-                pair = ranges[i]
-                state = states[i]
-                if track_changes:
-                    print(pair, state)
-                for index in range(pair[0], pair[1]):
-                    if track_changes:
-                        print(index, nodes[index], layer.node[nodes[index]])
-                    layer.nodes[nodes[index]]["status"] = state
-                    if track_changes:
-                        print(index, nodes[index], layer.node[nodes[index]])
+        self._network = network
 
     def perform_propagation(self, n_epochs: int) -> ExperimentLogger:
         """
@@ -148,7 +61,8 @@ class MultiSpreading:
             self._network._get_description_str(),
         )
 
-        # add logs from initial state
+        # set and add logs from initialising states
+        self._model.set_initial_states(self._network)
         logger._add_log(self._network.get_nodes_states())
 
         # iterate through epochs

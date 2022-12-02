@@ -33,34 +33,33 @@ from network_diffusion.multilayer_network import MultilayerNetwork
 class CompartmentalGraph:
     """Class which encapsulates model of processes speared in network."""
 
+    reserved_names = {"graph", "background_weight", "_seeding_budget"}
+
     def __init__(self) -> None:
         """Create empty object."""
         self.graph: Dict[str, nx.Graph] = {}
         self.background_weight: float = float("inf")
-        self.seeding_budget: Dict[str, Tuple[int, ...]] = {}
+        self._seeding_budget: Dict[str, Tuple[int, ...]] = {}
 
     @property
     def seeding_budget(self) -> Dict[str, Tuple[int, ...]]:
         """
-        Get seeding budget as %s of the nodes in form of compartments as a dict.
+        Get seeding budget as % of the nodes in form of compartments as a dict.
 
         E.g. something like that: {"ill": (90, 8, 2), "aware": (60, 40),
         "vacc": (70, 30)} for compartments such as: "ill": [s, i, r], "aware":
         [u, a], "vacc": [n, v]
         """
-        return self.seeding_budget
+        return self._seeding_budget
 
     @seeding_budget.setter
     def seeding_budget(self, proposed_is: Dict[str, Tuple[int, ...]]) -> None:
         """Set seeding budget in each of compartments."""
-
-        # check if proposed dict contains proper processes
         assert proposed_is.keys() == self.get_model_hyperparams().keys(), (
             "Layer names in argument should be the same as layer names in "
             "propagation model!"
         )
 
-        # check if proposed dict contains proper compartments in processes
         ass_states_arg = [len(s) for s in proposed_is.values()]
         ass_states_net = [
             len(s) for s in self.get_model_hyperparams().values()
@@ -71,20 +70,21 @@ class CompartmentalGraph:
         )
 
         # check if proposed dict has values that sum to 100 in each process
-        for s in proposed_is.items():
-            if sum(s) != 100:
+        for states in proposed_is.values():
+            if sum(states) != 100:
                 raise ValueError("Sum in each process must equals to 100!")
 
-        self.seeding_budget = proposed_is
+        self._seeding_budget = proposed_is
 
-    def get_seeding_budget_for_network(self, net: MultilayerNetwork):
+    def get_seeding_budget_for_network(self, net: MultilayerNetwork) -> Dict:
         """
-        Transform initial_stages from %-s to num. of nodes according to network.
+        Transform initial_stages from %-s to num. of nodes according to net.
 
         :param net: input network to generate initial stages for
         :return: dictionary in form as e.g.: {"ill": (45, 4, 1), "aware":
-        (30, 20), "vacc": (35, 15)} for initial_states dict: {"ill": (90, 8, 2),
-        "aware": (60, 40), "vacc": (70, 30)} and 50 nodes in each layer.
+        (30, 20), "vacc": (35, 15)} for initial_states dict: {"ill":
+        (90, 8, 2), "aware": (60, 40), "vacc": (70, 30)} and 50 nodes in each
+        layer.
         """
         return {
             process: self._int_to_bins(
@@ -94,12 +94,15 @@ class CompartmentalGraph:
         }
 
     @staticmethod
-    def _int_to_bins(bins: Tuple[int, ...], base_num: int) -> Tuple[int, ...]:
-        binned_number = []
-        for percentage in bins:
+    def _int_to_bins(bins: Tuple[int, ...], base_num: int) -> List[int]:
+        binned_number: List[int] = []
+        for idx, percentage in enumerate(bins, 1):
             size_of_bin = int(percentage * base_num / 100)
             while sum(binned_number) + size_of_bin > base_num:
                 size_of_bin -= 1
+            if idx == len(bins):
+                while sum(binned_number) + size_of_bin < base_num:
+                    size_of_bin += 1
             binned_number.append(size_of_bin)
 
         return binned_number
@@ -108,16 +111,11 @@ class CompartmentalGraph:
         """
         Add propagation model for the given layer.
 
-        :param layer: name of network's layer
+        :param layer: name of network's layer, e.g. "Illness"
         :param type: type of model, i.e. names of states like ['s', 'i', 'r']
         """
-        assert len(layer_type) == len(
-            set(layer_type)
-        ), f"Phenomena names {layer_type} must be unique!"
-        assert layer_name != "graph", 'Layer cannot be named "graph"'
-        assert (
-            layer_name != "background_weight"
-        ), 'Layer cannot be named "background_weight"'
+        assert len(layer_type) == len(set(layer_type)), "Names must be unique!"
+        assert layer_name not in self.reserved_names, "Invalid name"
         self.__setattr__(layer_name, layer_type)
 
     def describe(
@@ -159,44 +157,39 @@ class CompartmentalGraph:
         )
         basic_str += "phenomenas and their states:"
         for name, val in self.__dict__.items():
-            if name == "graph":
-                if len(self.graph) == 0:
-                    basic_str += f"\n\t{name}: not initialised\n"
-                    continue
-                detailed_str += "\n"
-                for g_name, g_net in val.items():
-                    if full_graph:
-                        detailed_str += f"\n{g_name} transitions: "
-                        detailed_str += f"{g_net.edges().data()}\n"
-                    else:
-                        detailed_str += (
-                            f"\nlayer '{g_name}' transitions with nonzero "
-                            f"probability:\n"
-                        )
-                        for edge in g_net.edges():
-                            if g_net.edges[edge]["weight"] == 0.0:
-                                continue
-                            mask = [
-                                True if g_name in _ else False for _ in edge[0]
-                            ]
-                            start = np.array(edge[0])[mask][0].split(".")[1]
-                            finish = np.array(edge[1])[mask][0].split(".")[1]
-                            constraints = np.array(edge[0])[
-                                [not _ for _ in mask]
-                            ]
-                            weight = g_net.edges[edge]["weight"]
-                            detailed_str += (
-                                f"\tfrom {start} to {finish} with "
-                                f"probability {weight} and constrains "
-                                f"{constraints}\n"
-                            )
-            elif name == "background_weight":
-                continue
-            else:
+            if name != "graph":
                 basic_str += f"\n\t{name}: {val}"
+                continue
+            if len(self.graph) == 0:
+                basic_str += f"\n\t{name}: not initialised\n"
+                continue
+            detailed_str += "\n"
+            for g_name, g_net in val.items():
+                if full_graph:
+                    detailed_str += f"\n{g_name} transitions: "
+                    detailed_str += f"{g_net.edges().data()}\n"
+                else:
+                    detailed_str += (
+                        f"\nlayer '{g_name}' transitions with nonzero "
+                        f"probability:\n"
+                    )
+                    for edge in g_net.edges():
+                        if g_net.edges[edge]["weight"] == 0.0:
+                            continue
+                        mask = [
+                            True if g_name in _ else False for _ in edge[0]
+                        ]
+                        start = np.array(edge[0])[mask][0].split(".")[1]
+                        finish = np.array(edge[1])[mask][0].split(".")[1]
+                        constraints = np.array(edge[0])[[not _ for _ in mask]]
+                        weight = g_net.edges[edge]["weight"]
+                        detailed_str += (
+                            f"\tfrom {start} to {finish} with "
+                            f"probability {weight} and constrains "
+                            f"{constraints}\n"
+                        )
 
         detailed_str += "============================================"
-
         return basic_str + detailed_str
 
     def get_model_hyperparams(self) -> Dict[str, Tuple[Dict[str, Any]]]:
@@ -208,7 +201,7 @@ class CompartmentalGraph:
         """
         hyperparams = {}
         for name, val in self.__dict__.items():
-            if name not in {"graph", "background_weight"}:
+            if name not in self.reserved_names:
                 hyperparams[name] = val
         return hyperparams
 
@@ -234,7 +227,7 @@ class CompartmentalGraph:
 
         # create transition graph for each layer
         for layer_name, layer_type in self.__dict__.items():
-            if layer_name in {"graph", "background_weight"}:
+            if layer_name in self.reserved_names:
                 continue
             if track_changes:
                 print(layer_name)
@@ -248,8 +241,8 @@ class CompartmentalGraph:
             # constants for current layer
             self_dict_copy = self.__dict__.copy()
             del self_dict_copy[layer_name]
-            del self_dict_copy["graph"]
-            del self_dict_copy["background_weight"]
+            for attr in self.reserved_names:
+                del self_dict_copy[attr]
 
             # prepare names in other layers which are constant to current layer
             ol_names = []

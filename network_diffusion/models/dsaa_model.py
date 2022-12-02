@@ -22,17 +22,36 @@ from typing import List
 import networkx as nx
 import numpy as np
 
-from network_diffusion.models.base import BaseModel, NetworkUpdateBuffer
+from network_diffusion.models.base_model import BaseModel, NetworkUpdateBuffer
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.multilayer_network import MultilayerNetwork
+from network_diffusion.seeding.random_selector import RandomSeedSelector
 
 
-class DSAAAlgo(BaseModel):
+class DSAAModel(BaseModel):
     """This model implements algorithm presented at DSAA 2022."""
 
     def __init__(self, compartmental_graph: CompartmentalGraph) -> None:
         """Create the object."""
-        super().__init__(compartmental_graph=compartmental_graph)
+        super().__init__(
+            compartmental_graph=compartmental_graph,
+            seed_selector=RandomSeedSelector(),
+        )
+
+    def set_initial_states(self, net: MultilayerNetwork) -> MultilayerNetwork:
+        """
+        Set initial states in the network according to seed selection method.
+
+        :param net: network to initialise seeds for
+        """
+        if len(self._seeds) == 0:
+            self._seeds = self._seed_selector(self._compartmental_graph, net)
+        for seed_data in self._seeds:
+            net.layers[seed_data.layer_name].nodes[seed_data.node_name][
+                "status"
+            ] = seed_data.new_state
+
+        return net
 
     def node_evaluation_step(
         self, node_id: int, layer_name: str, net: MultilayerNetwork

@@ -11,18 +11,19 @@ import networkx as nx
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 
 
+def get_compiled_model():
+    """Prepare compiled propagation model for tests."""
+    model = CompartmentalGraph()
+    phenomenas = [["A", "B", "C"], ["A", "B"], ["A", "B"]]
+    processes = ("1", "2", "3")
+    for proc, phenom in zip(processes, phenomenas):
+        model.add(proc, phenom)
+    model.compile(background_weight=0.005)
+    return model
+
+
 class TestCompartmentalGraph(unittest.TestCase):
     """Test class for CompartmentalGraph class."""
-
-    def get_compiled_model(self):
-        """Prepare compiled propagation model for tests."""
-        model = CompartmentalGraph()
-        phenomenas = [["A", "B", "C"], ["A", "B"], ["A", "B"]]
-        processes = ("1", "2", "3")
-        for proc, phenom in zip(processes, phenomenas):
-            model.add(proc, phenom)
-        model.compile(background_weight=0.005)
-        return model
 
     def test_add(self):
         """Test if function adds process to the model."""
@@ -33,6 +34,7 @@ class TestCompartmentalGraph(unittest.TestCase):
             {
                 "graph": {},
                 "background_weight": float("inf"),
+                "_seeding_budget": {},
                 "1": ["A", "B", "C"],
             },
             "add func seems to have no effect",
@@ -45,7 +47,9 @@ class TestCompartmentalGraph(unittest.TestCase):
             "model of propagation\n"
             "--------------------------------------------\n"
             "phenomenas and their states:\n\t"
-            "graph: not initialised\n"
+            "graph: not initialised\n\n\t"
+            "background_weight: inf\n\t"
+            "_seeding_budget: {}"
             "============================================"
         )
         self.assertEqual(
@@ -56,7 +60,7 @@ class TestCompartmentalGraph(unittest.TestCase):
 
     def test_get_model_hyperparams(self):
         """Check if get_model_hyperparams function behaves correctly."""
-        model = self.get_compiled_model()
+        model = get_compiled_model()
         self.assertEqual(
             {"1": ["A", "B", "C"], "2": ["A", "B"], "3": ["A", "B"]},
             model.get_model_hyperparams(),
@@ -121,7 +125,7 @@ class TestCompartmentalGraph(unittest.TestCase):
 
     def test_set_transition_canonical(self):
         """Checks if setting transitions in canonical way is possible."""
-        model = self.get_compiled_model()
+        model = get_compiled_model()
         weight = model.graph["2"][("1.C", "2.A", "3.B")][("1.C", "2.B", "3.B")]
         self.assertEqual(
             weight["weight"],
@@ -152,7 +156,7 @@ class TestCompartmentalGraph(unittest.TestCase):
 
     def test_set_transition_fast(self):
         """Checks if setting transitions in fast way is possible."""
-        model = self.get_compiled_model()
+        model = get_compiled_model()
         weight = model.graph["1"][("1.C", "2.B", "3.A")][("1.A", "2.B", "3.A")]
         self.assertEqual(
             weight["weight"],
@@ -175,7 +179,7 @@ class TestCompartmentalGraph(unittest.TestCase):
 
     def test_set_transitions_in_random_edges(self):
         """Check if setting transitions in random way is possible."""
-        model = self.get_compiled_model()
+        model = get_compiled_model()
         layer_1_w = {0.4: 0, 0.5: 0}
         layer_2_w = {0.3: 0, 0.2: 0, 0.1: 0}
         model.set_transitions_in_random_edges(
@@ -207,7 +211,7 @@ class TestCompartmentalGraph(unittest.TestCase):
 
     def test_get_possible_transitions(self):
         """Check if possible transforms are gave correctly."""
-        model = self.get_compiled_model()
+        model = get_compiled_model()
         case_1 = model.get_possible_transitions(
             state=("1.C", "2.B", "3.A"), layer="1"
         )
