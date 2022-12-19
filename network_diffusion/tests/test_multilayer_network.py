@@ -17,17 +17,15 @@ class TestMultilayerNetwork(unittest.TestCase):
 
     def setUp(self):
         """Set up most common testing parameters."""
-        self.network = MultilayerNetwork()
-        self.network.load_mlx(
+        self.network = MultilayerNetwork.load_mlx(
             os.path.join(
                 utils.get_absolute_path(), "tests/data/florentine.mpx"
             )
         )
 
-    def test_load_mlx(self):
+    def test_load_mpx(self):
         """Tests loading network from mpx file."""
-        network = MultilayerNetwork()
-        network.load_mlx(
+        network = MultilayerNetwork.load_mlx(
             os.path.join(
                 utils.get_absolute_path(), "tests/data/bankwiring.mpx"
             )
@@ -56,12 +54,10 @@ class TestMultilayerNetwork(unittest.TestCase):
 
     def test_load_layers_nx(self):
         """Tests loading network from several graphs."""
-        network = MultilayerNetwork()
-
         graphs = [nx.random_tree(10)] * 4
         layer_names = ["1", "2", "3", "4"]
 
-        network.load_layers_nx(graphs, layer_names)
+        network = MultilayerNetwork.load_layers_nx(graphs, layer_names)
         exp_res = set(network.layers.keys())
 
         self.assertEqual(
@@ -78,9 +74,8 @@ class TestMultilayerNetwork(unittest.TestCase):
 
     def test_load_layer_nx(self):
         """Checks if creating MLN is correct by load_layer_nx func."""
-        network = MultilayerNetwork()
         names = ["a", "b"]
-        network.load_layer_nx(nx.les_miserables_graph(), names)
+        network = MultilayerNetwork.load_layer_nx(nx.les_miserables_graph(), names)
 
         self.assertTrue(
             network.layers["a"].nodes == network.layers["b"].nodes,
@@ -103,9 +98,8 @@ class TestMultilayerNetwork(unittest.TestCase):
 
     def test_compute_multiplexing_coefficient(self):
         """Tests if multiplexing coefficient is computed correctly."""
-        network = MultilayerNetwork()
         names = ["a", "b"]
-        network.load_layer_nx(nx.les_miserables_graph(), names)
+        network = MultilayerNetwork.load_layer_nx(nx.les_miserables_graph(), names)
         mcf = network._compute_multiplexing_coefficient()
         self.assertEqual(
             mcf,

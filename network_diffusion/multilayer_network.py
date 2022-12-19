@@ -33,11 +33,16 @@ from network_diffusion.utils import read_mlx
 class MultilayerNetwork:
     """Container for multilayer network."""
 
-    def __init__(self) -> None:
-        """Create empty object."""
-        self.layers: Dict[str, nx.Graph] = {}
+    def __init__(self, layers: Dict[str, nx.Graph]) -> None:
+        """
+        Create an object.
 
-    def load_mlx(self, file_path: str) -> None:
+        :param layers: a layers of the multilayer networks as graphs.
+        """
+        self.layers = layers
+
+    @classmethod
+    def load_mlx(cls, file_path: str) -> "MultilayerNetwork":
         """
         Load multilayer network from mlx file.
 
@@ -46,17 +51,16 @@ class MultilayerNetwork:
 
         :param file_path: path to the file
         """
-        # clear former layers of the object
-        self.layers = {}
-
-        # read mlx file
         raw_data = read_mlx(file_path)
 
         # create layers
+        layers: Dict[str, nx.Graph] = {}
         if "layers" in raw_data:
             for layer_name, layer_type in raw_data["layers"]:
-                if "DIRECTED" in layer_type:
-                    self.layers[layer_name] = nx.DiGraph()
+                if layer_type == "DIRECTED":
+                    layers[layer_name] = nx.DiGraph()
+                elif layer_type == "UNDIRECTED":
+                    layers[layer_name] = nx.Graph()
                 else:
                     print("unrecognised layer")
         else:
@@ -66,16 +70,18 @@ class MultilayerNetwork:
         if "edges" in raw_data:
             for edge in raw_data["edges"]:
                 # if edge definition is not corrupted go into it
-                if len(edge) >= 3 and edge[2] in self.layers:
-                    self.layers[edge[2]].add_edge(edge[0], edge[1])
+                if len(edge) >= 3 and edge[2] in layers:
+                    layers[edge[2]].add_edge(edge[0], edge[1])
 
-        self._prepare_nodes_attribute()
+        prepared_layers = cls._prepare_nodes_attribute(layers)
+        return cls(prepared_layers)
 
+    @classmethod
     def load_layers_nx(
-        self,
+        cls,
         network_list: List[nx.Graph],
         layer_names: Optional[List[Any]] = None,
-    ) -> None:
+    ) -> "MultilayerNetwork":
         """
         Load multilayer network as list of layers and list of its labels.
 
@@ -83,25 +89,25 @@ class MultilayerNetwork:
         :param layer_names: list of layer names. It can be none, then labels
             are set automatically
         """
-        # clear former layers of the object
-        self.layers = {}
-
+        layers = {}
         if layer_names is not None:
             assert len(network_list) == len(
                 layer_names
             ), "Length of network list and metadata list is not equal"
             for layer, name in zip(network_list, layer_names):
-                self.layers.update({name: layer})
+                layers.update({name: layer})
         else:
             for i, layer in enumerate(network_list, start=0):
                 name = f"layer_{i}"
-                self.layers.update({name: layer})
+                layers.update({name: layer})
 
-        self._prepare_nodes_attribute()
+        prepared_layers = cls._prepare_nodes_attribute(layers)
+        return cls(prepared_layers)
 
+    @classmethod
     def load_layer_nx(
-        self, network_layer: nx.Graph, layer_names: List[Any]
-    ) -> None:
+        cls, network_layer: nx.Graph, layer_names: List[Any]
+    ) -> "MultilayerNetwork":
         """
         Create multiplex network from one nx.Graph layer and layers names.
 
@@ -110,19 +116,20 @@ class MultilayerNetwork:
         :param network_layer: basic layer which is replicated through all ones
         :param layer_names: names for layers in multiplex network
         """
-        # clear former layers of the object
-        self.layers = {}
-
+        layers = {}
         for name in layer_names:
-            self.layers.update({name: deepcopy(network_layer)})
+            layers.update({name: deepcopy(network_layer)})
 
-        self._prepare_nodes_attribute()
+        prepared_layers = cls._prepare_nodes_attribute(layers)
+        return cls(prepared_layers)
 
-    def _prepare_nodes_attribute(self) -> None:
+    @staticmethod
+    def _prepare_nodes_attribute(layers: Dict[str, nx.Graph]) -> None:
         """Prepare network to the experiment."""
-        for layer in self.layers.values():
+        for layer in layers.values():
             status_dict = {n: None for n in layer.nodes()}
             nx.set_node_attributes(layer, status_dict, "status")
+        return layers
 
     def describe(self, to_print: bool = True) -> Optional[str]:
         """

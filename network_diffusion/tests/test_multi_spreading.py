@@ -23,8 +23,9 @@ class TestMultiSpreading(unittest.TestCase):
         self.phenomena = phenomena
 
         # init multilayer network from nx predefined network
-        network = MultilayerNetwork()
-        network.load_layer_nx(nx.les_miserables_graph(), [*phenomena.keys()])
+        network = MultilayerNetwork.load_layer_nx(
+            nx.les_miserables_graph(), [*phenomena.keys()]
+        )
         self.network = network
 
         # init model
