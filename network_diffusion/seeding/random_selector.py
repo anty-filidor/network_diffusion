@@ -17,7 +17,7 @@ class RandomSeedSelector(BaseSeedSelector):
         self, compartmental: CompartmentalGraph, network: MultilayerNetwork
     ) -> List[NetworkUpdateBuffer]:
         """Populate seeds ranking list by random choice."""
-        model_hyperparams = compartmental.get_model_hyperparams()
+        model_hyperparams = compartmental.get_compartments()
         states_seeds = compartmental.get_seeding_budget_for_network(network)
 
         ranking_list: List[NetworkUpdateBuffer] = []

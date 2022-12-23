@@ -37,7 +37,7 @@ class MultiSpreading:
         """
         assert (
             network.layers.keys()
-            == model.compartments.get_model_hyperparams().keys()
+            == model.compartments.get_compartments().keys()
         ), (
             "Layer names in network should be the same as layer names in "
             "propagation model"
@@ -78,6 +78,6 @@ class MultiSpreading:
             logger._add_log(self._network.get_nodes_states())
 
         # convert logs to dataframe
-        logger._convert_logs(self._model.compartments.get_model_hyperparams())
+        logger._convert_logs(self._model.compartments.get_compartments())
 
         return logger

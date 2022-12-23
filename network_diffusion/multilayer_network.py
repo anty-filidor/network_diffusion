@@ -22,12 +22,13 @@
 
 from collections import Counter
 from copy import deepcopy
+from functools import cache
 from typing import Any, Dict, List, Optional, Tuple
 
 import networkx as nx
 import numpy as np
 
-from network_diffusion.utils import read_mlx
+from network_diffusion.utils import read_mlx, MLNetworkActor
 
 
 class MultilayerNetwork:
@@ -124,7 +125,7 @@ class MultilayerNetwork:
         return cls(prepared_layers)
 
     @staticmethod
-    def _prepare_nodes_attribute(layers: Dict[str, nx.Graph]) -> None:
+    def _prepare_nodes_attribute(layers: Dict[str, nx.Graph]) -> Dict[str, nx.Graph]:
         """Prepare network to the experiment."""
         for layer in layers.values():
             status_dict = {n: None for n in layer.nodes()}
@@ -174,7 +175,7 @@ class MultilayerNetwork:
                 f"{len(graph.nodes())}\n\tnumber of edges - "
                 f"{len(graph.edges())}\n"
             )
-            avg_deg = np.average([_[1] for _ in graph.degree()])
+            avg_deg = np.average([_[1] for _ in graph.degree])
             final_str += f"\taverage degree - {round(avg_deg, 4)}\n"
             if len(graph) > 0:
                 final_str += (
@@ -254,24 +255,18 @@ class MultilayerNetwork:
         statistics = sorted(statistics)
         return tuple(statistics)
 
-    # TODO - probably deprecated
-    def get_neighbours_attributes(
-        self, node: Any, layer: str
-    ) -> List[Dict[str, Any]]:
-        """
-        Return attributes in given layer of given node's neighbours.
-
-        :param node: name of node
-        :param layer: layer from which neighbours are being examined
-
-        :return: list of neighbours' attributes
-        """
-        assert len(self.layers) > 0, "Import network to the object first!"
-        attributes = []
-        neighbours = [*self.layers[layer].neighbors(node)]
-        for neighbour in neighbours:
-            attributes.append(self.layers[layer].node[neighbour])  # TODO
-        return attributes
+    def get_actors(self) -> List[MLNetworkActor]:
+        """Get actors that exist in the network and read their states."""
+        actors: Dict[str, Dict] = {}
+        for layer_name, layer_graph in self.layers.items():
+            for node in layer_graph.nodes:
+                if node not in actors:
+                    actors[node] = {}
+                actors[node][layer_name] = self.layers[layer_name].nodes[node]["status"]
+        return [
+            MLNetworkActor(id=a_name, layers_states=a_layers_states) for
+            a_name, a_layers_states in actors.items()
+        ]
 
     def get_layer_names(self) -> List[str]:
         """

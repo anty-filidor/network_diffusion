@@ -22,7 +22,7 @@
 import os
 import pathlib
 import string
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 
 # TODO - json
@@ -89,3 +89,32 @@ def create_directory(dest_path: str) -> None:
 def get_absolute_path() -> str:
     """Get absolute path of library."""
     return str(pathlib.Path(__file__).parent)
+
+
+class MLNetworkActor:
+    """Dataclass that contain data of actor in the network"""
+    
+    def __init__(self, id: str, layers_states: Dict[str, str]) -> None:
+        """
+        Initialise the object.
+
+        :param id: if of the actor
+        :param layers_states: a dictionary keyed by layer names where the actor
+            exists and valued by its state in the given layer
+        """
+        self.id = id
+        self._layers_states = layers_states
+
+    @property
+    def layers(self) -> Tuple[str]:
+        return tuple(self._layers_states.keys())
+    
+    @property
+    def states(self) -> Tuple[str]:
+        return tuple(self._layers_states.values())
+    
+    @states.setter
+    def states(self, updated_states: Dict[str, str]) -> None:
+        for layer_name, new_state in updated_states.items():
+            assert layer_name in self._layers_states
+            self._layers_states[layer_name] = new_state

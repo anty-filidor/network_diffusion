@@ -63,7 +63,7 @@ class TestCompartmentalGraph(unittest.TestCase):
         model = get_compiled_model()
         self.assertEqual(
             {"1": ["A", "B", "C"], "2": ["A", "B"], "3": ["A", "B"]},
-            model.get_model_hyperparams(),
+            model.get_compartments(),
             "Incorrect hyperparameters of CompartmentalGraph!",
         )
 

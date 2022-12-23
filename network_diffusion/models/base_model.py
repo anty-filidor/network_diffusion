@@ -1,7 +1,7 @@
 """Definition of the base propagation model used in the library."""
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Any, List
 
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.models.utils.types import NetworkUpdateBuffer

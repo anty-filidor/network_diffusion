@@ -28,6 +28,7 @@ import networkx as nx
 import numpy as np
 
 from network_diffusion.multilayer_network import MultilayerNetwork
+from network_diffusion.utils import MLNetworkActor
 
 
 class CompartmentalGraph:
@@ -55,14 +56,14 @@ class CompartmentalGraph:
     @seeding_budget.setter
     def seeding_budget(self, proposed_is: Dict[str, Tuple[int, ...]]) -> None:
         """Set seeding budget in each of compartments."""
-        assert proposed_is.keys() == self.get_model_hyperparams().keys(), (
+        assert proposed_is.keys() == self.get_compartments().keys(), (
             "Layer names in argument should be the same as layer names in "
             "propagation model!"
         )
 
         ass_states_arg = [len(s) for s in proposed_is.values()]
         ass_states_net = [
-            len(s) for s in self.get_model_hyperparams().values()
+            len(s) for s in self.get_compartments().values()
         ]
         assert ass_states_net == ass_states_arg, (
             f"Shape of argument {ass_states_arg} should be the same as shape "
@@ -192,7 +193,7 @@ class CompartmentalGraph:
         detailed_str += "============================================"
         return basic_str + detailed_str
 
-    def get_model_hyperparams(self) -> Dict[str, Tuple[Dict[str, Any]]]:
+    def get_compartments(self) -> Dict[str, Tuple[Dict[str, Any]]]:
         """
         Get model parameters, i.e. names of layers and states in each layer.
 
@@ -274,7 +275,7 @@ class CompartmentalGraph:
         self.background_weight = background_weight
 
     def set_transition_canonical(
-        self, layer: str, transition: nx.Graph.edges.__class__, weight: float
+        self, layer: str, transition: nx.graph.EdgeView, weight: float
     ) -> None:
         """
         Set weight of certain transition in propagation model.
@@ -378,16 +379,7 @@ class CompartmentalGraph:
         # initialise empty container for possible transitions
         states = {}
 
-        # if given general node state doesn't exist in model definition,
-        # return all possible states in the given layer with background_weight
-        # as possible transitions
-        if state not in self.graph[layer]:
-            _ = self.get_model_hyperparams()[layer]
-            for s_name in _:
-                states[s_name] = self.background_weight
-            return states
-
-        # otherwise read possible states from model
+        # read possible states from model
         for neighbour in self.graph[layer].neighbors(state):
             if self.graph[layer].edges[(state, neighbour)]["weight"] > 0:
                 # parse general state to keep only state name in given layer
@@ -397,3 +389,26 @@ class CompartmentalGraph:
                             (state, neighbour)
                         ]["weight"]
         return states
+
+
+    def get_possible_transitions_actor(
+        self, actor: MLNetworkActor, process_name: str
+    ) -> Dict[str, float]:
+        """
+        Return possible transitions for given actor in given process.
+
+        Note that possible transition is a transition with weight > 0. Compared
+        to get_possible_transitions this function assumes that if given actor
+        is agnostic to the certain process, then its state in this process is 
+        by default an initial one from the model.
+        """
+        global_state = [f"{l}.{s}" for l, s in zip(actor.layers, actor.states)]
+        
+        # if actor is agnostic to at least one process use ther initial states
+        if set(actor.layers) != set(self.get_compartments()):
+            for layer, compartments in self.get_compartments().items():
+                if layer not in actor.layers:
+                    global_state.append(f"{layer}.{compartments[0]}")
+        
+        actor_state = tuple(sorted(global_state))
+        return self.get_possible_transitions(actor_state, process_name)

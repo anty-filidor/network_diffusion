@@ -20,9 +20,12 @@
 
 """Network Diffusion is package for simulating spreading phenomenas."""
 
-from network_diffusion.multi_spreading import MultiSpreading  # noqa: F401
-from network_diffusion.multilayer_network import (  # noqa: F401
-    MultilayerNetwork,
-)
+# noqa: F401
+
+from network_diffusion.multi_spreading import MultiSpreading  
+from network_diffusion.multilayer_network import MultilayerNetwork
+
+from network_diffusion import models
+from network_diffusion import seeding
 
 __version__ = "1.0.0"
