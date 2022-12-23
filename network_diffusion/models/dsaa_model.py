@@ -38,39 +38,24 @@ class DSAAModel(BaseModel):
             seed_selector=RandomSeedSelector(),
         )
 
-    def set_initial_states(self, net: MultilayerNetwork) -> MultilayerNetwork:
-        """
-        Set initial states in the network according to seed selection method.
-
-        :param net: network to initialise seeds for
-        """
-        if len(self._seeds) == 0:
-            self._seeds = self._seed_selector(self._compartmental_graph, net)
-        for seed_data in self._seeds:
-            net.layers[seed_data.layer_name].nodes[seed_data.node_name][
-                "status"
-            ] = seed_data.new_state
-
-        return net
-
     def node_evaluation_step(
-        self, node_id: int, layer_name: str, net: MultilayerNetwork
+        self, actor_or_node: int, layer_name: str, net: MultilayerNetwork
     ) -> str:
         """
         Try to change state of given node of the network according to model.
 
-        :param node_id: id of the node to evaluate
+        :param actor_or_node: id of the node to evaluate
         :param layer_name: a layer where the node exists
         :param network: a network where the node exists
 
         :return: state of the model after evaluation
         """
         layer_graph: nx.Graph = net.layers[layer_name]
-        current_state = layer_graph.nodes[node_id]["status"]
+        current_state = layer_graph.nodes[actor_or_node]["status"]
 
         # import possible transitions for state of the node
         av_trans = self._compartmental_graph.get_possible_transitions(
-            net.get_node_state(node_id), layer_name
+            net.get_node_state(actor_or_node), layer_name
         )
 
         # if there is no possible transition don't do anything
@@ -78,7 +63,7 @@ class DSAAModel(BaseModel):
             return current_state
 
         # iterate through neighbours of current node
-        for neighbour in nx.neighbors(layer_graph, node_id):
+        for neighbour in nx.neighbors(layer_graph, actor_or_node):
             av_new_state = layer_graph.nodes[neighbour]["status"]
 
             # if state of neighbour node is in possible transitions and

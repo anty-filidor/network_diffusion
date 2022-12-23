@@ -1,7 +1,6 @@
 """Definition of the aux types used in the library."""
 
 from dataclasses import dataclass
-from typing import Dict, Tuple
 
 
 @dataclass

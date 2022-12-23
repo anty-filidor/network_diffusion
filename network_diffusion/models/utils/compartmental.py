@@ -62,9 +62,7 @@ class CompartmentalGraph:
         )
 
         ass_states_arg = [len(s) for s in proposed_is.values()]
-        ass_states_net = [
-            len(s) for s in self.get_compartments().values()
-        ]
+        ass_states_net = [len(s) for s in self.get_compartments().values()]
         assert ass_states_net == ass_states_arg, (
             f"Shape of argument {ass_states_arg} should be the same as shape "
             f"of states in propagation model {ass_states_net}!"
@@ -390,7 +388,6 @@ class CompartmentalGraph:
                         ]["weight"]
         return states
 
-
     def get_possible_transitions_actor(
         self, actor: MLNetworkActor, process_name: str
     ) -> Dict[str, float]:
@@ -399,16 +396,19 @@ class CompartmentalGraph:
 
         Note that possible transition is a transition with weight > 0. Compared
         to get_possible_transitions this function assumes that if given actor
-        is agnostic to the certain process, then its state in this process is 
+        is agnostic to the certain process, then its state in this process is
         by default an initial one from the model.
         """
-        global_state = [f"{l}.{s}" for l, s in zip(actor.layers, actor.states)]
-        
+        global_state = [
+            f"{layer}.{state}"
+            for layer, state in zip(actor.layers, actor.states)
+        ]
+
         # if actor is agnostic to at least one process use ther initial states
         if set(actor.layers) != set(self.get_compartments()):
             for layer, compartments in self.get_compartments().items():
                 if layer not in actor.layers:
                     global_state.append(f"{layer}.{compartments[0]}")
-        
+
         actor_state = tuple(sorted(global_state))
         return self.get_possible_transitions(actor_state, process_name)

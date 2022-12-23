@@ -22,13 +22,12 @@
 
 from collections import Counter
 from copy import deepcopy
-from functools import cache
 from typing import Any, Dict, List, Optional, Tuple
 
 import networkx as nx
 import numpy as np
 
-from network_diffusion.utils import read_mlx, MLNetworkActor
+from network_diffusion.utils import MLNetworkActor, read_mlx
 
 
 class MultilayerNetwork:
@@ -125,7 +124,9 @@ class MultilayerNetwork:
         return cls(prepared_layers)
 
     @staticmethod
-    def _prepare_nodes_attribute(layers: Dict[str, nx.Graph]) -> Dict[str, nx.Graph]:
+    def _prepare_nodes_attribute(
+        layers: Dict[str, nx.Graph]
+    ) -> Dict[str, nx.Graph]:
         """Prepare network to the experiment."""
         for layer in layers.values():
             status_dict = {n: None for n in layer.nodes()}
@@ -262,10 +263,12 @@ class MultilayerNetwork:
             for node in layer_graph.nodes:
                 if node not in actors:
                     actors[node] = {}
-                actors[node][layer_name] = self.layers[layer_name].nodes[node]["status"]
+                actors[node][layer_name] = self.layers[layer_name].nodes[node][
+                    "status"
+                ]
         return [
-            MLNetworkActor(id=a_name, layers_states=a_layers_states) for
-            a_name, a_layers_states in actors.items()
+            MLNetworkActor(actor_id=a_name, layers_states=a_layers_states)
+            for a_name, a_layers_states in actors.items()
         ]
 
     def get_layer_names(self) -> List[str]:

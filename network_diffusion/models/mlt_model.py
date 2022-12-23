@@ -24,16 +24,18 @@ import numpy as np
 
 from network_diffusion.models.base_model import BaseModel, NetworkUpdateBuffer
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
-from network_diffusion.multilayer_network import MLNetworkActor, MultilayerNetwork
+from network_diffusion.multilayer_network import (
+    MLNetworkActor,
+    MultilayerNetwork,
+)
 from network_diffusion.seeding.base_selector import BaseSeedSelector
-
 
 
 class MLTModel(BaseModel):
     """
     This model implements Multiplex Linear Threshold Model.
 
-    The model has been presented in paper: "Influence Spread in the 
+    The model has been presented in paper: "Influence Spread in the
     Heterogeneous Multiplex Linear Threshold Model" by Yaofeng Desmond Zhong,
     Vaibhav Srivastava, and Naomi Ehrich Leonard.
     """
@@ -42,7 +44,10 @@ class MLTModel(BaseModel):
     ACTIVE_STATE = "1"
 
     def _create_compartments(
-        self, seeding_budget: Tuple[int, int], layers: List[str], mi: float,
+        self,
+        seeding_budget: Tuple[int, int],
+        layers: List[str],
+        mi: float,  # pylint: disable=C0103
     ) -> CompartmentalGraph:
         """
         Create compartmental graph for the model.
@@ -59,43 +64,43 @@ class MLTModel(BaseModel):
         for layer in layers:
             compart_graph.add(
                 layer_name=layer,
-                layer_type=[self.INACTIVE_STATE, self.ACTIVE_STATE]
+                layer_type=[self.INACTIVE_STATE, self.ACTIVE_STATE],
             )
             seeding_budget_full[layer] = seeding_budget
-        
-        compart_graph.seeding_budget = seeding_budget_full
+
+        compart_graph.seeding_budget = seeding_budget_full  # type: ignore
 
         # Add transitions in each layer
         compart_graph.compile(background_weight=0.0)
         for layer in layers:
             for edge in compart_graph.graph[layer].edges:
                 if (
-                    f"{layer}.{self.INACTIVE_STATE}" in edge[0] and
-                    f"{layer}.{self.ACTIVE_STATE}" in edge[1]
+                    f"{layer}.{self.INACTIVE_STATE}" in edge[0]
+                    and f"{layer}.{self.ACTIVE_STATE}" in edge[1]
                 ):
                     compart_graph.set_transition_canonical(
-                        layer=layer, 
+                        layer=layer,
                         transition=edge,  # type: ignore
                         weight=mi,
                     )
 
-        return compart_graph     
+        return compart_graph
 
-    def __init__(
+    def __init__(  # pylint: disable=R0913
         self,
         layers: List[str],
         protocol: str,
         seed_selector: BaseSeedSelector,
         seeding_budget: Tuple[int, int],
-        mi: float
+        mi: float,
     ) -> None:
         """
         Create the object.
 
         :param layers: a list of network layer names to create model for
-        :param protocol: logical operator that determines how to activate actors
-            can be OR (then actor gets activated if it gets positive input in 
-            one layer) or AND (then actor gets activated if it gets positive 
+        :param protocol: logical operator that determines how to activate actor
+            can be OR (then actor gets activated if it gets positive input in
+            one layer) or AND (then actor gets activated if it gets positive
             input in all layers)
         :param seed_selector: class that selects initial seeds for simulation
         :param seeding_budget: a proportion of INACTIVE and ACTIVE nodes in
@@ -112,23 +117,11 @@ class MLTModel(BaseModel):
         else:
             raise ValueError("Only OR or AND protocols are allowed!")
 
-    def set_initial_states(self, net: MultilayerNetwork) -> MultilayerNetwork:
-        """
-        Set initial states in the network according to seed selection method.
-
-        :param net: network to initialise seeds for
-        """
-        if len(self._seeds) == 0:
-            self._seeds = self._seed_selector(self._compartmental_graph, net)
-        for seed_data in self._seeds:
-            net.layers[seed_data.layer_name].nodes[seed_data.node_name][
-                "status"
-            ] = seed_data.new_state
-
-        return net
-
     def node_evaluation_step(
-        self, actor: MLNetworkActor, layer_name: str, net: MultilayerNetwork
+        self,
+        actor_or_node: MLNetworkActor,
+        layer_name: str,
+        net: MultilayerNetwork,
     ) -> str:
         """
         Try to change state of given node of the network according to model.
@@ -142,21 +135,21 @@ class MLTModel(BaseModel):
         layer_graph: nx.Graph = net.layers[layer_name]
 
         # trivial case - node is already activated
-        current_state = layer_graph.nodes[actor.id]["status"]
+        current_state = layer_graph.nodes[actor_or_node.actor_id]["status"]
         if current_state == self.ACTIVE_STATE:
             return current_state
 
         # import possible transitions for state of the actor
         av_trans = self._compartmental_graph.get_possible_transitions_actor(
-            actor, layer_name
+            actor_or_node, layer_name
         )
-    
+
         # iterate through neighbours of node and compute impuls
         impuls = 0
-        for neighbour in nx.neighbors(layer_graph, actor.id):
+        for neighbour in nx.neighbors(layer_graph, actor_or_node.actor_id):
             if layer_graph.nodes[neighbour]["status"] == self.ACTIVE_STATE:
-                impuls += 1 / nx.degree(layer_graph, actor.id)  # type: ignore
-        
+                impuls += 1 / nx.degree(layer_graph, actor_or_node.actor_id)
+
         # if thresh. has been reached return positive input, otherwise negative
         if impuls > av_trans[self.ACTIVE_STATE]:
             return self.ACTIVE_STATE
@@ -167,17 +160,12 @@ class MLTModel(BaseModel):
         """Protocol OR for node activation basing on layer inpulses."""
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.any())
-    
+
     @staticmethod
     def _protocol_and(inputs: Dict[str, str]) -> bool:
         """Protocol OR for node activation basing on layer inpulses."""
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.all())
-    
-    @staticmethod
-    def protocol(inputs: Dict[str, str]) -> bool:
-        """Protocol for node activation to initialise during __init__ call."""
-        raise NotImplementedError
 
     def network_evaluation_step(
         self, net: MultilayerNetwork
@@ -190,9 +178,9 @@ class MLTModel(BaseModel):
         """
         activated_nodes: List[NetworkUpdateBuffer] = []
 
-        # iterate through all actors 
+        # iterate through all actors
         for actor in net.get_actors():
-            
+
             # init container for positive inputs in each layer
             layer_inputs = {}
 
@@ -201,18 +189,18 @@ class MLTModel(BaseModel):
                 layer_inputs[layer_name] = self.node_evaluation_step(
                     actor, layer_name, net
                 )
-                
+
             # apply protocol to determine wether acivate actor or not
             if self.protocol(layer_inputs):
                 activated_nodes.extend(
                     [
                         NetworkUpdateBuffer(
-                            node_name=actor.id,
+                            node_name=actor.actor_id,
                             layer_name=layer_name,
                             new_state=self.ACTIVE_STATE,
                         )
-                        for layer_name in layer_inputs.keys()
+                        for layer_name in layer_inputs
                     ]
                 )
-            
+
         return activated_nodes

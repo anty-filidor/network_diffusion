@@ -75,7 +75,9 @@ class TestMultilayerNetwork(unittest.TestCase):
     def test_load_layer_nx(self):
         """Checks if creating MLN is correct by load_layer_nx func."""
         names = ["a", "b"]
-        network = MultilayerNetwork.load_layer_nx(nx.les_miserables_graph(), names)
+        network = MultilayerNetwork.load_layer_nx(
+            nx.les_miserables_graph(), names
+        )
 
         self.assertTrue(
             network.layers["a"].nodes == network.layers["b"].nodes,
@@ -99,7 +101,9 @@ class TestMultilayerNetwork(unittest.TestCase):
     def test_compute_multiplexing_coefficient(self):
         """Tests if multiplexing coefficient is computed correctly."""
         names = ["a", "b"]
-        network = MultilayerNetwork.load_layer_nx(nx.les_miserables_graph(), names)
+        network = MultilayerNetwork.load_layer_nx(
+            nx.les_miserables_graph(), names
+        )
         mcf = network._compute_multiplexing_coefficient()
         self.assertEqual(
             mcf,

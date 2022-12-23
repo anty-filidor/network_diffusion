@@ -35,22 +35,27 @@ class BaseModel(ABC):
 
     def set_initial_states(self, net: MultilayerNetwork) -> MultilayerNetwork:
         """
-        Set up network to reflect given initial states in the model.
+        Set initial states in the network according to seed selection method.
 
-        :param net: a network where the node exists
+        :param net: network to initialise seeds for
         """
         if len(self._seeds) == 0:
             self._seeds = self._seed_selector(self._compartmental_graph, net)
-        raise NotImplementedError
+        for seed_data in self._seeds:
+            net.layers[seed_data.layer_name].nodes[seed_data.node_name][
+                "status"
+            ] = seed_data.new_state
+
+        return net
 
     @abstractmethod
     def node_evaluation_step(
-        self, node_id: int, layer_name: str, net: MultilayerNetwork
+        self, actor_or_node: Any, layer_name: str, net: MultilayerNetwork
     ) -> str:
         """
         Try to change state of given node of the network according to model.
 
-        :param node_id: id of the node to evaluate
+        :param actor_or_node: id of the node or the actor to evaluate
         :param layer_name: a layer where the node exists
         :param net: a network where the node exists
 
