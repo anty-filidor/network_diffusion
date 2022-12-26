@@ -43,56 +43,13 @@ class MLTModel(BaseModel):
     INACTIVE_STATE = "0"
     ACTIVE_STATE = "1"
 
-    def _create_compartments(
-        self,
-        seeding_budget: Tuple[int, int],
-        layers: List[str],
-        mi: float,  # pylint: disable=C0103
-    ) -> CompartmentalGraph:
-        """
-        Create compartmental graph for the model.
-
-        For each process (i.e. layer) create two states: 0, 1 and assign
-        transition weight equals mi for each transition 0->1, while for another
-        ones 0.
-        """
-        compart_graph = CompartmentalGraph()
-        seeding_budget_full = {}
-        assert mi in range(0, 1)
-
-        # For each process add allowed states and seeding budget
-        for layer in layers:
-            compart_graph.add(
-                layer_name=layer,
-                layer_type=[self.INACTIVE_STATE, self.ACTIVE_STATE],
-            )
-            seeding_budget_full[layer] = seeding_budget
-
-        compart_graph.seeding_budget = seeding_budget_full  # type: ignore
-
-        # Add transitions in each layer
-        compart_graph.compile(background_weight=0.0)
-        for layer in layers:
-            for edge in compart_graph.graph[layer].edges:
-                if (
-                    f"{layer}.{self.INACTIVE_STATE}" in edge[0]
-                    and f"{layer}.{self.ACTIVE_STATE}" in edge[1]
-                ):
-                    compart_graph.set_transition_canonical(
-                        layer=layer,
-                        transition=edge,  # type: ignore
-                        weight=mi,
-                    )
-
-        return compart_graph
-
-    def __init__(  # pylint: disable=R0913
+    def __init__(
         self,
         layers: List[str],
         protocol: str,
         seed_selector: BaseSeedSelector,
         seeding_budget: Tuple[int, int],
-        mi: float,
+        mi_value: float,
     ) -> None:
         """
         Create the object.
@@ -108,7 +65,9 @@ class MLTModel(BaseModel):
         :param mi: activation threshold to transit from INACTIVE to ACTIVE in
             evaluation of the actor in particular layer
         """
-        compart_graph = self._create_compartments(seeding_budget, layers, mi)
+        compart_graph = self._create_compartments(
+            seeding_budget, layers, mi_value
+        )
         super().__init__(compart_graph, seed_selector)
         if protocol == "AND":
             self.protocol = self._protocol_and
@@ -116,6 +75,80 @@ class MLTModel(BaseModel):
             self.protocol = self._protocol_or
         else:
             raise ValueError("Only OR or AND protocols are allowed!")
+
+    def _create_compartments(
+        self,
+        seeding_budget: Tuple[int, int],
+        layers: List[str],
+        mi_value: float,
+    ) -> CompartmentalGraph:
+        """
+        Create compartmental graph for the model.
+
+        For each process (i.e. layer) create two states: 0, 1 and assign
+        transition weight equals mi for each transition 0->1, while for another
+        ones 0.
+        """
+        compart_graph = CompartmentalGraph()
+        seeding_budget_full = {}
+        assert 0 < mi_value < 1
+
+        # For each process add allowed states and seeding budget
+        for layer in layers:
+            compart_graph.add(
+                layer_name=layer,
+                layer_type=[self.INACTIVE_STATE, self.ACTIVE_STATE],
+            )
+            seeding_budget_full[layer] = seeding_budget
+
+        # Setup seeding budget
+        compart_graph.seeding_budget = seeding_budget_full  # type: ignore
+
+        # Add transitions in each layer
+        compart_graph.compile(background_weight=0.0)
+        for layer in layers:
+            for edge in compart_graph.graph[layer].edges:
+                if (
+                    f"{layer}.{self.INACTIVE_STATE}" in edge[0]
+                    and f"{layer}.{self.ACTIVE_STATE}" in edge[1]
+                ):
+                    compart_graph.set_transition_canonical(
+                        layer=layer,
+                        transition=edge,  # type: ignore
+                        weight=mi_value,
+                    )
+
+        return compart_graph
+    
+    @staticmethod
+    def _protocol_or(inputs: Dict[str, str]) -> bool:
+        """Protocol OR for node activation basing on layer inpulses."""
+        inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
+        return bool(inputs_bool.any())
+
+    @staticmethod
+    def _protocol_and(inputs: Dict[str, str]) -> bool:
+        """Protocol OR for node activation basing on layer inpulses."""
+        inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
+        return bool(inputs_bool.all())
+
+    def set_initial_states(self, net: MultilayerNetwork) -> MultilayerNetwork:
+        """
+        Set initial states in the network according to seed selection method.
+
+        :param net: network to initialise seeds for
+        """
+        budget = self._compartmental_graph.get_seeding_budget_for_network(net)
+        for l_name, ranking in self._seed_selector(network=net).items():
+            budget_active = budget[l_name][self.ACTIVE_STATE]
+            nodes_active = ranking[:budget_active]
+            l_graph = net.layers[l_name]
+            for node in l_graph.nodes():
+                if node in nodes_active:
+                    l_graph.nodes[node]["status"] = self.ACTIVE_STATE
+                else:
+                    l_graph.nodes[node]["status"] = self.INACTIVE_STATE
+        return net
 
     def node_evaluation_step(
         self,
@@ -155,18 +188,6 @@ class MLTModel(BaseModel):
             return self.ACTIVE_STATE
         return current_state
 
-    @staticmethod
-    def _protocol_or(inputs: Dict[str, str]) -> bool:
-        """Protocol OR for node activation basing on layer inpulses."""
-        inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
-        return bool(inputs_bool.any())
-
-    @staticmethod
-    def _protocol_and(inputs: Dict[str, str]) -> bool:
-        """Protocol OR for node activation basing on layer inpulses."""
-        inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
-        return bool(inputs_bool.all())
-
     def network_evaluation_step(
         self, net: MultilayerNetwork
     ) -> List[NetworkUpdateBuffer]:
@@ -179,7 +200,7 @@ class MLTModel(BaseModel):
         activated_nodes: List[NetworkUpdateBuffer] = []
 
         # iterate through all actors
-        for actor in net.get_actors():
+        for actor in net.get_actors(): # TODO: shuffle them!!!
 
             # init container for positive inputs in each layer
             layer_inputs = {}

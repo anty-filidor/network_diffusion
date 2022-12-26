@@ -39,7 +39,7 @@ class BaseModel(ABC):
 
         :param net: network to initialise seeds for
         """
-        if len(self._seeds) == 0:
+        if len(self._seeds) == 0: # TODO: change it!
             self._seeds = self._seed_selector(self._compartmental_graph, net)
         for seed_data in self._seeds:
             net.layers[seed_data.layer_name].nodes[seed_data.node_name][

@@ -75,22 +75,30 @@ class CompartmentalGraph:
 
         self._seeding_budget = proposed_is
 
-    def get_seeding_budget_for_network(self, net: MultilayerNetwork) -> Dict:
+    def get_seeding_budget_for_network(
+        self, net: MultilayerNetwork
+    ) -> Dict[str, Dict[Any, int]]:
         """
         Transform initial_stages from %-s to num. of nodes according to net.
 
         :param net: input network to generate initial stages for
-        :return: dictionary in form as e.g.: {"ill": (45, 4, 1), "aware":
-        (30, 20), "vacc": (35, 15)} for initial_states dict: {"ill":
-        (90, 8, 2), "aware": (60, 40), "vacc": (70, 30)} and 50 nodes in each
-        layer.
+        :return: dictionary in form as e.g.: 
+            {
+                "ill": {"suspected": 45, "infected": 4, "recovered": 1},
+                "vacc": {"unvaccinated": 35, "vaccinated": 15}
+            }
+            for initial_states dict: {"ill": (90, 8, 2), "vacc": (70, 30)} and
+            50 nodes in each layer.
         """
-        return {
-            process: self._int_to_bins(
-                percentages, len(net.layers[process].nodes())
-            )
-            for process, percentages in self.seeding_budget.items()
-        }
+        seeding_budget = {}
+        for process, pcts in self.seeding_budget.items():
+            bins = self._int_to_bins(pcts, len(net.layers[process].nodes))
+            states = self.get_compartments()[process]
+            seeding_budget[process] = {
+                state: num_nodes for state, num_nodes in 
+                zip(states, bins)
+            }
+        return seeding_budget
 
     @staticmethod
     def _int_to_bins(bins: Tuple[int, ...], base_num: int) -> List[int]:
