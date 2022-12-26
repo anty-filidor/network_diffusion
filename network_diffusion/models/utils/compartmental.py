@@ -82,7 +82,7 @@ class CompartmentalGraph:
         Transform initial_stages from %-s to num. of nodes according to net.
 
         :param net: input network to generate initial stages for
-        :return: dictionary in form as e.g.: 
+        :return: dictionary in form as e.g.:
             {
                 "ill": {"suspected": 45, "infected": 4, "recovered": 1},
                 "vacc": {"unvaccinated": 35, "vaccinated": 15}
@@ -94,10 +94,7 @@ class CompartmentalGraph:
         for process, pcts in self.seeding_budget.items():
             bins = self._int_to_bins(pcts, len(net.layers[process].nodes))
             states = self.get_compartments()[process]
-            seeding_budget[process] = {
-                state: num_nodes for state, num_nodes in 
-                zip(states, bins)
-            }
+            seeding_budget[process] = dict(zip(states, bins))
         return seeding_budget
 
     @staticmethod

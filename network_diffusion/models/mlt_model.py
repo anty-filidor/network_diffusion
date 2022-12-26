@@ -22,12 +22,11 @@ from typing import Dict, List, Tuple
 import networkx as nx
 import numpy as np
 
-from network_diffusion.models.base_model import BaseModel, NetworkUpdateBuffer
+from network_diffusion.models.base_model import BaseModel
+from network_diffusion.models.base_model import NetworkUpdateBuffer as NUBuff
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
-from network_diffusion.multilayer_network import (
-    MLNetworkActor,
-    MultilayerNetwork,
-)
+from network_diffusion.multilayer_network import MLNetworkActor
+from network_diffusion.multilayer_network import MultilayerNetwork as MLNet
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 
 
@@ -43,7 +42,7 @@ class MLTModel(BaseModel):
     INACTIVE_STATE = "0"
     ACTIVE_STATE = "1"
 
-    def __init__(
+    def __init__(  # pylint: disable=R0913
         self,
         layers: List[str],
         protocol: str,
@@ -119,7 +118,7 @@ class MLTModel(BaseModel):
                     )
 
         return compart_graph
-    
+
     @staticmethod
     def _protocol_or(inputs: Dict[str, str]) -> bool:
         """Protocol OR for node activation basing on layer inpulses."""
@@ -132,7 +131,7 @@ class MLTModel(BaseModel):
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.all())
 
-    def set_initial_states(self, net: MultilayerNetwork) -> MultilayerNetwork:
+    def set_initial_states(self, net: MLNet) -> MLNet:
         """
         Set initial states in the network according to seed selection method.
 
@@ -154,7 +153,7 @@ class MLTModel(BaseModel):
         self,
         actor_or_node: MLNetworkActor,
         layer_name: str,
-        net: MultilayerNetwork,
+        net: MLNet,
     ) -> str:
         """
         Try to change state of given node of the network according to model.
@@ -188,16 +187,14 @@ class MLTModel(BaseModel):
             return self.ACTIVE_STATE
         return current_state
 
-    def network_evaluation_step(
-        self, net: MultilayerNetwork
-    ) -> List[NetworkUpdateBuffer]:
+    def network_evaluation_step(self, net: MLNet) -> List[NUBuff]:
         """
-        Evaluate the network at one time stamp according to the model.
+        Evaluate the network at one time stamp with MLTModel.
 
         :param network: a network to evaluate
         :return: list of nodes that changed state after the evaluation
         """
-        activated_nodes: List[NetworkUpdateBuffer] = []
+        activated_nodes: List[NUBuff] = []
 
         # iterate through all actors
         for actor in net.get_actors(shuffle=True):
@@ -215,7 +212,7 @@ class MLTModel(BaseModel):
             if self.protocol(layer_inputs):
                 activated_nodes.extend(
                     [
-                        NetworkUpdateBuffer(
+                        NUBuff(
                             node_name=actor.actor_id,
                             layer_name=layer_name,
                             new_state=self.ACTIVE_STATE,

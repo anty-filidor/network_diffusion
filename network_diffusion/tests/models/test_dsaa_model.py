@@ -61,34 +61,52 @@ class TestDSAAModel(unittest.TestCase):
             "aware": (77, 23),
             "vacc": (90, 10),
         }
-        self.model.set_initial_states(net=self.network)
 
     def test_set_initial_states(self) -> None:
         """Check if set_initial_states appends good statuses to nodes."""
-        numbers_nodes_in_states = (
+        expected_nodes_states = (
             self.model._compartmental_graph.get_seeding_budget_for_network(
                 self.network
             )
         )
-        for phenomena_name in self.phenomena.keys():
-            phenomena_graph = self.network.layers[phenomena_name]
-            expected_nodes_states = {
-                k: v
-                for k, v in zip(
-                    self.phenomena[phenomena_name],
-                    numbers_nodes_in_states[phenomena_name],
-                )
-            }
-            real_nodes_states = {k: 0 for k in self.phenomena[phenomena_name]}
 
-            # obtain real states from the network
-            for node in phenomena_graph.nodes:
-                status = phenomena_graph.nodes[node]["status"]
-                real_nodes_states[status] += 1
+        self.model.set_initial_states(net=self.network)
 
+        # obtain info about numbers of nodes
+        real_nodes_states = {}
+        for l_name, l_graph in self.network.layers.items():
+            l_states: Dict[str, int] = {}
+            for node in l_graph.nodes():
+                state = l_graph.nodes[node]["status"]
+                if not l_states.get(state):
+                    l_states[state] = 1
+                else:
+                    l_states[state] += 1
+            real_nodes_states[l_name] = l_states
+
+        # check wether layer names are the same
+        self.assertEqual(
+            rl_names := set(real_nodes_states.keys()),
+            el_names := set(expected_nodes_states.keys()),
+            f"Wrong number of processes, expected {rl_names} found {el_names}",
+        )
+
+        # for each layer do comparison
+        for l_name in rl_names:
+
+            # check wether states names are the same
             self.assertEqual(
-                real_nodes_states,
-                expected_nodes_states,
-                f"Wrong number of states in layer {phenomena_name}: "
-                f"expected {expected_nodes_states} found {real_nodes_states}",
+                rs_names := real_nodes_states[l_name].keys(),
+                es_names := expected_nodes_states[l_name].keys(),
+                f"Wrong number of states in process {l_name} expected "
+                f"{rs_names} found {es_names}",
             )
+
+            # check wether numbers of nodes in given state are the same
+            for state in rs_names:
+                self.assertEqual(
+                    rn_num := real_nodes_states[l_name][state],
+                    en_num := expected_nodes_states[l_name][state],
+                    f"Wrong number of nodes in state {state} expected "
+                    f"{en_num} found {rn_num}",
+                )

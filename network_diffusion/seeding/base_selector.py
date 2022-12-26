@@ -24,7 +24,7 @@ class BaseSeedSelector(ABC):
             seeds_in_layer = self._calculate_ranking_list(l_graph)
             nodes_ranking[l_name] = seeds_in_layer
         return nodes_ranking
-    
+
     @staticmethod
     @abstractmethod
     def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:

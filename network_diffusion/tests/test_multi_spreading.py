@@ -51,17 +51,16 @@ class TestMultiSpreading(unittest.TestCase):
             for idx, row in v.iterrows():
                 if idx == 0:
                     self.assertTrue(
-                        np.all(row.values == initial_states[k]),
-                        f"Particular states in initial epoch should be equal "
-                        f"to given during defining an experiment"
-                        f"{row.values} != {initial_states[k]}",
+                        np.all(row.values == list(initial_states[k].values())),
+                        "Particular states in initial epoch should be equal "
+                        "to given during defining an experiment",
                     )
                 else:
                     self.assertEqual(
                         row.sum(),
-                        np.sum(initial_states[k]),
-                        f"Sum of particular node states in epoch must be equal"
-                        f" to the sum of all nodes in the network's layer "
+                        np.sum(list(initial_states[k].values())),
+                        "Sum of particular node states in epoch must be equal "
+                        "to the sum of all nodes in the network's layer "
                         f"sum({row.values}) != {np.sum(initial_states[k])}",
                     )
 

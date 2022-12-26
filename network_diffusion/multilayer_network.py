@@ -20,7 +20,6 @@
 
 # pylint: disable=W0141
 import random
-
 from collections import Counter
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Tuple
@@ -269,7 +268,9 @@ class MultilayerNetwork:
             for node in layer_graph.nodes:
                 if node not in actor_dict:
                     actor_dict[node] = {}
-                actor_dict[node][layer_name] = self.layers[layer_name].nodes[node]["status"]
+                actor_dict[node][layer_name] = self.layers[layer_name].nodes[
+                    node
+                ]["status"]
 
         actor_list = [
             MLNetworkActor(actor_id=a_name, layers_states=a_layers_states)

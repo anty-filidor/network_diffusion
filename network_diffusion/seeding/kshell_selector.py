@@ -2,9 +2,10 @@
 
 from typing import Any, List
 
+import networkx as nx
+
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 
-import networkx as nx
 
 class KShellSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on k-shell algorithm."""
@@ -27,9 +28,9 @@ class KShellSeedSelector(BaseSeedSelector):
             if ksh_nodes == ksh_deepest_nodes:
                 break
             k += 1
-        
+
         return [
-            node 
-            for cohort in sorted(shell_ranking)[::-1] 
+            node
+            for cohort in sorted(shell_ranking)[::-1]
             for node in shell_ranking[cohort]
         ]

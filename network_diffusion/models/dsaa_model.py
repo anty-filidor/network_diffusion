@@ -51,7 +51,7 @@ class DSAAModel(BaseModel):
 
             # get data to select seeds in the network
             l_graph = net.layers[l_name]
-            l_budget = budget[l_name] 
+            l_budget = budget[l_name]
             l_nodes_num = len(l_graph.nodes())
 
             # set ranges - idk what is it
@@ -66,7 +66,7 @@ class DSAAModel(BaseModel):
                 state = list(l_budget.keys())[i]
                 for index in range(pair[0], pair[1]):
                     l_graph.nodes[ranking[index]]["status"] = state
-    
+
         return net
 
     def node_evaluation_step(

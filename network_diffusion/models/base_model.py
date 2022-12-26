@@ -33,20 +33,14 @@ class BaseModel(ABC):
         """Return defined compartments and allowed transitions."""
         return self._compartmental_graph
 
+    @abstractmethod
     def set_initial_states(self, net: MultilayerNetwork) -> MultilayerNetwork:
         """
         Set initial states in the network according to seed selection method.
 
         :param net: network to initialise seeds for
         """
-        if len(self._seeds) == 0: # TODO: change it!
-            self._seeds = self._seed_selector(self._compartmental_graph, net)
-        for seed_data in self._seeds:
-            net.layers[seed_data.layer_name].nodes[seed_data.node_name][
-                "status"
-            ] = seed_data.new_state
-
-        return net
+        ...
 
     @abstractmethod
     def node_evaluation_step(
