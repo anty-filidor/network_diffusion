@@ -200,7 +200,7 @@ class MLTModel(BaseModel):
         activated_nodes: List[NetworkUpdateBuffer] = []
 
         # iterate through all actors
-        for actor in net.get_actors(): # TODO: shuffle them!!!
+        for actor in net.get_actors(shuffle=True):
 
             # init container for positive inputs in each layer
             layer_inputs = {}

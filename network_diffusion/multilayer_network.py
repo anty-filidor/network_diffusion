@@ -19,6 +19,7 @@
 """Functions for the multilayer network definition."""
 
 # pylint: disable=W0141
+import random
 
 from collections import Counter
 from copy import deepcopy
@@ -256,20 +257,28 @@ class MultilayerNetwork:
         statistics = sorted(statistics)
         return tuple(statistics)
 
-    def get_actors(self) -> List[MLNetworkActor]:
-        """Get actors that exist in the network and read their states."""
-        actors: Dict[str, Dict] = {}
+    def get_actors(self, shuffle: bool = False) -> List[MLNetworkActor]:
+        """
+        Get actors that exist in the network and read their states.
+
+        :param shuffle: a flag that determines whether to shuffle actor list
+        :return: a list with actors that live in the network
+        """
+        actor_dict: Dict[str, Dict] = {}
         for layer_name, layer_graph in self.layers.items():
             for node in layer_graph.nodes:
-                if node not in actors:
-                    actors[node] = {}
-                actors[node][layer_name] = self.layers[layer_name].nodes[node][
-                    "status"
-                ]
-        return [
+                if node not in actor_dict:
+                    actor_dict[node] = {}
+                actor_dict[node][layer_name] = self.layers[layer_name].nodes[node]["status"]
+
+        actor_list = [
             MLNetworkActor(actor_id=a_name, layers_states=a_layers_states)
-            for a_name, a_layers_states in actors.items()
+            for a_name, a_layers_states in actor_dict.items()
         ]
+        if shuffle:
+            random.shuffle(actor_list)
+
+        return actor_list
 
     def get_layer_names(self) -> List[str]:
         """
