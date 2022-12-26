@@ -17,7 +17,7 @@
 # =============================================================================
 """Functions for the phenomena spreading definition."""
 
-from typing import List
+from typing import List, Tuple
 
 import networkx as nx
 import numpy as np
@@ -37,6 +37,37 @@ class DSAAModel(BaseModel):
             compartmental_graph=compartmental_graph,
             seed_selector=RandomSeedSelector(),
         )
+
+    def set_initial_states(self, net: MultilayerNetwork) -> MultilayerNetwork:
+        """
+        Set initial states in the network according to seed selection method.
+
+        :param net: network to initialise seeds for
+        """
+        budget = self._compartmental_graph.get_seeding_budget_for_network(net)
+
+        # set initial states in each layer of network
+        for l_name, ranking in self._seed_selector(network=net).items():
+
+            # get data to select seeds in the network
+            l_graph = net.layers[l_name]
+            l_budget = budget[l_name] 
+            l_nodes_num = len(l_graph.nodes())
+
+            # set ranges - idk what is it
+            _rngs = [
+                sum(list(l_budget.values())[:x]) for x in range(len(l_budget))
+            ] + [l_nodes_num]
+            ranges: List[Tuple[int, int]] = list(zip(_rngs[:-1], _rngs[1:]))
+
+            # append states to nodes
+            for i, _ in enumerate(ranges):
+                pair = ranges[i]
+                state = list(l_budget.keys())[i]
+                for index in range(pair[0], pair[1]):
+                    l_graph.nodes[ranking[index]]["status"] = state
+    
+        return net
 
     def node_evaluation_step(
         self, actor_or_node: int, layer_name: str, net: MultilayerNetwork
@@ -97,12 +128,12 @@ class DSAAModel(BaseModel):
         activated_nodes: List[NetworkUpdateBuffer] = []
 
         for layer_name, layer_graph in net.layers.items():
-            for n in layer_graph.nodes():
+            for node in layer_graph.nodes():
 
-                old_state = layer_graph.nodes[n]["status"]
-                new_state = self.node_evaluation_step(n, layer_name, net)
+                old_state = layer_graph.nodes[node]["status"]
+                new_state = self.node_evaluation_step(node, layer_name, net)
 
                 if old_state != new_state:
-                    layer_graph.nodes[n]["status"] = new_state
+                    layer_graph.nodes[node]["status"] = new_state
 
         return activated_nodes

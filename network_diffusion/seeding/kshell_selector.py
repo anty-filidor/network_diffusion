@@ -1,27 +1,16 @@
 """A definition of the seed selector based on k-shell algorithm."""
 
-from typing import Any, Dict, List
+from typing import Any, List
 
-from network_diffusion.models.utils.compartmental import CompartmentalGraph
-from network_diffusion.models.utils.types import NetworkUpdateBuffer
-from network_diffusion.multilayer_network import MultilayerNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 
 import networkx as nx
 
-class KShellSelectorMLTM(BaseSeedSelector):
+class KShellSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on k-shell algorithm."""
 
-    def __call__(self, network: MultilayerNetwork) -> Dict[str, Any]:
-        """Prepare ranking list for each layer."""
-        nodes_ranking = {}
-        for l_name, l_graph in network.layers.items():
-            seeds_in_layer = self._create_k_shell_ranking_for_layer(l_graph)
-            nodes_ranking[l_name] = seeds_in_layer
-        return nodes_ranking
-
     @staticmethod
-    def _create_k_shell_ranking_for_layer(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
         """
         Create a ranking of nodes based on their k-shell cohort position.
 
