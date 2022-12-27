@@ -47,7 +47,7 @@ class TestMultiSpreading(unittest.TestCase):
         )
 
         logs = experiment.perform_propagation(50)
-        for k, v in logs._stats.items():
+        for k, v in logs._global_stats_converted.items():
             for idx, row in v.iterrows():
                 if idx == 0:
                     self.assertTrue(

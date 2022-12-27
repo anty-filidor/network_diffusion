@@ -246,13 +246,13 @@ class TestExperimentLogger(unittest.TestCase):
             logger._add_log(i)
 
         self.assertEqual(
-            logger._stats,
+            logger._global_stats_converted,
             {},
             "Before convertion of logs field 'stat' should be empty",
         )
 
         logger._convert_logs(model_hyperparams)
-        for phenomena, stat in logger._stats.items():
+        for phenomena, stat in logger._global_stats_converted.items():
             self.assertTrue(
                 exp_logs_converted[phenomena].equals(stat),
                 f"Logs for phenomena {phenomena} incorrect. Expected value"
@@ -264,10 +264,10 @@ class TestExperimentLogger(unittest.TestCase):
         raw_logs = prepare_logs()
         logger = ExperimentLogger("model", "network")
 
-        lengths__raw_stats = [len(logger._raw_stats)]
+        lengths__raw_stats = [len(logger._global_stats)]
         for log in raw_logs:
             logger._add_log(log)
-            lengths__raw_stats.append(len(logger._raw_stats))
+            lengths__raw_stats.append(len(logger._global_stats))
 
         exp_lengths = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         self.assertEqual(

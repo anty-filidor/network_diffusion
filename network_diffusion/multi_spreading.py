@@ -73,10 +73,11 @@ class MultiSpreading:
             nodes_to_update = self._model.network_evaluation_step(
                 self._network
             )
-            self._model.update_network(self._network, nodes_to_update)
+            epoch_json = self._model.update_network(self._network, nodes_to_update)
 
             # add logs from current epoch
-            logger._add_log(self._network.get_nodes_states())  # TODO: add here also a dump of the entire network or delta
+            logger._add_log(self._network.get_nodes_states())
+            logger._local_stats[epoch] = epoch_json
 
         # convert logs to dataframe
         logger._convert_logs(self._model.compartments.get_compartments())

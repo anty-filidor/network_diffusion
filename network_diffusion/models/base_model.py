@@ -1,7 +1,7 @@
 """Definition of the base propagation model used in the library."""
 
 from abc import ABC, abstractmethod
-from typing import Any, List
+from typing import Any, Dict, List
 
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.models.utils.types import NetworkUpdateBuffer
@@ -73,17 +73,20 @@ class BaseModel(ABC):
     def update_network(
         net: MultilayerNetwork,
         activated_nodes: List[NetworkUpdateBuffer],
-    ) -> None:
+    ) -> List[Dict[str, str]]:
         """
         Update the network global state by list of already activated nodes.
 
         :param network: network to update
         :param activated_nodes: already activated nodes
         """
+        out_json = []
         for activ_node in activated_nodes:
             net.layers[activ_node.layer_name].nodes[activ_node.node_name][
                 "status"
             ] = activ_node.new_state
+            out_json.append(activ_node.to_json())
+        return out_json
 
     @abstractmethod
     def __str__(self) -> str:
