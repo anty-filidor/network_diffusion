@@ -14,9 +14,9 @@ from network_diffusion.models.utils.compartmental import CompartmentalGraph
 def get_compiled_model():
     """Prepare compiled propagation model for tests."""
     model = CompartmentalGraph()
-    phenomenas = [["A", "B", "C"], ["A", "B"], ["A", "B"]]
+    states = [["A", "B", "C"], ["A", "B"], ["A", "B"]]
     processes = ("1", "2", "3")
-    for proc, phenom in zip(processes, phenomenas):
+    for proc, phenom in zip(processes, states):
         model.add(proc, phenom)
     model.compile(background_weight=0.005)
     return model
@@ -44,16 +44,22 @@ class TestCompartmentalGraph(unittest.TestCase):
         """Check describing a model that not have been initialised."""
         log = (
             "============================================\n"
-            "model of propagation\n"
+            "compartmental model"
+            "\n--------------------------------------------\n"
+            "phenomena, their states and initial sizes:\n"
             "--------------------------------------------\n"
-            "phenomenas and their states:\n\t"
-            "graph: not initialised\n\n\t"
-            "background_weight: inf\n\t"
-            "_seeding_budget: {}"
+            "layer '1' transitions with nonzero weight:\n\t"
+            "from A to B with probability 0.2137 and constrains []\n\t"
+            "from B to A with probability 0.2137 and constrains []\n"
             "============================================"
         )
+
+        model = CompartmentalGraph()
+        model.add("1", ["A", "B"])
+        model.compile(background_weight=0.2137)
+
         self.assertEqual(
-            CompartmentalGraph().describe(False, True),
+            model.describe(),
             log,
             "Empty description string not in expected form",
         )

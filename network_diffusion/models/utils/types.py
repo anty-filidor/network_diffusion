@@ -14,7 +14,7 @@ class NetworkUpdateBuffer:
 
     def __str__(self) -> str:
         return f"{self.layer_name}:{self.node_name}:{self.new_state}"
-    
+
     def to_json(self) -> Dict[str, str]:
         """Return dict writable to JSON."""
         return {

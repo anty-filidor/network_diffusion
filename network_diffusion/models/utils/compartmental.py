@@ -28,7 +28,11 @@ import networkx as nx
 import numpy as np
 
 from network_diffusion.multilayer_network import MultilayerNetwork
-from network_diffusion.utils import MLNetworkActor, bold_underline, thin_underline
+from network_diffusion.utils import (
+    BOLD_UNDERLINE,
+    THIN_UNDERLINE,
+    MLNetworkActor,
+)
 
 
 class CompartmentalGraph:
@@ -124,7 +128,7 @@ class CompartmentalGraph:
 
     def describe(self) -> str:
         """
-        Print out parameters of the compartmental model
+        Print out parameters of the compartmental model.
 
         :return: returns string describing object,
         """
@@ -132,13 +136,13 @@ class CompartmentalGraph:
 
         # obtain info about phenomena that are modelled, their states and seeds
         global_info = (
-            f"{bold_underline}\ncompartmental model\n{thin_underline}\n"
+            f"{BOLD_UNDERLINE}\ncompartmental model\n{THIN_UNDERLINE}\n"
             "phenomena, their states and initial sizes:"
         )
         for process, pcts in self.seeding_budget.items():
             states = self.get_compartments()[process]
             global_info += f"\n\t'{process}': ["
-            for state, percentage in (zip(states, pcts)):
+            for state, percentage in zip(states, pcts):
                 global_info += f"{state}:{percentage}%, "
             global_info = global_info[:-2] + "]"
 
@@ -146,23 +150,23 @@ class CompartmentalGraph:
         transitions_info = "\n"
         for g_name, g_net in self.graph.items():
             transitions_info += (
-                f"{thin_underline}\n"
-                "layer '{g_name}' transitions with nonzero weight:\n"
+                f"{THIN_UNDERLINE}\n"
+                f"layer '{g_name}' transitions with nonzero weight:\n"
             )
             for edge in g_net.edges():
                 if g_net.edges[edge]["weight"] == 0.0:
                     continue
-                mask = [True if g_name in _ else False for _ in edge[0]]
+                mask = [g_name in _ for _ in edge[0]]
                 start = np.array(edge[0])[mask][0].split(".")[1]
                 finish = np.array(edge[1])[mask][0].split(".")[1]
                 constraints = np.array(edge[0])[[not _ for _ in mask]]
-                weight = g_net.edges[edge]["weight"]
                 transitions_info += (
-                    f"\tfrom {start} to {finish} with probability {weight} "
-                    f"and constrains {constraints}\n"
+                    f"\tfrom {start} to {finish} with probability "
+                    f"{g_net.edges[edge]['weight']} and constrains "
+                    f"{constraints}\n"
                 )
 
-        return global_info + transitions_info + bold_underline
+        return global_info + transitions_info + BOLD_UNDERLINE
 
     def get_compartments(self) -> Dict[str, Tuple[Dict[str, Any]]]:
         """

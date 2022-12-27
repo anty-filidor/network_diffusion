@@ -26,7 +26,7 @@ from network_diffusion.models.base_model import BaseModel, NetworkUpdateBuffer
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.multilayer_network import MultilayerNetwork
 from network_diffusion.seeding.random_selector import RandomSeedSelector
-from network_diffusion.utils import bold_underline, thin_underline
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 
 class DSAAModel(BaseModel):
@@ -41,11 +41,11 @@ class DSAAModel(BaseModel):
 
     def __str__(self) -> str:
         """Return string representation of the object."""
-        descr = f"{bold_underline}\nDSAA Model"
-        descr += f"\n{thin_underline}\n"
+        descr = f"{BOLD_UNDERLINE}\nDSAA Model"
+        descr += f"\n{THIN_UNDERLINE}\n"
         descr += self._compartmental_graph.describe()
         descr += str(self._seed_selector)
-        descr += f"\n{bold_underline}"
+        descr += f"\n{BOLD_UNDERLINE}"
         return descr
 
     def set_initial_states(self, net: MultilayerNetwork) -> MultilayerNetwork:

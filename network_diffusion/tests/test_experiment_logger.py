@@ -112,7 +112,7 @@ class TestExperimentLogger(unittest.TestCase):
     def test_report(self):
         """Check if report function writes out all files that it should."""
         with TemporaryDirectory() as out_dir:
-            self.logs.report(visualisation=True, to_file=True, path=out_dir)
+            self.logs.report(visualisation=True, path=out_dir)
             exp_files = {
                 "ill_propagation_report.csv",
                 "model_report.txt",
@@ -120,6 +120,7 @@ class TestExperimentLogger(unittest.TestCase):
                 "visualisation.png",
                 "vacc_propagation_report.csv",
                 "aware_propagation_report.csv",
+                "local_stats.json",
             }
             real_files = set(os.listdir(out_dir))
             self.assertEqual(
@@ -243,7 +244,7 @@ class TestExperimentLogger(unittest.TestCase):
 
         logger = ExperimentLogger("model", "network")
         for i in raw_logs:
-            logger._add_log(i)
+            logger.add_global_stat(i)
 
         self.assertEqual(
             logger._global_stats_converted,
@@ -251,7 +252,7 @@ class TestExperimentLogger(unittest.TestCase):
             "Before convertion of logs field 'stat' should be empty",
         )
 
-        logger._convert_logs(model_hyperparams)
+        logger.convert_logs(model_hyperparams)
         for phenomena, stat in logger._global_stats_converted.items():
             self.assertTrue(
                 exp_logs_converted[phenomena].equals(stat),
@@ -266,7 +267,7 @@ class TestExperimentLogger(unittest.TestCase):
 
         lengths__raw_stats = [len(logger._global_stats)]
         for log in raw_logs:
-            logger._add_log(log)
+            logger.add_global_stat(log)
             lengths__raw_stats.append(len(logger._global_stats))
 
         exp_lengths = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]

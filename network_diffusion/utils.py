@@ -24,11 +24,10 @@ import pathlib
 import string
 from typing import Any, Dict, List, Tuple
 
+BOLD_UNDERLINE = "============================================"
+THIN_UNDERLINE = "--------------------------------------------"
 
-bold_underline = "============================================"
-thin_underline = "--------------------------------------------"
 
-# TODO - json
 def read_mlx(file_path: str) -> Dict[str, List[Any]]:
     """
     Handle MLX file for the MultilayerNetwork class.

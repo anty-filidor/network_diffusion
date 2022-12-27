@@ -133,20 +133,9 @@ class MultilayerNetwork:
             nx.set_node_attributes(layer, status_dict, "status")
         return layers
 
-    def describe(self, to_print: bool = True) -> Optional[str]:
-        """
-        Print out quickly parameters of the object.
-
-        :param to_print: a flag, if true string is printed out to the console
-
-        :return: produced string (if to_print is False)
-        """
-        description_str = self._get_description_str()
-        if not to_print:
-            return description_str
-        else:
-            print(description_str)
-            return None
+    def __str__(self) -> str:
+        """Print out quickly parameters of the network."""
+        return self._get_description_str()
 
     def _get_description_str(self) -> str:
         """

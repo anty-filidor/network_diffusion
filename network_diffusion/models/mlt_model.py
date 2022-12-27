@@ -28,7 +28,8 @@ from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.multilayer_network import MLNetworkActor
 from network_diffusion.multilayer_network import MultilayerNetwork as MLNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
-from network_diffusion.utils import bold_underline, thin_underline
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
+
 
 class MLTModel(BaseModel):
     """
@@ -36,8 +37,8 @@ class MLTModel(BaseModel):
 
     The model has been presented in paper: "Influence Spread in the
     Heterogeneous Multiplex Linear Threshold Model" by Yaofeng Desmond Zhong,
-    Vaibhav Srivastava, and Naomi Ehrich Leonard. This implementation extends it
-    to multilayer cases.
+    Vaibhav Srivastava, and Naomi Ehrich Leonard. This implementation extends
+    it to multilayer cases.
     """
 
     INACTIVE_STATE = "0"
@@ -75,18 +76,18 @@ class MLTModel(BaseModel):
             self.protocol = self._protocol_or
         else:
             raise ValueError("Only OR or AND protocols are allowed!")
-    
+
     def __str__(self) -> str:
         """Return string representation of the object."""
-        descr = f"{bold_underline}\nMultilayer Linear Threshold Model"
-        descr += f"\n{thin_underline}\n"
+        descr = f"{BOLD_UNDERLINE}\nMultilayer Linear Threshold Model"
+        descr += f"\n{THIN_UNDERLINE}\n"
         descr += self._compartmental_graph.describe()
         descr += str(self._seed_selector)
-        descr += f"{bold_underline}\nauxiliary parameters\n{thin_underline}"
+        descr += f"{BOLD_UNDERLINE}\nauxiliary parameters\n{THIN_UNDERLINE}"
         descr += f"\n\tprotocole: {self.protocol.__name__}"
         descr += f"\n\tactive state abbreviation: {self.ACTIVE_STATE}"
         descr += f"\n\tinactive state abbreviation: {self.INACTIVE_STATE}"
-        descr += f"\n{bold_underline}"
+        descr += f"\n{BOLD_UNDERLINE}"
         return descr
 
     def _create_compartments(

@@ -5,7 +5,8 @@ from typing import Any, List
 import networkx as nx
 
 from network_diffusion.seeding.base_selector import BaseSeedSelector
-from network_diffusion.utils import bold_underline, thin_underline
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
+
 
 class RandomSeedSelector(BaseSeedSelector):
     """Randomised seed selector prepared mainly for DSAA algorithm."""
@@ -25,6 +26,6 @@ class RandomSeedSelector(BaseSeedSelector):
     def __str__(self) -> str:
         """Return seed method's description."""
         return (
-            f"{bold_underline}\nseed selection method\n{thin_underline}\n"
-            f"\tnodewise random choice\n{bold_underline}\n"
+            f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
+            f"\tnodewise random choice\n{BOLD_UNDERLINE}\n"
         )

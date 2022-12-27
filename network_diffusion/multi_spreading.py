@@ -55,14 +55,11 @@ class MultiSpreading:
         :param n_epochs: number of epochs to do experiment
         :return: logs of experiment stored in special object
         """
-        logger = ExperimentLogger(
-            str(self._model),
-            self._network._get_description_str(),
-        )
+        logger = ExperimentLogger(str(self._model), str(self._network))
 
         # set and add logs from initialising states
         self._model.set_initial_states(self._network)
-        logger._add_log(self._network.get_nodes_states())
+        logger.add_global_stat(self._network.get_nodes_states())
 
         # iterate through epochs
         progress_bar = tqdm(range(n_epochs))
@@ -73,13 +70,15 @@ class MultiSpreading:
             nodes_to_update = self._model.network_evaluation_step(
                 self._network
             )
-            epoch_json = self._model.update_network(self._network, nodes_to_update)
+            epoch_json = self._model.update_network(
+                self._network, nodes_to_update
+            )
 
             # add logs from current epoch
-            logger._add_log(self._network.get_nodes_states())
-            logger._local_stats[epoch] = epoch_json
+            logger.add_global_stat(self._network.get_nodes_states())
+            logger.add_local_stat(epoch, epoch_json)
 
         # convert logs to dataframe
-        logger._convert_logs(self._model.compartments.get_compartments())
+        logger.convert_logs(self._model.compartments.get_compartments())
 
         return logger

@@ -20,7 +20,6 @@
 
 # pylint: disable=W0141
 import json
-
 from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
@@ -51,19 +50,23 @@ class ExperimentLogger:
         self._global_stats: List[Dict[str, Any]] = []
         self._global_stats_converted: Dict[str, Any] = {}
 
-        # stores data of particular nodes that changed their state in each epoch
-        self._local_stats = {}
+        # stores data of each of nodes that changed their state in each epoch
+        self._local_stats: Dict[int, List[Dict[str, str]]] = {}
 
-    def _add_log(self, log: Dict[str, Any]) -> None:
+    def add_global_stat(self, log: Dict[str, Any]) -> None:
         """
-         Add raw log from single epoch to the object.
+        Add raw log from single epoch to the object.
 
         :param log: raw log (i.e. a single call of
             MultiplexNetwork.get_nodes_states())
         """
         self._global_stats.append(log)
 
-    def _convert_logs(
+    def add_local_stat(self, epoch: int, stats: List[Dict[str, str]]) -> None:
+        """Add local log from single epoch to the object."""
+        self._local_stats[epoch] = stats
+
+    def convert_logs(
         self, model_parameters: Dict[str, Tuple[Dict[str, Any]]]
     ) -> None:
         """
@@ -139,7 +142,7 @@ class ExperimentLogger:
 
         :param visualisation: (bool) a flag, if true visualisation is being
             plotted
-        :param path: (str) path to folder where report will be saved if not 
+        :param path: (str) path to folder where report will be saved if not
             provided logs are printed out on the screen
         """
         if path is not None:
@@ -153,7 +156,7 @@ class ExperimentLogger:
                     path + "/" + stat + "_propagation_report.csv",
                     index_label="epoch",
                 )
-            
+
             # save loacal stats of each epoch
             with open(f"{path}/local_stats.json", "w", encoding="utf-8") as f:
                 json.dump(self._local_stats, f)
