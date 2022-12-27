@@ -1,14 +1,14 @@
-"""Randomised seed selector for DSAA algorithm."""
+"""Randomised seed selector."""
 from random import shuffle
 from typing import Any, List
 
 import networkx as nx
 
 from network_diffusion.seeding.base_selector import BaseSeedSelector
-
+from network_diffusion.utils import bold_underline, thin_underline
 
 class RandomSeedSelector(BaseSeedSelector):
-    """Randomised seed selector for DSAA algorithm."""
+    """Randomised seed selector prepared mainly for DSAA algorithm."""
 
     @staticmethod
     def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
@@ -21,3 +21,10 @@ class RandomSeedSelector(BaseSeedSelector):
         nodes_list = [*graph.nodes()]
         shuffle(nodes_list)
         return nodes_list
+
+    def __str__(self) -> str:
+        """Return seed method's description."""
+        return (
+            f"{bold_underline}\nseed selection method\n{thin_underline}\n"
+            f"\tnodewise random choice\n{bold_underline}\n"
+        )

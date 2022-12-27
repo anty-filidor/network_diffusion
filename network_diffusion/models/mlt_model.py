@@ -26,17 +26,18 @@ from network_diffusion.models.base_model import BaseModel
 from network_diffusion.models.base_model import NetworkUpdateBuffer as NUBuff
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.multilayer_network import MLNetworkActor
-from network_diffusion.multilayer_network import MultilayerNetwork as MLNet
+from network_diffusion.multilayer_network import MultilayerNetwork as MLNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
-
+from network_diffusion.utils import bold_underline, thin_underline
 
 class MLTModel(BaseModel):
     """
-    This model implements Multiplex Linear Threshold Model.
+    This model implements Multilayer Linear Threshold Model.
 
     The model has been presented in paper: "Influence Spread in the
     Heterogeneous Multiplex Linear Threshold Model" by Yaofeng Desmond Zhong,
-    Vaibhav Srivastava, and Naomi Ehrich Leonard.
+    Vaibhav Srivastava, and Naomi Ehrich Leonard. This implementation extends it
+    to multilayer cases.
     """
 
     INACTIVE_STATE = "0"
@@ -45,22 +46,22 @@ class MLTModel(BaseModel):
     def __init__(  # pylint: disable=R0913
         self,
         layers: List[str],
-        protocol: str,
-        seed_selector: BaseSeedSelector,
         seeding_budget: Tuple[int, int],
+        seed_selector: BaseSeedSelector,
+        protocol: str,
         mi_value: float,
     ) -> None:
         """
         Create the object.
 
         :param layers: a list of network layer names to create model for
+        :param seeding_budget: a proportion of INACTIVE and ACTIVE nodes in
+            each layer
+        :param seed_selector: class that selects initial seeds for simulation
         :param protocol: logical operator that determines how to activate actor
             can be OR (then actor gets activated if it gets positive input in
             one layer) or AND (then actor gets activated if it gets positive
             input in all layers)
-        :param seed_selector: class that selects initial seeds for simulation
-        :param seeding_budget: a proportion of INACTIVE and ACTIVE nodes in
-            each layer
         :param mi: activation threshold to transit from INACTIVE to ACTIVE in
             evaluation of the actor in particular layer
         """
@@ -74,6 +75,19 @@ class MLTModel(BaseModel):
             self.protocol = self._protocol_or
         else:
             raise ValueError("Only OR or AND protocols are allowed!")
+    
+    def __str__(self) -> str:
+        """Return string representation of the object."""
+        descr = f"{bold_underline}\nMultilayer Linear Threshold Model"
+        descr += f"\n{thin_underline}\n"
+        descr += self._compartmental_graph.describe()
+        descr += str(self._seed_selector)
+        descr += f"{bold_underline}\nauxiliary parameters\n{thin_underline}"
+        descr += f"\n\tprotocole: {self.protocol.__name__}"
+        descr += f"\n\tactive state abbreviation: {self.ACTIVE_STATE}"
+        descr += f"\n\tinactive state abbreviation: {self.INACTIVE_STATE}"
+        descr += f"\n{bold_underline}"
+        return descr
 
     def _create_compartments(
         self,
@@ -131,7 +145,7 @@ class MLTModel(BaseModel):
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.all())
 
-    def set_initial_states(self, net: MLNet) -> MLNet:
+    def set_initial_states(self, net: MLNetwork) -> MLNetwork:
         """
         Set initial states in the network according to seed selection method.
 
@@ -153,7 +167,7 @@ class MLTModel(BaseModel):
         self,
         actor_or_node: MLNetworkActor,
         layer_name: str,
-        net: MLNet,
+        net: MLNetwork,
     ) -> str:
         """
         Try to change state of given node of the network according to model.
@@ -187,7 +201,7 @@ class MLTModel(BaseModel):
             return self.ACTIVE_STATE
         return current_state
 
-    def network_evaluation_step(self, net: MLNet) -> List[NUBuff]:
+    def network_evaluation_step(self, net: MLNetwork) -> List[NUBuff]:
         """
         Evaluate the network at one time stamp with MLTModel.
 

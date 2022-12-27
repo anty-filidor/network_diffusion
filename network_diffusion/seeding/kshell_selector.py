@@ -5,6 +5,7 @@ from typing import Any, List
 import networkx as nx
 
 from network_diffusion.seeding.base_selector import BaseSeedSelector
+from network_diffusion.utils import bold_underline, thin_underline
 
 
 class KShellSeedSelector(BaseSeedSelector):
@@ -34,3 +35,10 @@ class KShellSeedSelector(BaseSeedSelector):
             for cohort in sorted(shell_ranking)[::-1]
             for node in shell_ranking[cohort]
         ]
+
+    def __str__(self) -> str:
+        """Return seed method's description."""
+        return (
+            f"{bold_underline}\nseed selection method\n{thin_underline}\n"
+            f"\tnodewise K Shell decomposition\n{bold_underline}\n"
+        )

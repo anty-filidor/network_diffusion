@@ -25,6 +25,9 @@ import string
 from typing import Any, Dict, List, Tuple
 
 
+bold_underline = "============================================"
+thin_underline = "--------------------------------------------"
+
 # TODO - json
 def read_mlx(file_path: str) -> Dict[str, List[Any]]:
     """

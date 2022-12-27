@@ -22,13 +22,13 @@
 
 import itertools
 from random import choice
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import networkx as nx
 import numpy as np
 
 from network_diffusion.multilayer_network import MultilayerNetwork
-from network_diffusion.utils import MLNetworkActor
+from network_diffusion.utils import MLNetworkActor, bold_underline, thin_underline
 
 
 class CompartmentalGraph:
@@ -122,79 +122,47 @@ class CompartmentalGraph:
         assert layer_name not in self.reserved_names, "Invalid name"
         self.__setattr__(layer_name, layer_type)
 
-    def describe(
-        self, to_print: bool = True, full_graph: bool = False
-    ) -> Optional[str]:
+    def describe(self) -> str:
         """
-        Print out parameters of the object.
+        Print out parameters of the compartmental model
 
-        :param to_print: a flag, if true method prints out description to
-            console, otherwise it returns string
-        :param full_graph: a flag, if true method prints out all propagation
-            model states with those with 0 weight
-
-        :return: if to_print == True returns string describing object,
-            otherwise returns None, but prints out description to the console
+        :return: returns string describing object,
         """
-        dscrpt_str = self._get_description_str(full_graph)
-        if not to_print:
-            return dscrpt_str
-        else:
-            print(dscrpt_str)
-            return None
+        assert len(self.graph) > 0, "Process graph not initialised!"
 
-    def _get_description_str(self, full_graph: bool = False) -> str:
-        """
-        Get string describing the object.
-
-        :param full_graph: a flag, if true method prints out all propagation
-            model states with those with 0 weight
-
-        :return: string describing object
-        """
-        # pylint: disable=R1702, R1719
-        detailed_str = ""
-        basic_str = (
-            "============================================\n"
-            "model of propagation\n"
-            "--------------------------------------------\n"
+        # obtain info about phenomena that are modelled, their states and seeds
+        global_info = (
+            f"{bold_underline}\ncompartmental model\n{thin_underline}\n"
+            "phenomena, their states and initial sizes:"
         )
-        basic_str += "phenomenas and their states:"
-        for name, val in self.__dict__.items():
-            if name != "graph":
-                basic_str += f"\n\t{name}: {val}"
-                continue
-            if len(self.graph) == 0:
-                basic_str += f"\n\t{name}: not initialised\n"
-                continue
-            detailed_str += "\n"
-            for g_name, g_net in val.items():
-                if full_graph:
-                    detailed_str += f"\n{g_name} transitions: "
-                    detailed_str += f"{g_net.edges().data()}\n"
-                else:
-                    detailed_str += (
-                        f"\nlayer '{g_name}' transitions with nonzero "
-                        f"probability:\n"
-                    )
-                    for edge in g_net.edges():
-                        if g_net.edges[edge]["weight"] == 0.0:
-                            continue
-                        mask = [
-                            True if g_name in _ else False for _ in edge[0]
-                        ]
-                        start = np.array(edge[0])[mask][0].split(".")[1]
-                        finish = np.array(edge[1])[mask][0].split(".")[1]
-                        constraints = np.array(edge[0])[[not _ for _ in mask]]
-                        weight = g_net.edges[edge]["weight"]
-                        detailed_str += (
-                            f"\tfrom {start} to {finish} with "
-                            f"probability {weight} and constrains "
-                            f"{constraints}\n"
-                        )
+        for process, pcts in self.seeding_budget.items():
+            states = self.get_compartments()[process]
+            global_info += f"\n\t'{process}': ["
+            for state, percentage in (zip(states, pcts)):
+                global_info += f"{state}:{percentage}%, "
+            global_info = global_info[:-2] + "]"
 
-        detailed_str += "============================================"
-        return basic_str + detailed_str
+        # obtain info about transitions in the process graph
+        transitions_info = "\n"
+        for g_name, g_net in self.graph.items():
+            transitions_info += (
+                f"{thin_underline}\n"
+                "layer '{g_name}' transitions with nonzero weight:\n"
+            )
+            for edge in g_net.edges():
+                if g_net.edges[edge]["weight"] == 0.0:
+                    continue
+                mask = [True if g_name in _ else False for _ in edge[0]]
+                start = np.array(edge[0])[mask][0].split(".")[1]
+                finish = np.array(edge[1])[mask][0].split(".")[1]
+                constraints = np.array(edge[0])[[not _ for _ in mask]]
+                weight = g_net.edges[edge]["weight"]
+                transitions_info += (
+                    f"\tfrom {start} to {finish} with probability {weight} "
+                    f"and constrains {constraints}\n"
+                )
+
+        return global_info + transitions_info + bold_underline
 
     def get_compartments(self) -> Dict[str, Tuple[Dict[str, Any]]]:
         """
@@ -357,7 +325,7 @@ class CompartmentalGraph:
                 edges_list.append(edge)
 
                 # assign weight to picked edge
-                self.set_transition_canonical(name, edge, wght)
+                self.set_transition_canonical(name, edge, wght)  # type: ignore
 
     def get_possible_transitions(
         self, state: Tuple[str, ...], layer: str

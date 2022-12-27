@@ -84,3 +84,8 @@ class BaseModel(ABC):
             net.layers[activ_node.layer_name].nodes[activ_node.node_name][
                 "status"
             ] = activ_node.new_state
+
+    @abstractmethod
+    def __str__(self) -> str:
+        """Return string representation of the object."""
+        ...

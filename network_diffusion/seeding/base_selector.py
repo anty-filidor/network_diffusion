@@ -35,3 +35,8 @@ class BaseSeedSelector(ABC):
         :return: list of node-ids ordered descending by their ranking position
         """
         ...
+
+    @abstractmethod
+    def __str__(self) -> str:
+        """Return seed method's description."""
+        ...

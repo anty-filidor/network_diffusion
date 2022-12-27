@@ -55,9 +55,8 @@ class MultiSpreading:
         :param n_epochs: number of epochs to do experiment
         :return: logs of experiment stored in special object
         """
-        # pylint: disable=W0212, R1702
         logger = ExperimentLogger(
-            self._model.compartments._get_description_str(),
+            str(self._model),
             self._network._get_description_str(),
         )
 
@@ -69,13 +68,15 @@ class MultiSpreading:
         progress_bar = tqdm(range(n_epochs))
         for epoch in progress_bar:
             progress_bar.set_description_str(f"Processing epoch {epoch}")
+
+            # do a forward step
             nodes_to_update = self._model.network_evaluation_step(
                 self._network
             )
             self._model.update_network(self._network, nodes_to_update)
 
             # add logs from current epoch
-            logger._add_log(self._network.get_nodes_states())
+            logger._add_log(self._network.get_nodes_states())  # TODO: add here also a dump of the entire network or delta
 
         # convert logs to dataframe
         logger._convert_logs(self._model.compartments.get_compartments())
