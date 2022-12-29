@@ -24,7 +24,7 @@ import numpy as np
 
 from network_diffusion.models.base_model import BaseModel, NetworkUpdateBuffer
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
-from network_diffusion.multilayer_network import MultilayerNetwork
+from network_diffusion.mln.mln_network import MultilayerNetwork
 from network_diffusion.seeding.random_selector import RandomSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 

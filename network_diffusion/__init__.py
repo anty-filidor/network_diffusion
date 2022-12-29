@@ -24,6 +24,6 @@
 
 from network_diffusion import models, seeding
 from network_diffusion.multi_spreading import MultiSpreading
-from network_diffusion.multilayer_network import MultilayerNetwork
+from network_diffusion.mln.mln_network import MultilayerNetwork
 
 __version__ = "1.0.0"

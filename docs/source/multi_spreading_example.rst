@@ -16,7 +16,7 @@ ________________
 1. Initialise multilayer network from nx predefined network::
 
     import networkx as nx
-    from network_diffusion import MultilayerNetwork
+    from network_diffusion.mln.mln_network import MultilayerNetwork
 
     network = MultilayerNetwork()
     names = ['illness', 'awareness', 'vaccination']

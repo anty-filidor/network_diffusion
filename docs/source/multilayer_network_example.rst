@@ -22,7 +22,7 @@ Let's crete some multilayer networks in several ways.
 
 1. By defining separate graphs and layer names::
 
-    from network_diffusion import MultilayerNetwork
+    from network_diffusion.mln.mln_network import MultilayerNetwork
     import networkx as nx
 
     M = [nx.les_miserables_graph(), nx.les_miserables_graph(), nx.les_miserables_graph()]
@@ -61,7 +61,7 @@ Let's crete some multilayer networks in several ways.
 
 2. By defining separate graphs and using default names of layers::
 
-    from network_diffusion import MultilayerNetwork
+    from network_diffusion.mln.mln_network import MultilayerNetwork
     import networkx as nx
     M = [nx.les_miserables_graph(), nx.les_miserables_graph(), nx.les_miserables_graph()]
 
