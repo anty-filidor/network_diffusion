@@ -17,7 +17,7 @@
 # =============================================================================
 """Functions for the phenomena spreading definition."""
 
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import networkx as nx
 import numpy as np
@@ -79,24 +79,24 @@ class DSAAModel(BaseModel):
 
         return net
 
-    def node_evaluation_step(
-        self, actor_or_node: int, layer_name: str, net: MultilayerNetwork
+    def agent_evaluation_step(
+        self, agent: Any, layer_name: str, net: MultilayerNetwork
     ) -> str:
         """
         Try to change state of given node of the network according to model.
 
-        :param actor_or_node: id of the node to evaluate
+        :param agent: id of the node (here agent) to evaluate
         :param layer_name: a layer where the node exists
         :param network: a network where the node exists
 
         :return: state of the model after evaluation
         """
         layer_graph: nx.Graph = net.layers[layer_name]
-        current_state = layer_graph.nodes[actor_or_node]["status"]
+        current_state = layer_graph.nodes[agent]["status"]
 
         # import possible transitions for state of the node
         av_trans = self._compartmental_graph.get_possible_transitions(
-            net.get_node_state(actor_or_node), layer_name
+            net.get_node_state(agent), layer_name
         )
 
         # if there is no possible transition don't do anything
@@ -104,7 +104,7 @@ class DSAAModel(BaseModel):
             return current_state
 
         # iterate through neighbours of current node
-        for neighbour in nx.neighbors(layer_graph, actor_or_node):
+        for neighbour in nx.neighbors(layer_graph, agent):
             av_new_state = layer_graph.nodes[neighbour]["status"]
 
             # if state of neighbour node is in possible transitions and
@@ -141,9 +141,20 @@ class DSAAModel(BaseModel):
             for node in layer_graph.nodes():
 
                 old_state = layer_graph.nodes[node]["status"]
-                new_state = self.node_evaluation_step(node, layer_name, net)
+                new_state = self.agent_evaluation_step(node, layer_name, net)
 
                 if old_state != new_state:
                     layer_graph.nodes[node]["status"] = new_state
 
         return activated_nodes
+
+    def get_allowed_states(self, net: MultilayerNetwork) -> Dict[str, Tuple[str, ...]]:
+        """
+        Return dict with allowed states in each layer of net if applied model.
+
+        In this model each process is binded with network's layer, hence we
+        return just the compartments and allowed states.
+
+        :param net: a network to determine allowed nodes' states for
+        """
+        return self._compartmental_graph.get_compartments()

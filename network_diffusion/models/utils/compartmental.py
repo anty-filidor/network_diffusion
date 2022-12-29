@@ -28,11 +28,7 @@ import networkx as nx
 import numpy as np
 
 from network_diffusion.multilayer_network import MultilayerNetwork
-from network_diffusion.utils import (
-    BOLD_UNDERLINE,
-    THIN_UNDERLINE,
-    MLNetworkActor,
-)
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 
 class CompartmentalGraph:
@@ -80,23 +76,31 @@ class CompartmentalGraph:
         self._seeding_budget = proposed_is
 
     def get_seeding_budget_for_network(
-        self, net: MultilayerNetwork
+        self, net: MultilayerNetwork, actorwise: bool = False
     ) -> Dict[str, Dict[Any, int]]:
         """
-        Transform initial_stages from %-s to num. of nodes according to net.
+        Transform seeding budget from %s to numbers according to nodes/actors.
 
-        :param net: input network to generate initial stages for
+        :param net: input network to convert seeding budget for
+        :param actorwise: compute seeding budget for actors, else for nodes
         :return: dictionary in form as e.g.:
             {
                 "ill": {"suspected": 45, "infected": 4, "recovered": 1},
                 "vacc": {"unvaccinated": 35, "vaccinated": 15}
             }
-            for initial_states dict: {"ill": (90, 8, 2), "vacc": (70, 30)} and
-            50 nodes in each layer.
+            for seeding_budget dict: {"ill": (90, 8, 2), "vacc": (70, 30)} and
+            50 nodes in each layer and nodewise mode.
         """
+        if actorwise:
+            layer_size = net.get_actors_num()
+            def get_size(process): return layer_size
+        else:  # nodewise
+            layer_size = net.get_nodes_num()
+            def get_size(process): return layer_size[process]
+
         seeding_budget = {}
         for process, pcts in self.seeding_budget.items():
-            bins = self._int_to_bins(pcts, len(net.layers[process].nodes))
+            bins = self._int_to_bins(pcts, get_size(process))
             states = self.get_compartments()[process]
             seeding_budget[process] = dict(zip(states, bins))
         return seeding_budget
@@ -115,16 +119,16 @@ class CompartmentalGraph:
 
         return binned_number
 
-    def add(self, layer_name: str, layer_type: List[str]) -> None:
+    def add(self, process_name: str, states: List[str]) -> None:
         """
-        Add propagation model for the given layer.
+        Add process with allowed states to the compartmental graph.
 
-        :param layer: name of network's layer, e.g. "Illness"
-        :param type: type of model, i.e. names of states like ['s', 'i', 'r']
+        :param layer: name of process, e.g. "Illness"
+        :param type: names of states like ['s', 'i', 'r']
         """
-        assert len(layer_type) == len(set(layer_type)), "Names must be unique!"
-        assert layer_name not in self.reserved_names, "Invalid name"
-        self.__setattr__(layer_name, layer_type)
+        assert len(states) == len(set(states)), "Names must be unique!"
+        assert process_name not in self.reserved_names, "Invalid name"
+        self.__setattr__(process_name, states)
 
     def describe(self) -> str:
         """
@@ -137,7 +141,7 @@ class CompartmentalGraph:
         # obtain info about phenomena that are modelled, their states and seeds
         global_info = (
             f"{BOLD_UNDERLINE}\ncompartmental model\n{THIN_UNDERLINE}\n"
-            "phenomena, their states and initial sizes:"
+            "processes, their states and initial sizes:"
         )
         for process, pcts in self.seeding_budget.items():
             states = self.get_compartments()[process]
@@ -151,7 +155,7 @@ class CompartmentalGraph:
         for g_name, g_net in self.graph.items():
             transitions_info += (
                 f"{THIN_UNDERLINE}\n"
-                f"layer '{g_name}' transitions with nonzero weight:\n"
+                f"process '{g_name}' transitions with nonzero weight:\n"
             )
             for edge in g_net.edges():
                 if g_net.edges[edge]["weight"] == 0.0:
@@ -168,7 +172,7 @@ class CompartmentalGraph:
 
         return global_info + transitions_info + BOLD_UNDERLINE
 
-    def get_compartments(self) -> Dict[str, Tuple[Dict[str, Any]]]:
+    def get_compartments(self) -> Dict[str, Tuple[str, ...]]:
         """
         Get model parameters, i.e. names of layers and states in each layer.
 
@@ -364,28 +368,3 @@ class CompartmentalGraph:
                             (state, neighbour)
                         ]["weight"]
         return states
-
-    def get_possible_transitions_actor(
-        self, actor: MLNetworkActor, process_name: str
-    ) -> Dict[str, float]:
-        """
-        Return possible transitions for given actor in given process.
-
-        Note that possible transition is a transition with weight > 0. Compared
-        to get_possible_transitions this function assumes that if given actor
-        is agnostic to the certain process, then its state in this process is
-        by default an initial one from the model.
-        """
-        global_state = [
-            f"{layer}.{state}"
-            for layer, state in zip(actor.layers, actor.states)
-        ]
-
-        # if actor is agnostic to at least one process use ther initial states
-        if set(actor.layers) != set(self.get_compartments()):
-            for layer, compartments in self.get_compartments().items():
-                if layer not in actor.layers:
-                    global_state.append(f"{layer}.{compartments[0]}")
-
-        actor_state = tuple(sorted(global_state))
-        return self.get_possible_transitions(actor_state, process_name)

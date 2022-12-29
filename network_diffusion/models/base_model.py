@@ -1,7 +1,7 @@
 """Definition of the base propagation model used in the library."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.models.utils.types import NetworkUpdateBuffer
@@ -28,6 +28,11 @@ class BaseModel(ABC):
         self._seed_selector = seed_selector
         self._seeds: List[NetworkUpdateBuffer] = []
 
+    @abstractmethod
+    def __str__(self) -> str:
+        """Return string representation of the object."""
+        ...
+
     @property
     def compartments(self) -> CompartmentalGraph:
         """Return defined compartments and allowed transitions."""
@@ -43,7 +48,7 @@ class BaseModel(ABC):
         ...
 
     @abstractmethod
-    def node_evaluation_step(
+    def agent_evaluation_step(
         self, actor_or_node: Any, layer_name: str, net: MultilayerNetwork
     ) -> str:
         """
@@ -89,6 +94,12 @@ class BaseModel(ABC):
         return out_json
 
     @abstractmethod
-    def __str__(self) -> str:
-        """Return string representation of the object."""
+    def get_allowed_states(
+        self, net: MultilayerNetwork
+    ) -> Dict[str, Tuple[str, ...]]:
+        """
+        Return dict with allowed states in each layer of net if applied model.
+
+        :param net: a network to determine allowed nodes' states for
+        """
         ...

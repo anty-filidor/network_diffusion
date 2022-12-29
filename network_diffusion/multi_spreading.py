@@ -35,13 +35,6 @@ class MultiSpreading:
             looks like
         :param network: a network which is being examined during experiment
         """
-        assert (
-            network.layers.keys()
-            == model.compartments.get_compartments().keys()
-        ), (
-            "Layer names in network should be the same as layer names in "
-            "propagation model"
-        )
         self._model = model
         self._network = network
 
@@ -79,6 +72,6 @@ class MultiSpreading:
             logger.add_local_stat(epoch, epoch_json)
 
         # convert logs to dataframe
-        logger.convert_logs(self._model.compartments.get_compartments())
+        logger.convert_logs(self._model.get_allowed_states(self._network))
 
         return logger

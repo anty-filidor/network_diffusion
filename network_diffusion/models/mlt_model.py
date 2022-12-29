@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
-"""Multiplex Linear Threshold Model class."""
+"""Multilayer Linear Threshold Model class."""
 
 from typing import Dict, List, Tuple
 
@@ -43,10 +43,10 @@ class MLTModel(BaseModel):
 
     INACTIVE_STATE = "0"
     ACTIVE_STATE = "1"
+    PROCESS_NAME = "MLTM"
 
     def __init__(  # pylint: disable=R0913
         self,
-        layers: List[str],
         seeding_budget: Tuple[int, int],
         seed_selector: BaseSeedSelector,
         protocol: str,
@@ -55,7 +55,6 @@ class MLTModel(BaseModel):
         """
         Create the object.
 
-        :param layers: a list of network layer names to create model for
         :param seeding_budget: a proportion of INACTIVE and ACTIVE nodes in
             each layer
         :param seed_selector: class that selects initial seeds for simulation
@@ -66,9 +65,7 @@ class MLTModel(BaseModel):
         :param mi: activation threshold to transit from INACTIVE to ACTIVE in
             evaluation of the actor in particular layer
         """
-        compart_graph = self._create_compartments(
-            seeding_budget, layers, mi_value
-        )
+        compart_graph = self._create_compartments(seeding_budget, mi_value)
         super().__init__(compart_graph, seed_selector)
         if protocol == "AND":
             self.protocol = self._protocol_and
@@ -91,58 +88,48 @@ class MLTModel(BaseModel):
         return descr
 
     def _create_compartments(
-        self,
-        seeding_budget: Tuple[int, int],
-        layers: List[str],
-        mi_value: float,
+        self, seeding_budget: Tuple[int, int], mi_value: float,
     ) -> CompartmentalGraph:
         """
         Create compartmental graph for the model.
 
-        For each process (i.e. layer) create two states: 0, 1 and assign
-        transition weight equals mi for each transition 0->1, while for another
-        ones 0.
+        Create one process with two states: 0, 1 and assign transition weight
+        equals mi only for transition 0->1.
         """
         compart_graph = CompartmentalGraph()
-        seeding_budget_full = {}
         assert 0 < mi_value < 1
 
-        # For each process add allowed states and seeding budget
-        for layer in layers:
-            compart_graph.add(
-                layer_name=layer,
-                layer_type=[self.INACTIVE_STATE, self.ACTIVE_STATE],
-            )
-            seeding_budget_full[layer] = seeding_budget
+        # Add allowed states and seeding budget
+        compart_graph.add(
+            process_name=self.PROCESS_NAME,
+            states=[self.INACTIVE_STATE, self.ACTIVE_STATE],
+        )
+        compart_graph.seeding_budget = {self.PROCESS_NAME: seeding_budget}
 
-        # Setup seeding budget
-        compart_graph.seeding_budget = seeding_budget_full  # type: ignore
-
-        # Add transitions in each layer
+        # Add allowed transition
         compart_graph.compile(background_weight=0.0)
-        for layer in layers:
-            for edge in compart_graph.graph[layer].edges:
-                if (
-                    f"{layer}.{self.INACTIVE_STATE}" in edge[0]
-                    and f"{layer}.{self.ACTIVE_STATE}" in edge[1]
-                ):
-                    compart_graph.set_transition_canonical(
-                        layer=layer,
-                        transition=edge,  # type: ignore
-                        weight=mi_value,
-                    )
+        for edge in compart_graph.graph[self.PROCESS_NAME].edges:
+            if (
+                f"{self.PROCESS_NAME}.{self.INACTIVE_STATE}" in edge[0]
+                and f"{self.PROCESS_NAME}.{self.ACTIVE_STATE}" in edge[1]
+            ):
+                compart_graph.set_transition_canonical(
+                    layer=self.PROCESS_NAME,
+                    transition=edge,  # type: ignore
+                    weight=mi_value,
+                )
 
         return compart_graph
 
     @staticmethod
     def _protocol_or(inputs: Dict[str, str]) -> bool:
-        """Protocol OR for node activation basing on layer inpulses."""
+        """Protocol OR for actor activation basing on layer inpulses."""
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.any())
 
     @staticmethod
     def _protocol_and(inputs: Dict[str, str]) -> bool:
-        """Protocol OR for node activation basing on layer inpulses."""
+        """Protocol AND for actor activation basing on layer inpulses."""
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.all())
 
@@ -152,28 +139,25 @@ class MLTModel(BaseModel):
 
         :param net: network to initialise seeds for
         """
-        budget = self._compartmental_graph.get_seeding_budget_for_network(net)
-        for l_name, ranking in self._seed_selector(network=net).items():
-            budget_active = budget[l_name][self.ACTIVE_STATE]
-            nodes_active = ranking[:budget_active]
-            l_graph = net.layers[l_name]
-            for node in l_graph.nodes():
-                if node in nodes_active:
-                    l_graph.nodes[node]["status"] = self.ACTIVE_STATE
-                else:
-                    l_graph.nodes[node]["status"] = self.INACTIVE_STATE
+        budget = self._compartmental_graph.get_seeding_budget_for_network(
+            net=net, actorwise=True
+        )
+        for idx, actor in enumerate(self._seed_selector.actorwise(net=net)):
+            if idx < budget[self.PROCESS_NAME][self.ACTIVE_STATE]:
+                a_state = self.ACTIVE_STATE
+            else:
+                a_state = self.INACTIVE_STATE
+            for l_name in actor.layers:
+                net.layers[l_name].nodes[actor.actor_id]["status"] = a_state
         return net
 
-    def node_evaluation_step(
-        self,
-        actor_or_node: MLNetworkActor,
-        layer_name: str,
-        net: MLNetwork,
+    def agent_evaluation_step(
+        self, agent: MLNetworkActor, layer_name: str, net: MLNetwork,
     ) -> str:
         """
-        Try to change state of given node of the network according to model.
+        Try to change state of given actor of the network according to model.
 
-        :param actor: actor to evaluate in given layer
+        :param agent: actor to evaluate in given layer
         :param layer_name: a layer where the actor exists
         :param network: a network where the actor exists
 
@@ -182,20 +166,20 @@ class MLTModel(BaseModel):
         layer_graph: nx.Graph = net.layers[layer_name]
 
         # trivial case - node is already activated
-        current_state = layer_graph.nodes[actor_or_node.actor_id]["status"]
+        current_state = layer_graph.nodes[agent.actor_id]["status"]
         if current_state == self.ACTIVE_STATE:
             return current_state
 
         # import possible transitions for state of the actor
-        av_trans = self._compartmental_graph.get_possible_transitions_actor(
-            actor_or_node, layer_name
+        av_trans = self._compartmental_graph.get_possible_transitions(
+           (f"{self.PROCESS_NAME}.{self.INACTIVE_STATE}",), self.PROCESS_NAME
         )
 
         # iterate through neighbours of node and compute impuls
         impuls = 0
-        for neighbour in nx.neighbors(layer_graph, actor_or_node.actor_id):
+        for neighbour in nx.neighbors(layer_graph, agent.actor_id):
             if layer_graph.nodes[neighbour]["status"] == self.ACTIVE_STATE:
-                impuls += 1 / nx.degree(layer_graph, actor_or_node.actor_id)
+                impuls += 1 / nx.degree(layer_graph, agent.actor_id)
 
         # if thresh. has been reached return positive input, otherwise negative
         if impuls > av_trans[self.ACTIVE_STATE]:
@@ -219,7 +203,7 @@ class MLTModel(BaseModel):
 
             # try to activate actor in each layer where it exist
             for layer_name in actor.layers:
-                layer_inputs[layer_name] = self.node_evaluation_step(
+                layer_inputs[layer_name] = self.agent_evaluation_step(
                     actor, layer_name, net
                 )
 
@@ -237,3 +221,12 @@ class MLTModel(BaseModel):
                 )
 
         return activated_nodes
+
+    def get_allowed_states(self, net: MLNetwork) -> Dict[str, Tuple[str, ...]]:
+        """
+        Return dict with allowed states in each layer of net if applied model.
+
+        :param net: a network to determine allowed nodes' states for
+        """
+        cmprt = self._compartmental_graph.get_compartments()[self.PROCESS_NAME]
+        return {l_name: cmprt for l_name in net.layers}
