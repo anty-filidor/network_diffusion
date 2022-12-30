@@ -27,7 +27,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import networkx as nx
 import numpy as np
 
-from network_diffusion.utils import MLNetworkActor, read_mlx
+from network_diffusion.mln.mln_actor import MLNetworkActor
+from network_diffusion.utils import read_mlx
 
 
 class MultilayerNetwork:

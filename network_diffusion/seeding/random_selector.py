@@ -6,7 +6,8 @@ import networkx as nx
 
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
-
+from network_diffusion.mln.mln_network import MultilayerNetwork
+from network_diffusion.mln.mln_actor import MLNetworkActor
 
 class RandomSeedSelector(BaseSeedSelector):
     """Randomised seed selector prepared mainly for DSAA algorithm."""
@@ -29,3 +30,8 @@ class RandomSeedSelector(BaseSeedSelector):
             f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
             f"\tnodewise random choice\n{BOLD_UNDERLINE}\n"
         )
+    
+    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+        """Get actors randomly."""
+        return net.get_actors(shuffle=True)
+
