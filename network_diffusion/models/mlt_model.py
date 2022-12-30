@@ -22,11 +22,11 @@ from typing import Dict, List, Tuple
 import networkx as nx
 import numpy as np
 
+from network_diffusion.mln.mln_actor import MLNetworkActor
+from network_diffusion.mln.mln_network import MultilayerNetwork as MLNetwork
 from network_diffusion.models.base_model import BaseModel
 from network_diffusion.models.base_model import NetworkUpdateBuffer as NUBuff
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
-from network_diffusion.mln.mln_network import MultilayerNetwork as MLNetwork
-from network_diffusion.mln.mln_actor import MLNetworkActor 
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
@@ -88,7 +88,9 @@ class MLTModel(BaseModel):
         return descr
 
     def _create_compartments(
-        self, seeding_budget: Tuple[int, int], mi_value: float,
+        self,
+        seeding_budget: Tuple[int, int],
+        mi_value: float,
     ) -> CompartmentalGraph:
         """
         Create compartmental graph for the model.
@@ -152,7 +154,10 @@ class MLTModel(BaseModel):
         return net
 
     def agent_evaluation_step(
-        self, agent: MLNetworkActor, layer_name: str, net: MLNetwork,
+        self,
+        agent: MLNetworkActor,
+        layer_name: str,
+        net: MLNetwork,
     ) -> str:
         """
         Try to change state of given actor of the network according to model.
@@ -172,7 +177,7 @@ class MLTModel(BaseModel):
 
         # import possible transitions for state of the actor
         av_trans = self._compartmental_graph.get_possible_transitions(
-           (f"{self.PROCESS_NAME}.{self.INACTIVE_STATE}",), self.PROCESS_NAME
+            (f"{self.PROCESS_NAME}.{self.INACTIVE_STATE}",), self.PROCESS_NAME
         )
 
         # iterate through neighbours of node and compute impuls

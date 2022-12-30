@@ -22,7 +22,7 @@
 import random
 from collections import Counter
 from copy import deepcopy
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import networkx as nx
 import numpy as np
@@ -245,12 +245,12 @@ class MultilayerNetwork:
                 statistics.append(f"{name}.{layer.nodes[node]['status']}")
         statistics = sorted(statistics)
         return tuple(statistics)
-    
+
     def get_nodes_num(self) -> Dict[str, int]:
         """Get number of nodes that live in each layer of the network."""
         nodes_num = {}
         for layer_name, layer_graph in self.layers.items():
-                nodes_num[layer_name] = len(layer_graph.nodes)
+            nodes_num[layer_name] = len(layer_graph.nodes)
         return nodes_num
 
     def get_actors(self, shuffle: bool = False) -> List[MLNetworkActor]:
@@ -265,7 +265,9 @@ class MultilayerNetwork:
             for node in layer_graph.nodes:
                 if node not in actor_dict:
                     actor_dict[node] = {}
-                actor_dict[node][layer_name] = layer_graph.nodes[node]["status"]
+                actor_dict[node][layer_name] = layer_graph.nodes[node][
+                    "status"
+                ]
 
         actor_list = [
             MLNetworkActor(actor_id=a_name, layers_states=a_layers_states)
@@ -275,7 +277,7 @@ class MultilayerNetwork:
             random.shuffle(actor_list)
 
         return actor_list
-    
+
     def get_actor(self, actor_id: str) -> MLNetworkActor:
         """Get actor data basing on its name."""
         layers_states = {}
@@ -283,14 +285,15 @@ class MultilayerNetwork:
             if not layer_graph.nodes.get(actor_id):
                 continue
             layers_states[layer_name] = layer_graph.nodes[actor_id]["status"]
-        if len(layers_states) == 0: raise ValueError
+        if len(layers_states) == 0:
+            raise ValueError
         return MLNetworkActor(actor_id=actor_id, layers_states=layers_states)
 
     def get_actors_num(self) -> int:
         """Get number of actors that live in the network."""
-        actors_set = set()
+        actors_set: Set[Any] = set()
         for layer_graph in self.layers.values():
-                actors_set = actors_set.union(set(layer_graph.nodes))
+            actors_set = actors_set.union(set(layer_graph.nodes))
         return len(actors_set)
 
     def get_layer_names(self) -> List[str]:

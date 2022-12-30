@@ -22,9 +22,9 @@ from typing import Any, Dict, List, Tuple
 import networkx as nx
 import numpy as np
 
+from network_diffusion.mln.mln_network import MultilayerNetwork
 from network_diffusion.models.base_model import BaseModel, NetworkUpdateBuffer
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
-from network_diffusion.mln.mln_network import MultilayerNetwork
 from network_diffusion.seeding.random_selector import RandomSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
@@ -57,7 +57,7 @@ class DSAAModel(BaseModel):
         budget = self._compartmental_graph.get_seeding_budget_for_network(net)
 
         # set initial states in each layer of network
-        for l_name, ranking in self._seed_selector(network=net).items():
+        for l_name, ranking in self._seed_selector.nodewise(net).items():
 
             # get data to select seeds in the network
             l_graph = net.layers[l_name]
@@ -148,7 +148,9 @@ class DSAAModel(BaseModel):
 
         return activated_nodes
 
-    def get_allowed_states(self, net: MultilayerNetwork) -> Dict[str, Tuple[str, ...]]:
+    def get_allowed_states(
+        self, net: MultilayerNetwork
+    ) -> Dict[str, Tuple[str, ...]]:
         """
         Return dict with allowed states in each layer of net if applied model.
 

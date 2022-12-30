@@ -20,8 +20,8 @@
 from tqdm import tqdm
 
 from network_diffusion.experiment_logger import ExperimentLogger
-from network_diffusion.models.base_model import BaseModel
 from network_diffusion.mln.mln_network import MultilayerNetwork
+from network_diffusion.models.base_model import BaseModel
 
 
 class MultiSpreading:

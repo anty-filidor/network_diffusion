@@ -67,7 +67,7 @@ class ExperimentLogger:
         self._local_stats[epoch] = stats
 
     def convert_logs(
-        self, model_parameters: Dict[str, Tuple[Dict[str, Any]]]
+        self, model_parameters: Dict[str, Tuple[str, ...]]
     ) -> None:
         """
         Convert raw logs into pandas dataframe.

@@ -3,9 +3,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Tuple
 
+from network_diffusion.mln.mln_network import MultilayerNetwork
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.models.utils.types import NetworkUpdateBuffer
-from network_diffusion.mln.mln_network import MultilayerNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 
 
@@ -49,12 +49,12 @@ class BaseModel(ABC):
 
     @abstractmethod
     def agent_evaluation_step(
-        self, actor_or_node: Any, layer_name: str, net: MultilayerNetwork
+        self, agent: Any, layer_name: str, net: MultilayerNetwork
     ) -> str:
         """
         Try to change state of given node of the network according to model.
 
-        :param actor_or_node: id of the node or the actor to evaluate
+        :param agent: id of the node or the actor to evaluate
         :param layer_name: a layer where the node exists
         :param net: a network where the node exists
 

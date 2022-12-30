@@ -1,15 +1,17 @@
 """A definition of the seed selector based on k-shell algorithm."""
 
-from itertools import zip_longest
-from random import shuffle
 from typing import Any, List
 
 import networkx as nx
 
-from network_diffusion.seeding.base_selector import BaseSeedSelector, node_to_actor_ranking
-from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
-from  network_diffusion.mln.mln_actor import MLNetworkActor
+from network_diffusion.mln.mln_actor import MLNetworkActor
 from network_diffusion.mln.mln_network import MultilayerNetwork
+from network_diffusion.seeding.base_selector import (
+    BaseSeedSelector,
+    node_to_actor_ranking,
+)
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
+
 
 class KShellSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on k-shell algorithm."""
@@ -47,5 +49,5 @@ class KShellSeedSelector(BaseSeedSelector):
         )
 
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
-        """COmpute ranking for actors."""
+        """Compute ranking for actors."""
         return node_to_actor_ranking(super().nodewise(net), net)

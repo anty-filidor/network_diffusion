@@ -3,10 +3,13 @@
 from typing import Any, List
 
 import networkx as nx
+
 from network_diffusion.mln.mln_actor import MLNetworkActor
 from network_diffusion.mln.mln_network import MultilayerNetwork
-
-from network_diffusion.seeding.base_selector import BaseSeedSelector, node_to_actor_ranking
+from network_diffusion.seeding.base_selector import (
+    BaseSeedSelector,
+    node_to_actor_ranking,
+)
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 
@@ -25,7 +28,6 @@ class VoteRankSeedSelector(BaseSeedSelector):
         unelected_nodes = set(graph.nodes).difference(set(elected_nodes))
         elected_nodes.extend(unelected_nodes)
         return elected_nodes
-        
 
     def __str__(self) -> str:
         """Return seed method's description."""

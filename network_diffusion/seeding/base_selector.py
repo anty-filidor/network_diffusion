@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Union
 
 import networkx as nx
 
-from network_diffusion.mln.mln_network import MultilayerNetwork
 from network_diffusion.mln.mln_actor import MLNetworkActor
+from network_diffusion.mln.mln_network import MultilayerNetwork
 
 
 class BaseSeedSelector(ABC):
@@ -31,7 +31,7 @@ class BaseSeedSelector(ABC):
             return self.actorwise(net=network)
         else:
             return self.nodewise(net=network)
-    
+
     @abstractmethod
     def __str__(self) -> str:
         """Return seed method's description."""
@@ -52,7 +52,7 @@ class BaseSeedSelector(ABC):
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Create actorwise ranking."""
         ...
-    
+
     def nodewise(self, net: MultilayerNetwork) -> Dict[str, List[Any]]:
         """Create nodewise ranking."""
         nodes_ranking = {}
@@ -62,14 +62,13 @@ class BaseSeedSelector(ABC):
         return nodes_ranking
 
 
-
 def node_to_actor_ranking(
     nodewise_ranking: Dict[str, List[Any]], net: MultilayerNetwork
 ) -> List[MLNetworkActor]:
     """
     Naive converter of seeding ranking computed nodewise to actorwise.
 
-    :param nodewise_ranking: a ranking computed with BaseSeedSelector.nodewise()
+    :param nodewise_ranking: a ranking computed with BaseSeedSelector.nodewise
     :param net: a network to convert ranking for
     :return: ranking of actors according to provided nodes' ranking
     """

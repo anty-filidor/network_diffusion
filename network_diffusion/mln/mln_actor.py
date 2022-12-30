@@ -16,18 +16,12 @@ class MLNetworkActor:
         """
         self.actor_id = actor_id
         self._layers_states = layers_states
-    
+
     def __str__(self) -> str:
-        return f"actor id: {self.actor_id}, layers and states: {self._layers_states}"
-    
-    # def __cmp__(self, __o: "MLNetworkActor") -> int:
-    #     if __o.actor_id == self.actor_id and __o._layers_states == __o._layers_states:
-    #         return 0
-    #     elif __o.actor_id > self.actor_id:
-    #         return 1
-    #     elif __o.actor_id < self.actor_id:
-    #         return -1
-    #     return False
+        return (
+            f"actor id: {self.actor_id}, "
+            f"layers and states: {self._layers_states}"
+        )
 
     @property
     def layers(self) -> Tuple[str, ...]:

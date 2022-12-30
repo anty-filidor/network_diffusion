@@ -92,11 +92,16 @@ class CompartmentalGraph:
             50 nodes in each layer and nodewise mode.
         """
         if actorwise:
-            layer_size = net.get_actors_num()
-            def get_size(process): return layer_size
+            actors_num = net.get_actors_num()
+
+            def get_size(process: str) -> int:  # pylint: disable=W0613
+                return actors_num
+
         else:  # nodewise
-            layer_size = net.get_nodes_num()
-            def get_size(process): return layer_size[process]
+            nodes_num = net.get_nodes_num()
+
+            def get_size(process: str) -> int:
+                return nodes_num[process]
 
         seeding_budget = {}
         for process, pcts in self.seeding_budget.items():
