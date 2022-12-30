@@ -49,7 +49,7 @@ class KShellSeedSelector(BaseSeedSelector):
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """COmpute ranking for actors."""
         actor_ranking, picked_actors = [], []
-        for nth_nodes in zip_longest(*self.nodewise(net).values(), fillvalue=None):
+        for nth_nodes in zip_longest(*super().nodewise(net).values(), fillvalue=None):
             shuffle(list(nth_nodes))
             for node_id in nth_nodes:
                 if node_id is None or node_id in picked_actors:

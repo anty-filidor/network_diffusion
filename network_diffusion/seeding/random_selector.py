@@ -1,4 +1,5 @@
 """Randomised seed selector."""
+
 from random import shuffle
 from typing import Any, List
 
@@ -34,4 +35,3 @@ class RandomSeedSelector(BaseSeedSelector):
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Get actors randomly."""
         return net.get_actors(shuffle=True)
-
