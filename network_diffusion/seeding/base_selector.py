@@ -1,6 +1,8 @@
 """A definition of the base seed selector class."""
 
 from abc import ABC, abstractmethod
+from itertools import zip_longest
+from random import shuffle
 from typing import Any, Dict, List, Union
 
 import networkx as nx
@@ -58,3 +60,26 @@ class BaseSeedSelector(ABC):
             seeds_in_layer = self._calculate_ranking_list(l_graph)
             nodes_ranking[l_name] = seeds_in_layer
         return nodes_ranking
+
+
+
+def node_to_actor_ranking(
+    nodewise_ranking: Dict[str, List[Any]], net: MultilayerNetwork
+) -> List[MLNetworkActor]:
+    """
+    Naive converter of seeding ranking computed nodewise to actorwise.
+
+    :param nodewise_ranking: a ranking computed with BaseSeedSelector.nodewise()
+    :param net: a network to convert ranking for
+    :return: ranking of actors according to provided nodes' ranking
+    """
+    actor_ranking, picked_actors = [], []
+    for nth_nodes in zip_longest(*nodewise_ranking.values(), fillvalue=None):
+        shuffle(list(nth_nodes))
+        for node_id in nth_nodes:
+            if node_id is None or node_id in picked_actors:
+                continue
+            actor_ranking.append(net.get_actor(actor_id=node_id))
+            picked_actors.append(node_id)
+    assert len(picked_actors) == net.get_actors_num(), "Incorrect ranking!"
+    return actor_ranking
