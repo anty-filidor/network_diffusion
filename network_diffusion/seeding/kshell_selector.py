@@ -14,12 +14,19 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 
 class KShellSeedSelector(BaseSeedSelector):
-    """Selector for MLTModel based on k-shell algorithm."""
+    """
+    Selector for MLTModel based on k-shell algorithm.
+
+    According to "Seed selection for information cascade in multilayer 
+    networks" by Fredrik Erlandsson, Piotr Bródka, and Anton Borg we have
+    extended k-shell ranking by combining it with degree of the node in each
+    layer, so that ranking is better ordered (nodes in shells can be ordered).  
+    """
 
     @staticmethod
     def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
         """
-        Create a ranking of nodes based on their k-shell cohort position.
+        Create a ranking based on nodes' k-shell cohort position & degree.
 
         :param graph: single layer graph to compute ranking for
         :return: list of node-ids ordered descending by their ranking position
@@ -28,13 +35,25 @@ class KShellSeedSelector(BaseSeedSelector):
         shell_ranking = {}
         k = 0
 
+        # iterate until deepest shell is achieved
         while True:
-            ksh_nodes = set(nx.k_shell(graph, k=k).nodes())
-            shell_ranking[k] = ksh_nodes
-            if ksh_nodes == ksh_deepest_nodes:
+            
+            # compute k-shell cohort
+            ksh_nodes = [*nx.k_shell(graph, k=k).nodes()]
+
+            # sort it according to degree in the graph
+            shell_ranking[k] = sorted(
+                ksh_nodes,
+                key=lambda x: nx.degree(graph)[x],
+                reverse=True,
+            )
+
+            # if the deepest shell is reached breake, othrwise increase k
+            if set(ksh_nodes) == ksh_deepest_nodes:
                 break
             k += 1
 
+        # flatten ranking to the ordered list
         return [
             node
             for cohort in sorted(shell_ranking)[::-1]
