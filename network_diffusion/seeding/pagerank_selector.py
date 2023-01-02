@@ -26,9 +26,9 @@ class PageRankSeedSelector(BaseSeedSelector):
         """
         ranking_dict = nx.pagerank(graph)
         ranked_nodes = sorted(
-            ranking_dict, key= lambda x: ranking_dict[x], reverse=True
+            ranking_dict, key=lambda x: ranking_dict[x], reverse=True
         )
-        if len(ranked_nodes) != len(graph.nodes): # that's a sanity check
+        if len(ranked_nodes) != len(graph.nodes):  # that's a sanity check
             assert ValueError
         return ranked_nodes
 

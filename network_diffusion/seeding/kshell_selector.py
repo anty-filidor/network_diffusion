@@ -17,10 +17,10 @@ class KShellSeedSelector(BaseSeedSelector):
     """
     Selector for MLTModel based on k-shell algorithm.
 
-    According to "Seed selection for information cascade in multilayer 
+    According to "Seed selection for information cascade in multilayer
     networks" by Fredrik Erlandsson, Piotr Bródka, and Anton Borg we have
     extended k-shell ranking by combining it with degree of the node in each
-    layer, so that ranking is better ordered (nodes in shells can be ordered).  
+    layer, so that ranking is better ordered (nodes in shells can be ordered).
     """
 
     @staticmethod
@@ -37,7 +37,7 @@ class KShellSeedSelector(BaseSeedSelector):
 
         # iterate until deepest shell is achieved
         while True:
-            
+
             # compute k-shell cohort
             ksh_nodes = [*nx.k_shell(graph, k=k).nodes()]
 
