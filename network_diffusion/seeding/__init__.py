@@ -9,5 +9,6 @@ from network_diffusion.seeding.kshell_selector import KShellSeedSelector
 from network_diffusion.seeding.neighbourhoodsize_selector import (
     NeighbourhoodSizeSelector,
 )
+from network_diffusion.seeding.pagerank_selector import PageRankSeedSelector
 from network_diffusion.seeding.random_selector import RandomSeedSelector
 from network_diffusion.seeding.voterank_selector import VoteRankSeedSelector
