@@ -17,11 +17,13 @@
 # =============================================================================
 
 """Functions for the phenomena spreading definition."""
+from typing import List
 from tqdm import tqdm
 
 from network_diffusion.experiment_logger import ExperimentLogger
 from network_diffusion.mln.mln_network import MultilayerNetwork
 from network_diffusion.models.base_model import BaseModel
+from network_diffusion.models.utils.types import NetworkUpdateBuffer
 
 
 class MultiSpreading:
@@ -31,14 +33,26 @@ class MultiSpreading:
         """
         Construct an object.
 
-        :param model: model of propagation which determines how experiment
+        :param model: model of propagation which determines how experiment 
             looks like
         :param network: a network which is being examined during experiment
         """
         self._model = model
         self._network = network
+        self.stopping_counter = 0
 
-    def perform_propagation(self, n_epochs: int) -> ExperimentLogger:
+    def _update_counter(
+        self, nodes_to_update: List[NetworkUpdateBuffer]
+    ) -> None:
+        """Update a counter of dead epochs."""
+        if len(nodes_to_update) == 0:
+            self.stopping_counter += 1
+        else:
+            self.stopping_counter = 0
+
+    def perform_propagation(
+        self, n_epochs: int, stop_on_hold: bool = False
+    ) -> ExperimentLogger:
         """
         Perform experiment on given network and given model.
 
@@ -46,6 +60,7 @@ class MultiSpreading:
         analysis.
 
         :param n_epochs: number of epochs to do experiment
+        :param stop_on_hold: stop if there was no propagation in last 5 epochs
         :return: logs of experiment stored in special object
         """
         logger = ExperimentLogger(str(self._model), str(self._network))
@@ -59,7 +74,7 @@ class MultiSpreading:
         for epoch in progress_bar:
             progress_bar.set_description_str(f"Processing epoch {epoch}")
 
-            # do a forward step
+            # do a forward step and update network
             nodes_to_update = self._model.network_evaluation_step(
                 self._network
             )
@@ -70,6 +85,15 @@ class MultiSpreading:
             # add logs from current epoch
             logger.add_global_stat(self._network.get_nodes_states())
             logger.add_local_stat(epoch, epoch_json)
+    
+            # check if there is no progress and therefore stop simulation
+            if stop_on_hold:
+                self._update_counter(nodes_to_update)
+                if self.stopping_counter >= 5:
+                    progress_bar.set_description_str(
+                        "Experiment stopped - no progress in last 5 epochs!"
+                    )
+                    break
 
         # convert logs to dataframe
         logger.convert_logs(self._model.get_allowed_states(self._network))

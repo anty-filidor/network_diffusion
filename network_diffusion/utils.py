@@ -28,9 +28,9 @@ BOLD_UNDERLINE = "============================================"
 THIN_UNDERLINE = "--------------------------------------------"
 
 
-def read_mlx(file_path: str) -> Dict[str, List[Any]]:
+def read_mpx(file_path: str) -> Dict[str, List[Any]]:
     """
-    Handle MLX file for the MultilayerNetwork class.
+    Handle MPX file for the MultilayerNetwork class.
 
     :param file_path: path to file
 

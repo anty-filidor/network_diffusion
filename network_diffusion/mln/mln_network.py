@@ -28,7 +28,7 @@ import networkx as nx
 import numpy as np
 
 from network_diffusion.mln.mln_actor import MLNetworkActor
-from network_diffusion.utils import read_mlx
+from network_diffusion.utils import read_mpx
 
 
 class MultilayerNetwork:
@@ -43,16 +43,16 @@ class MultilayerNetwork:
         self.layers = layers
 
     @classmethod
-    def load_mlx(cls, file_path: str) -> "MultilayerNetwork":
+    def load_mpx(cls, file_path: str) -> "MultilayerNetwork":
         """
-        Load multilayer network from mlx file.
+        Load multilayer network from mpx file.
 
         Note, that is omits some non-important attributes of network defined in
         the file, i.e. node attributes.
 
         :param file_path: path to the file
         """
-        raw_data = read_mlx(file_path)
+        raw_data = read_mpx(file_path)
 
         # create layers
         layers: Dict[str, nx.Graph] = {}
@@ -66,11 +66,16 @@ class MultilayerNetwork:
                     print("unrecognised layer")
         else:
             raise ResourceWarning("file corrupted - no layers defined")
+        
+        # import nodes
+        if "vertices" in raw_data:
+            for vertex in raw_data["vertices"]:
+                layers[vertex[1]].add_node(vertex[0])
 
         # import edges
         if "edges" in raw_data:
             for edge in raw_data["edges"]:
-                # if edge definition is not corrupted go into it
+                # if edge definition is not corrupted read it
                 if len(edge) >= 3 and edge[2] in layers:
                     layers[edge[2]].add_edge(edge[0], edge[1])
 

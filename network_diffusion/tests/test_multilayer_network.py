@@ -17,7 +17,7 @@ class TestMultilayerNetwork(unittest.TestCase):
 
     def setUp(self):
         """Set up most common testing parameters."""
-        self.network = MultilayerNetwork.load_mlx(
+        self.network = MultilayerNetwork.load_mpx(
             os.path.join(
                 utils.get_absolute_path(), "tests/data/florentine.mpx"
             )
@@ -25,7 +25,7 @@ class TestMultilayerNetwork(unittest.TestCase):
 
     def test_load_mpx(self):
         """Tests loading network from mpx file."""
-        network = MultilayerNetwork.load_mlx(
+        network = MultilayerNetwork.load_mpx(
             os.path.join(
                 utils.get_absolute_path(), "tests/data/bankwiring.mpx"
             )

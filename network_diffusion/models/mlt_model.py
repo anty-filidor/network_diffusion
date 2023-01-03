@@ -206,6 +206,10 @@ class MLTModel(BaseModel):
             # init container for positive inputs in each layer
             layer_inputs = {}
 
+            # check if node is already activated, if so don't update it
+            if set(actor.states) == set(self.ACTIVE_STATE):
+                continue
+
             # try to activate actor in each layer where it exist
             for layer_name in actor.layers:
                 layer_inputs[layer_name] = self.agent_evaluation_step(

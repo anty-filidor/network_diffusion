@@ -20,7 +20,7 @@ class TestUtils(unittest.TestCase):
     def test_read_mlx(self):
         """Test for reading mlx file."""
         print(utils.get_absolute_path())
-        data = utils.read_mlx(
+        data = utils.read_mpx(
             os.path.join(
                 utils.get_absolute_path(), "tests/data/bankwiring.mpx"
             )
