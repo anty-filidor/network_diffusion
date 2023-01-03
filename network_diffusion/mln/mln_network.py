@@ -66,7 +66,7 @@ class MultilayerNetwork:
                     print("unrecognised layer")
         else:
             raise ResourceWarning("file corrupted - no layers defined")
-        
+
         # import nodes
         if "vertices" in raw_data:
             for vertex in raw_data["vertices"]:

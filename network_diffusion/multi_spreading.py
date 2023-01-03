@@ -18,6 +18,7 @@
 
 """Functions for the phenomena spreading definition."""
 from typing import List
+
 from tqdm import tqdm
 
 from network_diffusion.experiment_logger import ExperimentLogger
@@ -33,7 +34,7 @@ class MultiSpreading:
         """
         Construct an object.
 
-        :param model: model of propagation which determines how experiment 
+        :param model: model of propagation which determines how experiment
             looks like
         :param network: a network which is being examined during experiment
         """
@@ -85,7 +86,7 @@ class MultiSpreading:
             # add logs from current epoch
             logger.add_global_stat(self._network.get_nodes_states())
             logger.add_local_stat(epoch, epoch_json)
-    
+
             # check if there is no progress and therefore stop simulation
             if stop_on_hold:
                 self._update_counter(nodes_to_update)
