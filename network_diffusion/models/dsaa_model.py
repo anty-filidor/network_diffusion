@@ -48,13 +48,16 @@ class DSAAModel(BaseModel):
         descr += f"\n{BOLD_UNDERLINE}"
         return descr
 
-    def set_initial_states(self, net: MultilayerNetwork) -> MultilayerNetwork:
+    def set_initial_states(self, net: MultilayerNetwork) -> List[Dict[str, str]]:
         """
         Set initial states in the network according to seed selection method.
 
         :param net: network to initialise seeds for
+
+        :return: a list of state of the network after initialisation
         """
         budget = self._compartmental_graph.get_seeding_budget_for_network(net)
+        seed_nodes: List[NetworkUpdateBuffer] = []
 
         # set initial states in each layer of network
         for l_name, ranking in self._seed_selector.nodewise(net).items():
@@ -70,14 +73,22 @@ class DSAAModel(BaseModel):
             ] + [l_nodes_num]
             ranges: List[Tuple[int, int]] = list(zip(_rngs[:-1], _rngs[1:]))
 
-            # append states to nodes
+            # generate update buffer
             for i, _ in enumerate(ranges):
                 pair = ranges[i]
                 state = list(l_budget.keys())[i]
                 for index in range(pair[0], pair[1]):
-                    l_graph.nodes[ranking[index]]["status"] = state
+                    seed_nodes.append(
+                        NetworkUpdateBuffer(
+                            node_name=ranking[index],
+                            layer_name=l_name,
+                            new_state=state
+                        )
+                    )
 
-        return net
+        # set initial states and return json to save in logs
+        out_json = self.update_network(net=net, activated_nodes=seed_nodes)
+        return out_json
 
     def agent_evaluation_step(
         self, agent: Any, layer_name: str, net: MultilayerNetwork

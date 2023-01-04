@@ -6,7 +6,7 @@ from typing import Dict
 
 @dataclass
 class NetworkUpdateBuffer:
-    """Auxiliary class to keep info about nodes that needs to be udated."""
+    """Auxiliary class to keep info about nodes that needs to be updated."""
 
     node_name: str
     layer_name: str

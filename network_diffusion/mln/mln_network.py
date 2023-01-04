@@ -161,8 +161,11 @@ class MultilayerNetwork:
 
         final_str += "general parameters:\n"
         final_str += f"\tnumber of layers: {len(self.layers)}\n"
-        mul_coeff = self._compute_multiplexing_coefficient()
-        final_str += f"\tmultiplexing coefficient: {round(mul_coeff, 4)}\n"
+        final_str += (
+            f"\tmultiplexing coefficient: "
+            f"{round(self._compute_multiplexing_coefficient(), 4)}\n"
+        )
+        final_str += f"\tnumber of actors: {self.get_actors_num()}\n"
 
         for name, graph in self.layers.items():
             final_str += f"\nlayer '{name}' parameters:\n"

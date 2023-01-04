@@ -135,23 +135,40 @@ class MLTModel(BaseModel):
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.all())
 
-    def set_initial_states(self, net: MLNetwork) -> MLNetwork:
+    def set_initial_states(self, net: MLNetwork) -> List[Dict[str, str]]:
         """
         Set initial states in the network according to seed selection method.
 
         :param net: network to initialise seeds for
+
+        :return: a list of state of the network after initialisation
         """
         budget = self._compartmental_graph.get_seeding_budget_for_network(
             net=net, actorwise=True
         )
+        seed_nodes: List[NUBuff] = []
+
         for idx, actor in enumerate(self._seed_selector.actorwise(net=net)):
+    
+            # select initial state for given actor according to budget
             if idx < budget[self.PROCESS_NAME][self.ACTIVE_STATE]:
                 a_state = self.ACTIVE_STATE
             else:
                 a_state = self.INACTIVE_STATE
+
+            # generate update buffer for the actor
             for l_name in actor.layers:
-                net.layers[l_name].nodes[actor.actor_id]["status"] = a_state
-        return net
+                seed_nodes.append(
+                    NUBuff(
+                        node_name=actor.actor_id,
+                        layer_name=l_name,
+                        new_state=a_state
+                    )
+                )
+        
+        # set initial states and return json to save in logs
+        out_json = self.update_network(net=net, activated_nodes=seed_nodes)
+        return out_json
 
     def agent_evaluation_step(
         self,
