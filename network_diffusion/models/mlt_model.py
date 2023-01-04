@@ -149,7 +149,7 @@ class MLTModel(BaseModel):
         seed_nodes: List[NUBuff] = []
 
         for idx, actor in enumerate(self._seed_selector.actorwise(net=net)):
-    
+
             # select initial state for given actor according to budget
             if idx < budget[self.PROCESS_NAME][self.ACTIVE_STATE]:
                 a_state = self.ACTIVE_STATE
@@ -162,10 +162,10 @@ class MLTModel(BaseModel):
                     NUBuff(
                         node_name=actor.actor_id,
                         layer_name=l_name,
-                        new_state=a_state
+                        new_state=a_state,
                     )
                 )
-        
+
         # set initial states and return json to save in logs
         out_json = self.update_network(net=net, activated_nodes=seed_nodes)
         return out_json

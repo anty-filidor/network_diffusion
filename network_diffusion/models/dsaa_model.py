@@ -48,7 +48,9 @@ class DSAAModel(BaseModel):
         descr += f"\n{BOLD_UNDERLINE}"
         return descr
 
-    def set_initial_states(self, net: MultilayerNetwork) -> List[Dict[str, str]]:
+    def set_initial_states(
+        self, net: MultilayerNetwork
+    ) -> List[Dict[str, str]]:
         """
         Set initial states in the network according to seed selection method.
 
@@ -75,20 +77,18 @@ class DSAAModel(BaseModel):
 
             # generate update buffer
             for i, _ in enumerate(ranges):
-                pair = ranges[i]
                 state = list(l_budget.keys())[i]
-                for index in range(pair[0], pair[1]):
+                for index in range(ranges[i][0], ranges[i][1]):
                     seed_nodes.append(
                         NetworkUpdateBuffer(
                             node_name=ranking[index],
                             layer_name=l_name,
-                            new_state=state
+                            new_state=state,
                         )
                     )
 
         # set initial states and return json to save in logs
-        out_json = self.update_network(net=net, activated_nodes=seed_nodes)
-        return out_json
+        return self.update_network(net=net, activated_nodes=seed_nodes)
 
     def agent_evaluation_step(
         self, agent: Any, layer_name: str, net: MultilayerNetwork
