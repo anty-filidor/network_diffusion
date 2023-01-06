@@ -72,7 +72,9 @@ class MultiSpreading:
         logger.add_local_stat(0, initial_state)
 
         # iterate through epochs
-        progress_bar = tqdm(range(n_epochs))
+        progress_bar = tqdm(
+            range(n_epochs), desc="experiment", leave=False, colour="blue"
+        )
         for epoch in progress_bar:
             progress_bar.set_description_str(f"Processing epoch {epoch}")
 

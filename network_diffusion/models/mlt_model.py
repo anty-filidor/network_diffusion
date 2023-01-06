@@ -99,7 +99,7 @@ class MLTModel(BaseModel):
         equals mi only for transition 0->1.
         """
         compart_graph = CompartmentalGraph()
-        assert 0 < mi_value < 1
+        assert 0 <= mi_value <= 1, f"incorrect mi value: {mi_value}!"
 
         # Add allowed states and seeding budget
         compart_graph.add(
