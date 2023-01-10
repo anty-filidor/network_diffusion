@@ -11,6 +11,7 @@ network_diffusion/__pycache__/
 network_diffusion/tests/__pycache__/
 __py_cache__
 /.mypy_cache/
+/.pytest_cache/
 /conda_build/
 /.vscode/
 **/__pycache__/
