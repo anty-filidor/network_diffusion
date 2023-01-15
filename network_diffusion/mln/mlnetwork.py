@@ -27,7 +27,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 import networkx as nx
 import numpy as np
 
-from network_diffusion.mln.mln_actor import MLNetworkActor
+from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.utils import read_mpx
 
 
@@ -161,10 +161,6 @@ class MultilayerNetwork:
 
         final_str += "general parameters:\n"
         final_str += f"\tnumber of layers: {len(self.layers)}\n"
-        final_str += (
-            f"\tmultiplexing coefficient: "
-            f"{round(self._compute_multiplexing_coefficient(), 4)}\n"
-        )
         final_str += f"\tnumber of actors: {self.get_actors_num()}\n"
 
         for name, graph in self.layers.items():
@@ -192,13 +188,15 @@ class MultilayerNetwork:
         Return a subgraph of the network.
 
         The induced subgraph of the graph contains the nodes in `nodes` and the
-        edges between those nodes. The method is equivalent of nx.Graph.subgraph
+        edges between those nodes. This is an equivalent of nx.Graph.subgraph.
         """
-        nodes_to_keep = {l_name: [] for l_name in self.get_layer_names()}
+        nodes_to_keep: Dict[str, List[Any]] = {
+            l_name: [] for l_name in self.get_layer_names()
+        }
         for actor in actors:
             for l_name in actor.layers:
                 nodes_to_keep[l_name].append(actor.actor_id)
-        
+
         sub_layers = {}
         for l_name, kept_nodes in nodes_to_keep.items():
             l_subgraph = self.layers[l_name].subgraph(kept_nodes).copy()
@@ -206,7 +204,7 @@ class MultilayerNetwork:
 
         subgraph_instance = self.__new__(self.__class__)
         subgraph_instance.__init__(sub_layers)
-        
+
         return subgraph_instance
 
     # TODO(MCz): rename to make it consistent

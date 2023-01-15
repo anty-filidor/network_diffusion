@@ -79,7 +79,7 @@ def read_mpx(file_path: str) -> Dict[str, List[Any]]:
 
 
 # TODO(MCz): replace with pathlib
-def create_directory(dest_path: str) -> None: 
+def create_directory(dest_path: str) -> None:
     """
     Check out if given directory exists and if doesn't it creates it.
 

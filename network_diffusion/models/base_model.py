@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Tuple
 
-from network_diffusion.mln.mln_network import MultilayerNetwork
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.models.utils.types import NetworkUpdateBuffer
 from network_diffusion.seeding.base_selector import BaseSeedSelector

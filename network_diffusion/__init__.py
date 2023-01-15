@@ -23,7 +23,7 @@
 # flake8: noqa
 
 from network_diffusion import models, seeding
-from network_diffusion.mln.mln_network import MultilayerNetwork
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.multi_spreading import MultiSpreading
 
 __version__ = "0.8.0"

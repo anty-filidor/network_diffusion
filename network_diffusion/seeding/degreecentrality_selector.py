@@ -4,8 +4,9 @@ from typing import Any, Dict, List
 
 import networkx as nx
 
-from network_diffusion.mln.mln_actor import MLNetworkActor
-from network_diffusion.mln.mln_network import MultilayerNetwork
+from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.functions import degree
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
@@ -32,13 +33,10 @@ class DegreeCentralitySelector(BaseSeedSelector):
         degree_centrality_values: Dict[int, List[MLNetworkActor]] = {}
         ranking_list: List[MLNetworkActor] = []
 
-        for actor in net.get_actors():
-            a_neighbours = 0
-            for l_name in actor.layers:
-                a_neighbours += len(net.layers[l_name].adj[actor.actor_id])
-            if degree_centrality_values.get(a_neighbours) is None:
-                degree_centrality_values[a_neighbours] = []
-            degree_centrality_values[a_neighbours].append(actor)
+        for actor, a_degree in degree(net=net).items():
+            if degree_centrality_values.get(a_degree) is None:
+                degree_centrality_values[a_degree] = []
+            degree_centrality_values[a_degree].append(actor)
 
         for dc_val in sorted(degree_centrality_values, reverse=True):
             ranking_list.extend(degree_centrality_values[dc_val])

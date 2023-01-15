@@ -1,11 +1,12 @@
 """A definition of the seed selector based on neighbourhood size."""
 
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List
 
 import networkx as nx
 
-from network_diffusion.mln.mln_actor import MLNetworkActor
-from network_diffusion.mln.mln_network import MultilayerNetwork
+from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.functions import neighbourhood_size
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
@@ -30,16 +31,10 @@ class NeighbourhoodSizeSelector(BaseSeedSelector):
         neighbourhood_size_values: Dict[int, List[MLNetworkActor]] = {}
         ranking_list: List[MLNetworkActor] = []
 
-        for actor in net.get_actors():
-            a_neighbours: Set[Any] = set()
-            for l_name in actor.layers:
-                a_neighbours = a_neighbours.union(
-                    set(net.layers[l_name].adj[actor.actor_id].keys())
-                )
-            a_neighbourhood_size = len(a_neighbours)
-            if neighbourhood_size_values.get(a_neighbourhood_size) is None:
-                neighbourhood_size_values[a_neighbourhood_size] = []
-            neighbourhood_size_values[a_neighbourhood_size].append(actor)
+        for actor, a_nsize in neighbourhood_size(net=net).items():
+            if neighbourhood_size_values.get(a_nsize) is None:
+                neighbourhood_size_values[a_nsize] = []
+            neighbourhood_size_values[a_nsize].append(actor)
 
         for ns_val in sorted(neighbourhood_size_values, reverse=True):
             ranking_list.extend(neighbourhood_size_values[ns_val])

@@ -2,7 +2,7 @@
 # pylint: disable-all
 # type: ignore
 
-"""Tests for the network_diffusion.multilayer_network."""
+"""Tests for the network_diffusion.mln.mlnetwork."""
 
 import os
 import unittest
@@ -96,28 +96,6 @@ class TestMultilayerNetwork(unittest.TestCase):
             network.layers["a"].nodes["Napoleon"]["status"],
             None,
             "Node should have None in status attr",
-        )
-
-    def test_compute_multiplexing_coefficient(self):
-        """Tests if multiplexing coefficient is computed correctly."""
-        names = ["a", "b"]
-        network = MultilayerNetwork.load_layer_nx(
-            nx.les_miserables_graph(), names
-        )
-        mcf = network._compute_multiplexing_coefficient()
-        self.assertEqual(
-            mcf,
-            1,
-            "Multiplexing coefficient for multpilex network should be 1",
-        )
-
-        mcf = self.network._compute_multiplexing_coefficient()
-        self.assertAlmostEqual(
-            mcf,
-            0.733,
-            2,
-            'Multiplexing coefficient for "florentine" network should be '
-            "almost 0.73",
         )
 
     def test_get_nodes_states(self):

@@ -27,7 +27,7 @@ from typing import Any, Dict, List, Tuple
 import networkx as nx
 import numpy as np
 
-from network_diffusion.mln.mln_network import MultilayerNetwork
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 

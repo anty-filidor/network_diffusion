@@ -5,8 +5,8 @@ from typing import Any, List
 
 import networkx as nx
 
-from network_diffusion.mln.mln_actor import MLNetworkActor
-from network_diffusion.mln.mln_network import MultilayerNetwork
+from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 

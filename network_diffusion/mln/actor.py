@@ -1,6 +1,6 @@
 """Contains funcitons to handle actors of the multilayer network."""
 
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 
 
 class MLNetworkActor:
@@ -22,18 +22,18 @@ class MLNetworkActor:
             f"actor id: {self.actor_id}, "
             f"layers and states: {self._layers_states}"
         )
-    
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}: {self.actor_id} at {id(self)}"
 
-    def __eq__(self, another):
+    def __eq__(self, another: Any) -> bool:
         if not isinstance(another, self.__class__):
             return False
         ids_eq = self.actor_id == another.actor_id
         lss_eq = self._layers_states == another._layers_states
         return ids_eq and lss_eq
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.actor_id, self.layers, self.states, self.__class__))
 
     @property

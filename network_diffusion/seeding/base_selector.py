@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Union
 
 import networkx as nx
 
-from network_diffusion.mln.mln_actor import MLNetworkActor
-from network_diffusion.mln.mln_network import MultilayerNetwork
+from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
 class BaseSeedSelector(ABC):
