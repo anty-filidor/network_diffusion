@@ -182,7 +182,7 @@ class MultilayerNetwork:
         final_str += "============================================"
 
         return final_str
-    
+
     def copy(self) -> "MultilayerNetwork":
         """Create a deep copy of the network."""
         copied_instance = self.__new__(self.__class__)
