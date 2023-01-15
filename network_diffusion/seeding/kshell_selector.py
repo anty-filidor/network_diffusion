@@ -5,7 +5,7 @@ from typing import Any, List
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
-from network_diffusion.mln.functions import k_shell_actorwise, degree
+from network_diffusion.mln.functions import degree, k_shell_actorwise
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import (
     BaseSeedSelector,
@@ -77,8 +77,8 @@ class KShellExtendedSeedSelector(BaseSeedSelector):
     """
     Selector for MLTModel based on k-shell algorithm.
 
-    In contrary to KShellSeedSelector it utilises k-shell decomposition computed
-    as implemented in k_shell_actorwise()
+    In contrary to KShellSeedSelector it utilises k-shell decomposition defined
+    as in network_diffusion.mln.functions.k_shell_actorwise()
     """
 
     @staticmethod
@@ -109,7 +109,9 @@ class KShellExtendedSeedSelector(BaseSeedSelector):
 
             # sort it according to degree in the graph
             shell_ranking[k] = sorted(
-                ksh_actors, key=lambda x: degree(net)[x], reverse=True,
+                ksh_actors,
+                key=lambda x: degree(net)[x],
+                reverse=True,
             )
 
             # if the deepest shell is reached breake, othrwise increase k
