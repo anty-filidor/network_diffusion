@@ -182,6 +182,14 @@ class MultilayerNetwork:
         final_str += "============================================"
 
         return final_str
+    
+    def copy(self) -> "MultilayerNetwork":
+        """Create a deep copy of the network."""
+        copied_instance = self.__new__(self.__class__)
+        copied_instance.__init__(
+            {name: deepcopy(graph) for name, graph in self.layers.items()}
+        )
+        return copied_instance
 
     def subgraph(self, actors: List[MLNetworkActor]) -> "MultilayerNetwork":
         """
