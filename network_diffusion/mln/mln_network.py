@@ -187,44 +187,35 @@ class MultilayerNetwork:
 
         return final_str
 
-    def _compute_multiplexing_coefficient(self) -> float:
+    def subgraph(self, actors: List[MLNetworkActor]) -> "MultilayerNetwork":
         """
-        Compute multiplexing coefficient.
+        Return a subgraph of the network.
 
-        Multiplexing coefficient is defined as proportion of number of nodes
-        common to all layers to number of all unique nodes in entire network
-
-        :return: (float) multiplexing coefficient
+        The induced subgraph of the graph contains the nodes in `nodes` and the
+        edges between those nodes. The method is equivalent of nx.Graph.subgraph
         """
-        assert len(self.layers) > 0, "Import network to the object first!"
+        nodes_to_keep = {l_name: [] for l_name in self.get_layer_names()}
+        for actor in actors:
+            for l_name in actor.layers:
+                nodes_to_keep[l_name].append(actor.actor_id)
+        
+        sub_layers = {}
+        for l_name, kept_nodes in nodes_to_keep.items():
+            l_subgraph = self.layers[l_name].subgraph(kept_nodes).copy()
+            sub_layers[l_name] = l_subgraph
 
-        # create set of all nodes in the network
-        all_nodes = set()
-        for graph in self.layers.values():
-            all_nodes.update([*graph.nodes()])
+        subgraph_instance = self.__new__(self.__class__)
+        subgraph_instance.__init__(sub_layers)
+        
+        return subgraph_instance
 
-        # create set of all common nodes in the network over the layers
-        common_nodes = set()
-        for node in all_nodes:
-            _ = True
-            for layer in self.layers.values():
-                if node not in layer:
-                    _ = False
-                    break
-            if _ is True:
-                common_nodes.add(node)
-
-        if len(all_nodes) > 0:
-            return len(common_nodes) / len(all_nodes)
-        else:
-            return 0
-
+    # TODO(MCz): rename to make it consistent
     def get_nodes_states(self) -> Dict[str, Any]:
         """
         Return summary of network's nodes states.
 
         :return: dictionary with items representing each of layers and with
-            summary of node states in values
+            summary of nodes states in values
         """
         assert len(self.layers) > 0, "Import network to the object first!"
         statistics = {}
@@ -235,6 +226,7 @@ class MultilayerNetwork:
             statistics[name] = tuple(Counter(tab).items())
         return statistics
 
+    # TODO(MCz): probably obsolete
     def get_node_state(self, node: Any) -> Tuple[str, ...]:
         """
         Return general state of node in network.
