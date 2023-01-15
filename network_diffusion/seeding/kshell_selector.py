@@ -5,6 +5,7 @@ from typing import Any, List
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.functions import k_shell_actorwise, degree
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import (
     BaseSeedSelector,
@@ -64,9 +65,61 @@ class KShellSeedSelector(BaseSeedSelector):
         """Return seed method's description."""
         return (
             f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
-            f"\tK Shell decomposition\n{BOLD_UNDERLINE}\n"
+            f"\tK Shell decomposition computed nodewise\n{BOLD_UNDERLINE}\n"
         )
 
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Compute ranking for actors."""
         return node_to_actor_ranking(super().nodewise(net), net)
+
+
+class KShellExtendedSeedSelector(BaseSeedSelector):
+    """
+    Selector for MLTModel based on k-shell algorithm.
+
+    In contrary to KShellSeedSelector it utilises k-shell decomposition computed
+    as implemented in k_shell_actorwise()
+    """
+
+    @staticmethod
+    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+        """Create nodewise ranking."""
+        raise NotImplementedError(
+            "Nodewise ranking list cannot be computed for this class!"
+        )
+
+    def __str__(self) -> str:
+        """Return seed method's description."""
+        return (
+            f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
+            f"\tK Shell decomposition computed actorwise\n{BOLD_UNDERLINE}\n"
+        )
+
+    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+        """Compute ranking for actors."""
+        ksh_deepest_actors = set(k_shell_actorwise(net=net).get_actors())
+        shell_ranking = {}
+        k = 0
+
+        # iterate until deepest shell is achieved
+        while True:
+
+            # compute k-shell cohort
+            ksh_actors = k_shell_actorwise(net=net, k=k).get_actors()
+
+            # sort it according to degree in the graph
+            shell_ranking[k] = sorted(
+                ksh_actors, key=lambda x: degree(net)[x], reverse=True,
+            )
+
+            # if the deepest shell is reached breake, othrwise increase k
+            if set(ksh_actors) == ksh_deepest_actors:
+                break
+            k += 1
+
+        # flatten ranking to the ordered list
+        return [
+            node
+            for cohort in sorted(shell_ranking)[::-1]
+            for node in shell_ranking[cohort]
+        ]

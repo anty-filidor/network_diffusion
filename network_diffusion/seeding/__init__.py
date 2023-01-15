@@ -5,7 +5,9 @@
 from network_diffusion.seeding.degreecentrality_selector import (
     DegreeCentralitySelector,
 )
-from network_diffusion.seeding.kshell_selector import KShellSeedSelector
+from network_diffusion.seeding.kshell_selector import (
+    KShellSeedSelector, KShellExtendedSeedSelector
+)
 from network_diffusion.seeding.neighbourhoodsize_selector import (
     NeighbourhoodSizeSelector,
 )

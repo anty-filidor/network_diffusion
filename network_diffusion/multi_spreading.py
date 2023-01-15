@@ -17,7 +17,7 @@
 # =============================================================================
 
 """Functions for the phenomena spreading definition."""
-from typing import List
+from typing import List, Optional
 
 from tqdm import tqdm
 
@@ -52,7 +52,7 @@ class MultiSpreading:
             self.stopping_counter = 0
 
     def perform_propagation(
-        self, n_epochs: int, stop_on_hold: bool = False
+        self, n_epochs: int, patience: Optional[int] = None,
     ) -> ExperimentLogger:
         """
         Perform experiment on given network and given model.
@@ -61,10 +61,16 @@ class MultiSpreading:
         analysis.
 
         :param n_epochs: number of epochs to do experiment
-        :param stop_on_hold: stop if there was no propagation in last 5 epochs
+        :param patience: if provided experiment will be stopped when in 
+            "patience" (e.g. 4) consecutive epoch there was no propagation
         :return: logs of experiment stored in special object
         """
         logger = ExperimentLogger(str(self._model), str(self._network))
+
+        if patience is not None and patience > 0:
+            stop_on_hold = True
+        else:
+            stop_on_hold = False
 
         # set and add logs from initialising states
         initial_state = self._model.set_initial_states(self._network)
@@ -93,9 +99,9 @@ class MultiSpreading:
             # check if there is no progress and therefore stop simulation
             if stop_on_hold:
                 self._update_counter(nodes_to_update)
-                if self.stopping_counter >= 5:
+                if self.stopping_counter >= patience:
                     progress_bar.set_description_str(
-                        "Experiment stopped - no progress in last 5 epochs!"
+                        f"Experiment stopped - no progress in last {patience} epochs!"
                     )
                     break
 
