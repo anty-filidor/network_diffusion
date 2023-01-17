@@ -9,6 +9,7 @@ from network_diffusion.seeding.kshell_selector import (
     KShellExtendedSeedSelector,
     KShellSeedSelector,
 )
+from network_diffusion.seeding.mocky_selector import MockyActorSelector
 from network_diffusion.seeding.neighbourhoodsize_selector import (
     NeighbourhoodSizeSelector,
 )
