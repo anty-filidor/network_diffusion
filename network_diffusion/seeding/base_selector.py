@@ -72,13 +72,32 @@ def node_to_actor_ranking(
     :param net: a network to convert ranking for
     :return: ranking of actors according to provided nodes' ranking
     """
-    actor_ranking, picked_actors = [], []
-    for nth_nodes in zip_longest(*nodewise_ranking.values(), fillvalue=None):
-        shuffle(list(nth_nodes))
-        for node_id in nth_nodes:
-            if node_id is None or node_id in picked_actors:
-                continue
-            actor_ranking.append(net.get_actor(actor_id=node_id))
-            picked_actors.append(node_id)
-    assert len(picked_actors) == net.get_actors_num(), "Incorrect ranking!"
+    l_sizes = {l_name: len(l_graph) for l_name, l_graph in net.layers.items()}
+
+    # obtain score of each actor in its layers
+    actor_partial_scores: Dict[str, Dict[str, int]] = {}
+    for l_name, l_ranking in nodewise_ranking.items():
+        for idx, node_id in enumerate(l_ranking, start=1):
+            if node_id not in actor_partial_scores:
+                actor_partial_scores[node_id] = {}
+            actor_partial_scores[node_id][l_name] = idx
+
+    def _avg_result(results: Dict[str, int], sizes: Dict[str, int]) -> float:
+        """Compute average score in ranking weighted by size of layer."""
+        counter = sum(
+            [l_result * sizes[l_name] for l_name, l_result in results.items()]
+        )
+        denominator = sum(l_sizes.values())
+        return counter / denominator
+
+    # compute average score for each actor and create an ordered list of them
+    actor_ranking = sorted(
+        _:={
+            actor_id: _avg_result(partial_score, l_sizes) for 
+            actor_id, partial_score in actor_partial_scores.items()
+        },
+        key=_.get
+    )
+
+    assert len(actor_ranking) == net.get_actors_num(), "Incorrect ranking!"
     return actor_ranking

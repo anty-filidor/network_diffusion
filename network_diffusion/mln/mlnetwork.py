@@ -142,6 +142,10 @@ class MultilayerNetwork:
     def __str__(self) -> str:
         """Print out quickly parameters of the network."""
         return self._get_description_str()
+    
+    def __len__(self) -> int:
+        """Return length of the network, i.e. num of actors."""
+        return self.get_actors_num()
 
     def _get_description_str(self) -> str:
         """
@@ -190,6 +194,12 @@ class MultilayerNetwork:
             {name: deepcopy(graph) for name, graph in self.layers.items()}
         )
         return copied_instance
+    
+    def is_directed(self) -> bool:
+        """Check whether at least one layer is a DirectedGraph."""
+        return np.array(
+            [l_graph.is_directed() for l_graph in self.layers.values()]
+        ).all()
 
     def subgraph(self, actors: List[MLNetworkActor]) -> "MultilayerNetwork":
         """
