@@ -197,9 +197,11 @@ class MultilayerNetwork:
     
     def is_directed(self) -> bool:
         """Check whether at least one layer is a DirectedGraph."""
-        return np.array(
-            [l_graph.is_directed() for l_graph in self.layers.values()]
-        ).all()
+        return bool(
+            np.array(
+                [l_graph.is_directed() for l_graph in self.layers.values()]
+            ).any()
+        )
 
     def subgraph(self, actors: List[MLNetworkActor]) -> "MultilayerNetwork":
         """
@@ -311,6 +313,25 @@ class MultilayerNetwork:
         for layer_graph in self.layers.values():
             actors_set = actors_set.union(set(layer_graph.nodes))
         return len(actors_set)
+    
+    def get_links(
+        self, actor_id: Optional[Any] = None
+    ) -> Set[Tuple[MLNetworkActor, MLNetworkActor]]:
+        """
+        Get links connecting all actors from the network regardless layers. 
+        :return: a set with edges between actors
+        """
+        actor_edges_per_layer = [
+            [
+                (self.get_actor(n_1), self.get_actor(n_2)) for
+                n_1, n_2 in l_graph.edges(actor_id)
+            ] 
+            for l_graph in self.layers.values()
+        ]
+        actor_edges_merged = set()
+        for l_edges in actor_edges_per_layer:
+            actor_edges_merged = actor_edges_merged.union(l_edges)
+        return actor_edges_merged
 
     def get_layer_names(self) -> List[str]:
         """

@@ -98,6 +98,6 @@ def node_to_actor_ranking(
         },
         key=_.get
     )
-
+    
     assert len(actor_ranking) == net.get_actors_num(), "Incorrect ranking!"
     return actor_ranking

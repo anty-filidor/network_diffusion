@@ -1,6 +1,6 @@
 """Script with functions of NetworkX extended to multilayer networks."""
 
-from typing import Any, Callable, Dict, Iterator, Optional, Set
+from typing import Any, Callable, Dict, Iterator, List, Optional, Set
 
 import networkx as nx
 
@@ -85,7 +85,7 @@ def all_neighbors(
     Return all of the neighbors of an actor in the graph.
 
     If the graph is directed returns predecessors as well as successors.
-    Overloads networkx.classes.functions.number_of_selfloops.
+    Overloads networkx.classes.functions.all_neighbours.
     """
     neighbours = []
     for l_name in actor.layers:
@@ -190,3 +190,72 @@ def k_shell_actorwise(
     """
     # pylint: disable=W0621
     return _core_subgraph(net, lambda v, k, c: c[v] == k, k, core_number)
+
+
+def voterank(
+    net: MultilayerNetwork, number_of_actors=None
+) -> List[MLNetworkActor]:
+    """
+    Select a list of influential ACTORS in a graph using VoteRank algorithm.
+
+    VoteRank computes a ranking of the actors in a graph based on a voting 
+    scheme. With VoteRank, all actors vote for each of its neighbours and the 
+    actor with the highest votes is elected iteratively. The voting ability of 
+    neighbors of elected actors is decreased in subsequent turns. Overloads
+    networkx.algorithms.core.k_shell.
+
+    :param net: multilayer network
+    :param number_of_actors: number of ranked actors to extract (default all).
+
+    :return: ordered list of computed seeds, only actors with positive number 
+        of votes are returned.
+    """
+    if net.is_directed():
+        raise NotImplementedError(
+            "Voterank for directed networks is not implemented!"
+        )
+
+    influential_nodes = []
+    if len(net) == 0:
+        return influential_nodes
+    if number_of_actors is None or number_of_actors > len(net):
+        number_of_actors = len(net)
+    vote_rank = {}
+
+    # compute average neighbourhood size
+    agv_nbs = sum(
+        deg for _, deg in neighbourhood_size(net=net).items()
+    ) / len(net)
+
+    # step 1 - initiate all nodes to (0,1) (score, voting ability)
+    for n in net.get_actors():
+        vote_rank[n] = [0, 1]
+
+    # Repeat steps 1b to 4 until num_seeds are elected.
+    for _ in range(number_of_actors):
+    
+        # step 1b - reset rank
+        for n in net.get_actors():
+            vote_rank[n][0] = 0
+    
+        # step 2 - vote
+        for n, nbr in net.get_links():
+            vote_rank[n][0] += vote_rank[nbr][1]
+            vote_rank[nbr][0] += vote_rank[n][1]
+        for n in influential_nodes:
+            vote_rank[n][0] = 0
+
+        # step 3 - select top node
+        n = max(net.get_actors(), key=lambda x: vote_rank[x][0])
+        if vote_rank[n][0] == 0:
+            return influential_nodes
+        influential_nodes.append(n)
+        # weaken the selected node
+        vote_rank[n] = [0, 0]
+
+        # step 4 - update voterank properties
+        for _, nbr in net.get_links(n.actor_id):
+            vote_rank[nbr][1] -= 1 / agv_nbs
+            vote_rank[nbr][1] = max(vote_rank[nbr][1], 0)
+
+    return influential_nodes
