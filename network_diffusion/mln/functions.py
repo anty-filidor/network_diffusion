@@ -192,7 +192,7 @@ def k_shell_actorwise(
     return _core_subgraph(net, lambda v, k, c: c[v] == k, k, core_number)
 
 
-def voterank(
+def voterank_actorwise(
     net: MultilayerNetwork, number_of_actors=None
 ) -> List[MLNetworkActor]:
     """

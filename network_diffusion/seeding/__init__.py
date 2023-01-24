@@ -15,4 +15,7 @@ from network_diffusion.seeding.neighbourhoodsize_selector import (
 )
 from network_diffusion.seeding.pagerank_selector import PageRankSeedSelector
 from network_diffusion.seeding.random_selector import RandomSeedSelector
-from network_diffusion.seeding.voterank_selector import VoteRankSeedSelector
+from network_diffusion.seeding.voterank_selector import (
+    VoteRankSeedSelector,
+    VoteRankExtendedSeedSelector
+)
