@@ -8,7 +8,6 @@ import unittest
 
 import networkx as nx
 
-from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 
 

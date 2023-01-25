@@ -10,7 +10,6 @@ import unittest
 import networkx as nx
 
 from network_diffusion import MultilayerNetwork, utils
-from network_diffusion.models.utils.compartmental import CompartmentalGraph
 
 
 class TestMultilayerNetwork(unittest.TestCase):
@@ -106,16 +105,6 @@ class TestMultilayerNetwork(unittest.TestCase):
             self.network.get_states_num(),
             exp_result,
             "Network states are not same as expected.",
-        )
-
-    def test__actor_to_compartment_state(self):
-        """Tests if node state is being returned correctly."""
-        self.assertEqual(
-            CompartmentalGraph()._actor_to_cmprt_state(
-                self.network.get_actor("Acciaiuoli")
-            ),
-            ("marriage.None",),
-            "Nodes states are not same as expected.",
         )
 
     def test_get_layer_names(self):

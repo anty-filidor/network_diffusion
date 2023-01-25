@@ -201,7 +201,7 @@ class MLTModel(BaseModel):
         impuls = 0
         for neighbour in nx.neighbors(l_graph, agent.actor_id):
             if l_graph.nodes[neighbour]["status"] == self.ACTIVE_STATE:
-                impuls += 1 / nx.degree(l_graph, agent.actor_id)  # type: ignore
+                impuls += 1 / nx.degree(l_graph, agent.actor_id)  # type:ignore
 
         # if thresh. has been reached return positive input, otherwise negative
         if impuls > av_trans[self.ACTIVE_STATE]:
