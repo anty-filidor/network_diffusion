@@ -185,23 +185,23 @@ class MLTModel(BaseModel):
 
         :return: state of the actor in particular layer to be set after epoch
         """
-        layer_graph: nx.Graph = net.layers[layer_name]
+        l_graph: nx.Graph = net.layers[layer_name]
 
         # trivial case - node is already activated
-        current_state = layer_graph.nodes[agent.actor_id]["status"]
+        current_state = l_graph.nodes[agent.actor_id]["status"]
         if current_state == self.ACTIVE_STATE:
             return current_state
 
         # import possible transitions for state of the actor
         av_trans = self._compartmental_graph.get_possible_transitions(
-            agent, self.PROCESS_NAME
+            (f"{self.PROCESS_NAME}.{self.INACTIVE_STATE}",), self.PROCESS_NAME
         )
 
         # iterate through neighbours of node and compute impuls
         impuls = 0
-        for neighbour in nx.neighbors(layer_graph, agent.actor_id):
-            if layer_graph.nodes[neighbour]["status"] == self.ACTIVE_STATE:
-                impuls += 1 / nx.degree(layer_graph, agent.actor_id)
+        for neighbour in nx.neighbors(l_graph, agent.actor_id):
+            if l_graph.nodes[neighbour]["status"] == self.ACTIVE_STATE:
+                impuls += 1 / nx.degree(l_graph, agent.actor_id)  # type: ignore
 
         # if thresh. has been reached return positive input, otherwise negative
         if impuls > av_trans[self.ACTIVE_STATE]:

@@ -90,6 +90,25 @@ class DSAAModel(BaseModel):
         # set initial states and return json to save in logs
         return self.update_network(net=net, activated_nodes=seed_nodes)
 
+    @staticmethod
+    def _find_compartment_state_for_node(
+        node: Any, net: MultilayerNetwork
+    ) -> Tuple[str, ...]:
+        """
+        Find proper state in the compartmntal graph for given node.
+
+        :param node: node to find state for
+        :param net: a network where node belongs
+
+        :return: a tuple in form on ('process_name.state_name', ...), e.g.
+            ('awareness.UA', 'illness.I', 'vaccination.V')
+        """
+        actor = net.get_actor(node)
+        stats = [
+            f"{l_name}.{l_state}" for l_name, l_state in actor.states.items()
+        ]
+        return tuple(sorted(stats))
+
     def agent_evaluation_step(
         self, agent: Any, layer_name: str, net: MultilayerNetwork
     ) -> str:
@@ -107,7 +126,7 @@ class DSAAModel(BaseModel):
 
         # import possible transitions for state of the node
         av_trans = self._compartmental_graph.get_possible_transitions(
-            net.get_actor(agent), layer_name
+            self._find_compartment_state_for_node(agent, net), layer_name
         )
 
         # if there is no possible transition don't do anything

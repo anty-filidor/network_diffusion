@@ -27,7 +27,6 @@ from typing import Any, Dict, List, Tuple
 import networkx as nx
 import numpy as np
 
-from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
@@ -341,23 +340,8 @@ class CompartmentalGraph:
                 # assign weight to picked edge
                 self.set_transition_canonical(name, edge, wght)  # type: ignore
 
-    @staticmethod
-    def _actor_to_cmprt_state(actor: MLNetworkActor) -> Tuple[str, ...]:
-        """
-        Convert actor to state name in compartmntal graph.
-
-        :param actor: actor to perform conversion for
-
-        :return: a tuple in form on ('process_name.state_name', ...), e.g.
-            ('awareness.UA', 'illness.I', 'vaccination.V')
-        """
-        stats = [
-            f"{l_name}.{l_state}" for l_name, l_state in actor.states.items()
-        ]
-        return tuple(sorted(stats))
-
     def get_possible_transitions(
-        self, actor: MLNetworkActor, layer: str
+        self, state: Tuple[str, ...], layer: str
     ) -> Dict[str, float]:
         """
         Return possible transitions from given state in given layer of model.
@@ -378,9 +362,6 @@ class CompartmentalGraph:
 
         # initialise empty container for possible transitions
         reachable_states = {}
-
-        # convert actor to state interpreted by the model
-        state = self._actor_to_cmprt_state(actor)
 
         # read possible states from model
         for neighbour in self.graph[layer].neighbors(state):
