@@ -107,7 +107,7 @@ class DSAAModel(BaseModel):
 
         # import possible transitions for state of the node
         av_trans = self._compartmental_graph.get_possible_transitions(
-            net.get_node_state(agent), layer_name
+            net.get_actor(agent), layer_name
         )
 
         # if there is no possible transition don't do anything

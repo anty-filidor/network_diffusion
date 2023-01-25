@@ -1,4 +1,4 @@
-"""A definition of the seed selector based on Vote Rank algorithm."""
+"""A definition of the seed selectors based on Vote Rank algorithm."""
 
 from typing import Any, List
 
@@ -42,7 +42,7 @@ class VoteRankSeedSelector(BaseSeedSelector):
         return node_to_actor_ranking(super().nodewise(net), net)
 
 
-class VoteRankExtendedSeedSelector(BaseSeedSelector):
+class VoteRankMLNSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on Vote Rank algorithm."""
 
     @staticmethod
@@ -61,7 +61,7 @@ class VoteRankExtendedSeedSelector(BaseSeedSelector):
 
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Compute ranking for actors."""
-        elected_nodes = voterank(net=net)
+        elected_nodes = voterank_actorwise(net=net)
         unelected_nodes = set(net.get_actors()).difference(set(elected_nodes))
         elected_nodes.extend(unelected_nodes)
         return elected_nodes

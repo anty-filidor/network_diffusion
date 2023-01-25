@@ -42,9 +42,9 @@ class MLNetworkActor:
         return tuple(self._layers_states.keys())
 
     @property
-    def states(self) -> Tuple[str, ...]:
-        """Get actor's states for  where actitor exists."""
-        return tuple(self._layers_states.values())
+    def states(self) -> Dict[str, str]:
+        """Get actor's states for where actitor exists."""
+        return self._layers_states
 
     @states.setter
     def states(self, updated_states: Dict[str, str]) -> None:

@@ -58,7 +58,7 @@ class ExperimentLogger:
         Add raw log from single epoch to the object.
 
         :param log: raw log (i.e. a single call of
-            MultiplexNetwork.get_nodes_states())
+            MultiplexNetwork.get_states_num())
         """
         self._global_stats.append(log)
 

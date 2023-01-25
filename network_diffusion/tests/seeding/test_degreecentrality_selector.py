@@ -59,7 +59,7 @@ def create_toy_net() -> MultilayerNetwork:
         )
     )
 
-    return MultilayerNetwork.load_layers_nx(
+    return MultilayerNetwork.from_nx_layers(
         [layer_1, layer_2, layer_3], ["l1", "l2", "l3"]
     )
 

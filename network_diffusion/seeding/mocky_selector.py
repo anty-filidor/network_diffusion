@@ -11,7 +11,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 
 class MockyActorSelector(BaseSeedSelector):
-    """Mocky seed selector."""
+    """Mocky seed selector - returns a ranking provided as argument to init."""
 
     def __init__(self, preselected_actors: List[MLNetworkActor]) -> None:
         """Initialise object."""

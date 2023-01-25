@@ -20,7 +20,7 @@ ________________
 
     network = MultilayerNetwork()
     names = ['illness', 'awareness', 'vaccination']
-    network.load_layer_nx(nx.les_miserables_graph(), names)
+    network.from_nx_layer(nx.les_miserables_graph(), names)
 
 2. Initialise propagation model and set possible transitions with probabilities::
 

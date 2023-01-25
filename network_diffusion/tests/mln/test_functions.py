@@ -18,7 +18,7 @@ class TestFunctions(unittest.TestCase):
 
     def setUp(self):
         """Set up most common testing parameters."""
-        self.network = MultilayerNetwork.load_mpx(
+        self.network = MultilayerNetwork.from_mpx(
             os.path.join(
                 utils.get_absolute_path(), "tests/data/florentine.mpx"
             )
@@ -27,7 +27,7 @@ class TestFunctions(unittest.TestCase):
     def test_compute_multiplexing_coefficient(self):
         """Tests if multiplexing coefficient is computed correctly."""
         names = ["a", "b"]
-        network = MultilayerNetwork.load_layer_nx(
+        network = MultilayerNetwork.from_nx_layer(
             nx.les_miserables_graph(), names
         )
         mcf = multiplexing_coefficient(net=network)

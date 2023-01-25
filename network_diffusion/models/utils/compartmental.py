@@ -27,6 +27,7 @@ from typing import Any, Dict, List, Tuple
 import networkx as nx
 import numpy as np
 
+from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
@@ -339,9 +340,21 @@ class CompartmentalGraph:
 
                 # assign weight to picked edge
                 self.set_transition_canonical(name, edge, wght)  # type: ignore
+    
+    def _actor_to_cmprt_state(self, actor: MLNetworkActor) -> Tuple[str, ...]:
+        """
+        Convert actor to state name in compartmntal graph.
+
+        :param actor: actor to perform conversion for
+
+        :return: a tuple in form on ('process_name.state_name', ...), e.g.
+            ('awareness.UA', 'illness.I', 'vaccination.V')
+        """
+        stats = [f"{l_name}.{l_state}" for l_name, l_state in actor.layers]
+        return tuple(sorted(stats))
 
     def get_possible_transitions(
-        self, state: Tuple[str, ...], layer: str
+        self, actor: MLNetworkActor, layer: str
     ) -> Dict[str, float]:
         """
         Return possible transitions from given state in given layer of model.
@@ -361,7 +374,10 @@ class CompartmentalGraph:
         ), "Failed to process. Compile model first!"
 
         # initialise empty container for possible transitions
-        states = {}
+        reachable_states = {}
+
+        # convert actor to state interpreted by the model
+        state = self._actor_to_cmprt_state(actor)
 
         # read possible states from model
         for neighbour in self.graph[layer].neighbors(state):
@@ -369,7 +385,6 @@ class CompartmentalGraph:
                 # parse general state to keep only state name in given layer
                 for n in neighbour:
                     if layer in n:
-                        states[n.split(".")[1]] = self.graph[layer].edges[
-                            (state, neighbour)
-                        ]["weight"]
-        return states
+                        reachable_states[n.split(".")[1]] = \
+                        self.graph[layer].edges[(state, neighbour)]["weight"]
+        return reachable_states

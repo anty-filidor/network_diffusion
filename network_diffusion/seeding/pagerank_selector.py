@@ -1,4 +1,4 @@
-"""A definition of the seed selector based on Page Rank algorithm."""
+"""A definition of the seed selectors based on Page Rank algorithm."""
 
 from typing import Any, List
 

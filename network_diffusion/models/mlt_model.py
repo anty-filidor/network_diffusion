@@ -194,7 +194,7 @@ class MLTModel(BaseModel):
 
         # import possible transitions for state of the actor
         av_trans = self._compartmental_graph.get_possible_transitions(
-            (f"{self.PROCESS_NAME}.{self.INACTIVE_STATE}",), self.PROCESS_NAME
+            agent, self.PROCESS_NAME
         )
 
         # iterate through neighbours of node and compute impuls
@@ -224,7 +224,7 @@ class MLTModel(BaseModel):
             layer_inputs = {}
 
             # check if node is already activated, if so don't update it
-            if set(actor.states) == set(self.ACTIVE_STATE):
+            if set(actor.states.values()) == set(self.ACTIVE_STATE):
                 continue
 
             # try to activate actor in each layer where it exist

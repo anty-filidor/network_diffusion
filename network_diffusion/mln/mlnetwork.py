@@ -16,9 +16,8 @@
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
-"""Functions for the multilayer network definition."""
+"""A script where a multilayer network is defined."""
 
-# pylint: disable=W0141
 import random
 from collections import Counter
 from copy import deepcopy
@@ -43,7 +42,7 @@ class MultilayerNetwork:
         self.layers = layers
 
     @classmethod
-    def load_mpx(cls, file_path: str) -> "MultilayerNetwork":
+    def from_mpx(cls, file_path: str) -> "MultilayerNetwork":
         """
         Load multilayer network from mpx file.
 
@@ -83,7 +82,7 @@ class MultilayerNetwork:
         return cls(prepared_layers)
 
     @classmethod
-    def load_layers_nx(
+    def from_nx_layers(
         cls,
         network_list: List[nx.Graph],
         layer_names: Optional[List[Any]] = None,
@@ -111,7 +110,7 @@ class MultilayerNetwork:
         return cls(prepared_layers)
 
     @classmethod
-    def load_layer_nx(
+    def from_nx_layer(
         cls, network_layer: nx.Graph, layer_names: List[Any]
     ) -> "MultilayerNetwork":
         """
@@ -146,6 +145,9 @@ class MultilayerNetwork:
     def __len__(self) -> int:
         """Return length of the network, i.e. num of actors."""
         return self.get_actors_num()
+
+    #  TODO(MCz): implement __getitem__ and its siblings to short experssions
+    # like net.layers["l1"] to net["l1"]
 
     def _get_description_str(self) -> str:
         """
@@ -187,14 +189,6 @@ class MultilayerNetwork:
 
         return final_str
 
-    def copy(self) -> "MultilayerNetwork":
-        """Create a deep copy of the network."""
-        copied_instance = self.__new__(self.__class__)
-        copied_instance.__init__(
-            {name: deepcopy(graph) for name, graph in self.layers.items()}
-        )
-        return copied_instance
-    
     def is_directed(self) -> bool:
         """Check whether at least one layer is a DirectedGraph."""
         return bool(
@@ -203,6 +197,14 @@ class MultilayerNetwork:
             ).any()
         )
 
+    def copy(self) -> "MultilayerNetwork":
+        """Create a deep copy of the network."""
+        copied_instance = self.__new__(self.__class__)
+        copied_instance.__init__(
+            {name: deepcopy(graph) for name, graph in self.layers.items()}
+        )
+        return copied_instance
+    
     def subgraph(self, actors: List[MLNetworkActor]) -> "MultilayerNetwork":
         """
         Return a subgraph of the network.
@@ -226,50 +228,6 @@ class MultilayerNetwork:
         subgraph_instance.__init__(sub_layers)
 
         return subgraph_instance
-
-    # TODO(MCz): rename to make it consistent
-    def get_nodes_states(self) -> Dict[str, Any]:
-        """
-        Return summary of network's nodes states.
-
-        :return: dictionary with items representing each of layers and with
-            summary of nodes states in values
-        """
-        assert len(self.layers) > 0, "Import network to the object first!"
-        statistics = {}
-        for name, layer in self.layers.items():
-            tab = []
-            for node in layer.nodes():
-                tab.append(layer.nodes[node]["status"])
-            statistics[name] = tuple(Counter(tab).items())
-        return statistics
-
-    # TODO(MCz): probably obsolete
-    def get_node_state(self, node: Any) -> Tuple[str, ...]:
-        """
-        Return general state of node in network.
-
-        In format acceptable by PropagationModel object, which means a tuple
-        of sorted strings in form <layer name>.<state>
-
-        :param node: a node which status has to be returned
-
-        :return: tuple with states of node for each layer
-        """
-        assert len(self.layers) > 0, "Import network to the object first!"
-        statistics = []
-        for name, layer in self.layers.items():
-            if node in layer:
-                statistics.append(f"{name}.{layer.nodes[node]['status']}")
-        statistics = sorted(statistics)
-        return tuple(statistics)
-
-    def get_nodes_num(self) -> Dict[str, int]:
-        """Get number of nodes that live in each layer of the network."""
-        nodes_num = {}
-        for layer_name, layer_graph in self.layers.items():
-            nodes_num[layer_name] = len(layer_graph.nodes)
-        return nodes_num
 
     def get_actors(self, shuffle: bool = False) -> List[MLNetworkActor]:
         """
@@ -313,6 +271,29 @@ class MultilayerNetwork:
         for layer_graph in self.layers.values():
             actors_set = actors_set.union(set(layer_graph.nodes))
         return len(actors_set)
+
+    def get_nodes_num(self) -> Dict[str, int]:
+        """Get number of nodes that live in each layer of the network."""
+        nodes_num = {}
+        for layer_name, layer_graph in self.layers.items():
+            nodes_num[layer_name] = len(layer_graph.nodes)
+        return nodes_num
+
+    def get_states_num(self) -> Dict[str, Tuple[int, ...]]:
+        """
+        Return number of agents with all possible states in each layer.
+
+        :return: dictionary with items representing each of layers and with
+            summary of nodes states in values
+        """
+        assert len(self.layers) > 0, "Import network to the object first!"
+        statistics = {}
+        for name, layer in self.layers.items():
+            tab = []
+            for node in layer.nodes():
+                tab.append(layer.nodes[node]["status"])
+            statistics[name] = tuple(Counter(tab).items())
+        return statistics
     
     def get_links(
         self, actor_id: Optional[Any] = None

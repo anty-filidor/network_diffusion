@@ -1,11 +1,11 @@
-"""A definition of the seed selector based on k-shell algorithm."""
+"""A definition of the seed selectors based on k-shell algorithm."""
 
 from typing import Any, List
 
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
-from network_diffusion.mln.functions import degree, k_shell_actorwise
+from network_diffusion.mln.functions import degree, k_shell_mln
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import (
     BaseSeedSelector,
@@ -45,7 +45,7 @@ class KShellSeedSelector(BaseSeedSelector):
             # sort it according to degree in the graph
             shell_ranking[k] = sorted(
                 ksh_nodes,
-                key=lambda x: nx.degree(graph)[x],
+                key=lambda x: nx.degree(graph)[x],  #  type: ignore
                 reverse=True,
             )
 
@@ -73,12 +73,12 @@ class KShellSeedSelector(BaseSeedSelector):
         return node_to_actor_ranking(super().nodewise(net), net)
 
 
-class KShellExtendedSeedSelector(BaseSeedSelector):
+class KShellMLNSeedSelector(BaseSeedSelector):
     """
     Selector for MLTModel based on k-shell algorithm.
 
     In contrary to KShellSeedSelector it utilises k-shell decomposition defined
-    as in network_diffusion.mln.functions.k_shell_actorwise()
+    as in network_diffusion.mln.functions.k_shell_mln()
     """
 
     @staticmethod
@@ -97,7 +97,7 @@ class KShellExtendedSeedSelector(BaseSeedSelector):
 
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Compute ranking for actors."""
-        ksh_deepest_actors = set(k_shell_actorwise(net=net).get_actors())
+        ksh_deepest_actors = set(k_shell_mln(net=net).get_actors())
         shell_ranking = {}
         k = 0
 
@@ -105,7 +105,7 @@ class KShellExtendedSeedSelector(BaseSeedSelector):
         while True:
 
             # compute k-shell cohort
-            ksh_actors = k_shell_actorwise(net=net, k=k).get_actors()
+            ksh_actors = k_shell_mln(net=net, k=k).get_actors()
 
             # sort it according to degree in the graph
             shell_ranking[k] = sorted(

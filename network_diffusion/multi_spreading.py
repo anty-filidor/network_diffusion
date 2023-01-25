@@ -73,7 +73,7 @@ class MultiSpreading:
 
         # set and add logs from initialising states
         initial_state = self._model.set_initial_states(self._network)
-        logger.add_global_stat(self._network.get_nodes_states())
+        logger.add_global_stat(self._network.get_states_num())
         logger.add_local_stat(0, initial_state)
 
         # iterate through epochs
@@ -92,7 +92,7 @@ class MultiSpreading:
             )
 
             # add logs from current epoch
-            logger.add_global_stat(self._network.get_nodes_states())
+            logger.add_global_stat(self._network.get_states_num())
             logger.add_local_stat(epoch + 1, epoch_json)
 
             # check if there is no progress and therefore stop simulation

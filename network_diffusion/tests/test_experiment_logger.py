@@ -82,7 +82,7 @@ class TestExperimentLogger(unittest.TestCase):
         self.phenomena = phenomena
 
         # init multilayer network from nx predefined network
-        network = MultilayerNetwork.load_layer_nx(
+        network = MultilayerNetwork.from_nx_layer(
             nx.les_miserables_graph(), [*phenomena.keys()]
         )
         self.network = network

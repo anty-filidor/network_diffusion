@@ -27,8 +27,7 @@ Let's crete some multilayer networks in several ways.
 
     M = [nx.les_miserables_graph(), nx.les_miserables_graph(), nx.les_miserables_graph()]
 
-    mpx = MultilayerNetwork()
-    mpx.load_layers_nx(M)
+    mpx = MultilayerNetwork.from_nx_layers(M)
     mpx.describe()
 
 .. code-block:: console
@@ -65,8 +64,7 @@ Let's crete some multilayer networks in several ways.
     import networkx as nx
     M = [nx.les_miserables_graph(), nx.les_miserables_graph(), nx.les_miserables_graph()]
 
-    mpx = MultilayerNetwork()
-    mpx.load_layers_nx(M, ['A', 'B', 'C'])
+    mpx = MultilayerNetwork.from_nx_layer(M, ['A', 'B', 'C'])
     mpx.describe()
 
 .. code-block:: console
@@ -100,8 +98,7 @@ Let's crete some multilayer networks in several ways.
 
 3. By reading out mpx file::
 
-    mpx = MultilayerNetwork()
-    mpx.load_mlx('/my_project/monastery.mpx')
+    mpx = MultilayerNetwork.from_mpx('/my_project/monastery.mpx')
     mpx.describe()
 
 

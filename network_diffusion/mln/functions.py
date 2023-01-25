@@ -169,7 +169,7 @@ def _core_subgraph(
     return net.subgraph(nodes)
 
 
-def k_shell_actorwise(
+def k_shell_mln(
     net: MultilayerNetwork,
     k: Optional[int] = None,
     core_number: Optional[Dict[MLNetworkActor, int]] = None,
