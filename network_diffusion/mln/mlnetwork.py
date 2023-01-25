@@ -262,7 +262,9 @@ class MultilayerNetwork:
                 continue
             layers_states[layer_name] = layer_graph.nodes[actor_id]["status"]
         if len(layers_states) == 0:
-            raise ValueError
+            raise ValueError(
+                f"Actor with id: {actor_id} doesn't exist in the network!"
+            )
         return MLNetworkActor(actor_id=actor_id, layers_states=layers_states)
 
     def get_actors_num(self) -> int:
@@ -303,13 +305,24 @@ class MultilayerNetwork:
 
         :return: a set with edges between actors
         """
-        actor_edges_per_layer = [
-            [
-                (self.get_actor(n_1), self.get_actor(n_2))
-                for n_1, n_2 in l_graph.edges(actor_id)
+        if actor_id is not None:
+            actor = self.get_actor(actor_id=actor_id)
+            actor_edges_per_layer = [
+                [
+                    (self.get_actor(n_1), self.get_actor(n_2))
+                    for n_1, n_2 in self.layers[l_name].edges(actor_id)
+                ]
+                for l_name in actor.layers
             ]
-            for l_graph in self.layers.values()
-        ]
+        else:
+            actor_edges_per_layer = [
+                [
+                    (self.get_actor(n_1), self.get_actor(n_2))
+                    for n_1, n_2 in l_graph.edges()
+                ]
+                for l_graph in self.layers.values()
+            ]
+
         actor_edges_merged: Set[Tuple[MLNetworkActor, MLNetworkActor]] = set()
         for l_edges in actor_edges_per_layer:
             actor_edges_merged = actor_edges_merged.union(l_edges)
