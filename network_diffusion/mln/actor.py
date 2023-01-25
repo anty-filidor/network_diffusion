@@ -34,7 +34,14 @@ class MLNetworkActor:
         return ids_eq and lss_eq
 
     def __hash__(self) -> int:
-        return hash((self.actor_id, self.layers, self.states, self.__class__))
+        return hash(
+            (
+                self.actor_id,
+                self.layers,
+                tuple(self.states.values()),
+                self.__class__,
+            )
+        )
 
     @property
     def layers(self) -> Tuple[str, ...]:

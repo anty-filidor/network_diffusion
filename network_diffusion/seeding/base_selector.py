@@ -90,12 +90,12 @@ def node_to_actor_ranking(
 
     # compute average score for each actor and create an ordered list of them
     actor_ranking = sorted(
-        _:={
-            actor_id: _avg_result(partial_score, l_sizes) for 
-            actor_id, partial_score in actor_partial_scores.items()
+        _ := {
+            net.get_actor(actor_id): _avg_result(partial_score, l_sizes)
+            for actor_id, partial_score in actor_partial_scores.items()
         },
-        key=_.get  # type: ignore
+        key=_.get,  # type: ignore
     )
-    
+
     assert len(actor_ranking) == net.get_actors_num(), "Incorrect ranking!"
     return actor_ranking

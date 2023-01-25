@@ -340,8 +340,9 @@ class CompartmentalGraph:
 
                 # assign weight to picked edge
                 self.set_transition_canonical(name, edge, wght)  # type: ignore
-    
-    def _actor_to_cmprt_state(self, actor: MLNetworkActor) -> Tuple[str, ...]:
+
+    @staticmethod
+    def _actor_to_cmprt_state(actor: MLNetworkActor) -> Tuple[str, ...]:
         """
         Convert actor to state name in compartmntal graph.
 
@@ -350,7 +351,9 @@ class CompartmentalGraph:
         :return: a tuple in form on ('process_name.state_name', ...), e.g.
             ('awareness.UA', 'illness.I', 'vaccination.V')
         """
-        stats = [f"{l_name}.{l_state}" for l_name, l_state in actor.layers]
+        stats = [
+            f"{l_name}.{l_state}" for l_name, l_state in actor.states.items()
+        ]
         return tuple(sorted(stats))
 
     def get_possible_transitions(
@@ -385,6 +388,7 @@ class CompartmentalGraph:
                 # parse general state to keep only state name in given layer
                 for n in neighbour:
                     if layer in n:
-                        reachable_states[n.split(".")[1]] = \
-                        self.graph[layer].edges[(state, neighbour)]["weight"]
+                        reachable_states[n.split(".")[1]] = self.graph[
+                            layer
+                        ].edges[(state, neighbour)]["weight"]
         return reachable_states

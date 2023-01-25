@@ -45,7 +45,7 @@ class KShellSeedSelector(BaseSeedSelector):
             # sort it according to degree in the graph
             shell_ranking[k] = sorted(
                 ksh_nodes,
-                key=lambda x: nx.degree(graph)[x],  #  type: ignore
+                key=lambda x: nx.degree(graph)[x],  # type: ignore
                 reverse=True,
             )
 

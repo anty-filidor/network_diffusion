@@ -62,7 +62,7 @@ class MultilayerNetwork:
                 elif layer_type == "UNDIRECTED":
                     layers[layer_name] = nx.Graph()
                 else:
-                    print("unrecognised layer")
+                    raise ResourceWarning(f"unrecognised layer: {layer_name}")
         else:
             raise ResourceWarning("file corrupted - no layers defined")
 
@@ -141,7 +141,7 @@ class MultilayerNetwork:
     def __str__(self) -> str:
         """Print out quickly parameters of the network."""
         return self._get_description_str()
-    
+
     def __len__(self) -> int:
         """Return length of the network, i.e. num of actors."""
         return self.get_actors_num()
@@ -204,7 +204,7 @@ class MultilayerNetwork:
             {name: deepcopy(graph) for name, graph in self.layers.items()}
         )
         return copied_instance
-    
+
     def subgraph(self, actors: List[MLNetworkActor]) -> "MultilayerNetwork":
         """
         Return a subgraph of the network.
@@ -279,7 +279,7 @@ class MultilayerNetwork:
             nodes_num[layer_name] = len(layer_graph.nodes)
         return nodes_num
 
-    def get_states_num(self) -> Dict[str, Tuple[int, ...]]:
+    def get_states_num(self) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
         """
         Return number of agents with all possible states in each layer.
 
@@ -294,22 +294,23 @@ class MultilayerNetwork:
                 tab.append(layer.nodes[node]["status"])
             statistics[name] = tuple(Counter(tab).items())
         return statistics
-    
+
     def get_links(
         self, actor_id: Optional[Any] = None
     ) -> Set[Tuple[MLNetworkActor, MLNetworkActor]]:
         """
-        Get links connecting all actors from the network regardless layers. 
+        Get links connecting all actors from the network regardless layers.
+
         :return: a set with edges between actors
         """
         actor_edges_per_layer = [
             [
-                (self.get_actor(n_1), self.get_actor(n_2)) for
-                n_1, n_2 in l_graph.edges(actor_id)
-            ] 
+                (self.get_actor(n_1), self.get_actor(n_2))
+                for n_1, n_2 in l_graph.edges(actor_id)
+            ]
             for l_graph in self.layers.values()
         ]
-        actor_edges_merged = set()
+        actor_edges_merged: Set[Tuple[MLNetworkActor, MLNetworkActor]] = set()
         for l_edges in actor_edges_per_layer:
             actor_edges_merged = actor_edges_merged.union(l_edges)
         return actor_edges_merged

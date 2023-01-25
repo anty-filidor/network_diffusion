@@ -110,9 +110,8 @@ class TestMultilayerNetwork(unittest.TestCase):
 
     def test__actor_to_compartment_state(self):
         """Tests if node state is being returned correctly."""
-
         self.assertEqual(
-            CompartmentalGraph()._actor_to_compartment_state(
+            CompartmentalGraph()._actor_to_cmprt_state(
                 self.network.get_actor("Acciaiuoli")
             ),
             ("marriage.None",),

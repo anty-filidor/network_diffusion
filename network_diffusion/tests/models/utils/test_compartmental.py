@@ -8,6 +8,7 @@ import unittest
 
 import networkx as nx
 
+from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 
 
@@ -218,9 +219,10 @@ class TestCompartmentalGraph(unittest.TestCase):
     def test_get_possible_transitions(self):
         """Check if possible transforms are gave correctly."""
         model = get_compiled_model()
-        case_1 = model.get_possible_transitions(
-            state=("1.C", "2.B", "3.A"), layer="1"
+        mocky_actor = MLNetworkActor(
+            actor_id=None, layers_states={"1": "C", "2": "B", "3": "A"}
         )
+        case_1 = model.get_possible_transitions(actor=mocky_actor, layer="1")
         exp_res_1 = {"A": 0.005, "B": 0.005}
         self.assertEqual(
             case_1,
@@ -229,9 +231,7 @@ class TestCompartmentalGraph(unittest.TestCase):
             f"be {exp_res_1}, was {case_1}",
         )
 
-        case_2 = model.get_possible_transitions(
-            state=("1.C", "2.B", "3.A"), layer="2"
-        )
+        case_2 = model.get_possible_transitions(actor=mocky_actor, layer="2")
         exp_res_2 = {"A": 0.005}
         self.assertEqual(
             case_2,
@@ -240,9 +240,7 @@ class TestCompartmentalGraph(unittest.TestCase):
             f"be {exp_res_2}, was {case_2}",
         )
 
-        case_3 = model.get_possible_transitions(
-            state=("1.C", "2.B", "3.A"), layer="3"
-        )
+        case_3 = model.get_possible_transitions(actor=mocky_actor, layer="3")
         exp_res_3 = {"B": 0.005}
         self.assertEqual(
             case_3,
