@@ -13,7 +13,10 @@ from network_diffusion.seeding.mocky_selector import MockyActorSelector
 from network_diffusion.seeding.neighbourhoodsize_selector import (
     NeighbourhoodSizeSelector,
 )
-from network_diffusion.seeding.pagerank_selector import PageRankSeedSelector
+from network_diffusion.seeding.pagerank_selector import (
+    PageRankMLNSeedSelector,
+    PageRankSeedSelector,
+)
 from network_diffusion.seeding.random_selector import RandomSeedSelector
 from network_diffusion.seeding.voterank_selector import (
     VoteRankMLNSeedSelector,

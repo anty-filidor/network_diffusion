@@ -5,6 +5,7 @@ from typing import Any, List
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.functions import squeeze_by_neighbourhood
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import (
     BaseSeedSelector,
@@ -42,3 +43,19 @@ class PageRankSeedSelector(BaseSeedSelector):
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Compute ranking for actors."""
         return node_to_actor_ranking(super().nodewise(net), net)
+
+
+class PageRankMLNSeedSelector(PageRankSeedSelector):
+    """Selector for MLTModel based on Page Rank algorithm."""
+
+    def __str__(self) -> str:
+        """Return seed method's description."""
+        return (
+            f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
+            f"\nPage Rank computed actorwise\n{BOLD_UNDERLINE}\n"
+        )
+
+    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+        """Compute ranking for actors."""
+        squeezed_net = squeeze_by_neighbourhood(net)
+        return self._calculate_ranking_list(squeezed_net)
