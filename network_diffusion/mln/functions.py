@@ -275,4 +275,6 @@ def squeeze_by_neighbourhood(net: MultilayerNetwork) -> nx.Graph:
     for actor in net.get_actors():
         for neighbour in all_neighbors(net, actor):
             squeezed_net.add_edge(actor, neighbour)
+        squeezed_net.add_node(actor)
+    assert net.get_actors_num() == len(squeezed_net)
     return squeezed_net

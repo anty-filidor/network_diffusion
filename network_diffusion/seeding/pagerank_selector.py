@@ -30,7 +30,7 @@ class PageRankSeedSelector(BaseSeedSelector):
             ranking_dict, key=lambda x: ranking_dict[x], reverse=True
         )
         if len(ranked_nodes) != len(graph.nodes):  # that's a sanity check
-            assert ValueError
+            raise ValueError
         return ranked_nodes
 
     def __str__(self) -> str:
