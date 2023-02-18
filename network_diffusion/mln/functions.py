@@ -1,6 +1,6 @@
 """Script with functions of NetworkX extended to multilayer networks."""
 
-from typing import Any, Callable, Dict, Iterator, List, Optional, Set
+from typing import Any, Callable, Dict, Iterator, List, Optional
 
 import networkx as nx
 
@@ -20,27 +20,29 @@ def degree(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
 
 
 def _ns_helper(
-        net: MultilayerNetwork, actor: MLNetworkActor, hop: int = 1
+    net: MultilayerNetwork, actor: MLNetworkActor, hop: int = 1
 ) -> List[Any]:
     # first obtain a set of one hop far away actors
     one_hop_nbrs = [
-        list(net.layers[l_name].adj[actor.actor_id].keys()) for 
-        l_name in actor.layers
+        list(net.layers[l_name].adj[actor.actor_id].keys())
+        for l_name in actor.layers
     ]  # a nested list with redundant nodes (they can exist in many layers)
-    one_hop_nbrs_unique = list(set([n for nest in one_hop_nbrs for n in nest]))
+    one_hop_nbrs_unique = list({n for nest in one_hop_nbrs for n in nest})
 
     # if hop is one then finish job
     if hop == 1:
         return one_hop_nbrs_unique
-    
+
     # otherwise examine neighbours of actors in one_hop_nbrs_unique
     for node in one_hop_nbrs_unique.copy():
-        one_hop_nbrs_unique.extend(_ns_helper(net, net.get_actor(node), hop-1))
+        one_hop_nbrs_unique.extend(
+            _ns_helper(net, net.get_actor(node), hop - 1)
+        )
     return list(set(one_hop_nbrs_unique))
 
 
 def neighbourhood_size(
-        net: MultilayerNetwork, connection_hop: int = 1
+    net: MultilayerNetwork, connection_hop: int = 1
 ) -> Dict[MLNetworkActor, int]:
     """Return n-hop neighbourhood sizes of all actors from the network."""
     neighbourhood_sizes: Dict[MLNetworkActor, int] = {}
