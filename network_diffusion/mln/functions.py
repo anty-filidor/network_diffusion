@@ -19,16 +19,36 @@ def degree(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
     return degrees
 
 
-def neighbourhood_size(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
-    """Return naighbourhood sizes of all actors from the network."""
+def _ns_helper(
+        net: MultilayerNetwork, actor: MLNetworkActor, hop: int = 1
+) -> List[Any]:
+    # first obtain a set of one hop far away actors
+    one_hop_nbrs = [
+        list(net.layers[l_name].adj[actor.actor_id].keys()) for 
+        l_name in actor.layers
+    ]  # a nested list with redundant nodes (they can exist in many layers)
+    one_hop_nbrs_unique = list(set([n for nest in one_hop_nbrs for n in nest]))
+
+    # if hop is one then finish job
+    if hop == 1:
+        return one_hop_nbrs_unique
+    
+    # otherwise examine neighbours of actors in one_hop_nbrs_unique
+    for node in one_hop_nbrs_unique.copy():
+        one_hop_nbrs_unique.extend(_ns_helper(net, net.get_actor(node), hop-1))
+    return list(set(one_hop_nbrs_unique))
+
+
+def neighbourhood_size(
+        net: MultilayerNetwork, connection_hop: int = 1
+) -> Dict[MLNetworkActor, int]:
+    """Return n-hop neighbourhood sizes of all actors from the network."""
     neighbourhood_sizes: Dict[MLNetworkActor, int] = {}
     for actor in net.get_actors():
-        a_neighbours: Set[Any] = set()
-        for l_name in actor.layers:
-            a_neighbours = a_neighbours.union(
-                set(net.layers[l_name].adj[actor.actor_id].keys())
-            )
-        neighbourhood_sizes[actor] = len(a_neighbours)
+        raw_list = _ns_helper(net, actor, connection_hop)
+        neighbourhood_sizes[actor] = len(
+            set(raw_list).difference({actor.actor_id})
+        )
     return neighbourhood_sizes
 
 
