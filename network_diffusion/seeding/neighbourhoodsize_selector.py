@@ -14,11 +14,17 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 class NeighbourhoodSizeSelector(BaseSeedSelector):
     """Neighbourhood Size seed selector."""
 
+    def __init__(self, connection_hop: int = 1) -> None:
+        """Initialise object."""
+        super().__init__()
+        self.connection_hop = connection_hop
+
     def __str__(self) -> str:
         """Return seed method's description."""
         return (
             f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
-            f"\tneighbourhood size choice\n{BOLD_UNDERLINE}\n"
+            f"\tneighbourhood size choice with hop size: {self.connection_hop}"
+            f"\n{BOLD_UNDERLINE}\n"
         )
 
     @staticmethod
@@ -31,7 +37,9 @@ class NeighbourhoodSizeSelector(BaseSeedSelector):
         neighbourhood_size_values: Dict[int, List[MLNetworkActor]] = {}
         ranking_list: List[MLNetworkActor] = []
 
-        for actor, a_nsize in neighbourhood_size(net=net).items():
+        for actor, a_nsize in neighbourhood_size(
+            net=net, connection_hop=self.connection_hop
+        ).items():
             if neighbourhood_size_values.get(a_nsize) is None:
                 neighbourhood_size_values[a_nsize] = []
             neighbourhood_size_values[a_nsize].append(actor)
