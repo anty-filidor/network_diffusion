@@ -22,7 +22,7 @@
 
 from typing import List
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 from network_diffusion import __version__
 
@@ -66,8 +66,8 @@ setup(
     description="Package to design and run diffusion phenomena in networks.",
     long_description="Network Diffusion",
     author="Michał Czuba, Piotr Bródka",
-    author_email="michal.czuba.1995@gmail.com, piotr.brodka@pwr.edu.pl",
-    packages=["network_diffusion"],
+    author_email="michal.czuba@pwr.edu.pl, piotr.brodka@pwr.edu.pl",
+    packages=find_packages(exclude=["*tests*"]),
     install_requires=parse_requirements(),
     python_requires=">=3.7",
 )

@@ -22,13 +22,17 @@
 import os
 import pathlib
 import string
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
+
+import numpy as np
+
+BOLD_UNDERLINE = "============================================"
+THIN_UNDERLINE = "--------------------------------------------"
 
 
-# TODO - json
-def read_mlx(file_path: str) -> Dict[str, List[Any]]:
+def read_mpx(file_path: str) -> Dict[str, List[Any]]:
     """
-    Handle MLX file for the MultilayerNetwork class.
+    Handle MPX file for the MultilayerNetwork class.
 
     :param file_path: path to file
 
@@ -76,6 +80,7 @@ def read_mlx(file_path: str) -> Dict[str, List[Any]]:
     return net_dict
 
 
+# TODO(MCz): replace with pathlib
 def create_directory(dest_path: str) -> None:
     """
     Check out if given directory exists and if doesn't it creates it.
@@ -86,6 +91,10 @@ def create_directory(dest_path: str) -> None:
         os.mkdir(dest_path)
 
 
+# TODO(MCz): replace with pathlib
 def get_absolute_path() -> str:
     """Get absolute path of library."""
     return str(pathlib.Path(__file__).parent)
+
+
+NumericType = Union[int, float, np.number]

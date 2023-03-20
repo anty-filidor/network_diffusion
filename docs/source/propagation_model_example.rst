@@ -6,8 +6,7 @@ Module  ``propagation_model``
 What is propagation model?
 __________________________
 In this library propagation model is considered as one or a plenty of
-phenomenas acting in one network, e.g. Suspected-Infected model with it's
-parameters like beta coefficient.
+phenomenas acting in one network, e.g. Suspected-Infected model.
 
 Purpose of PropagationModel module
 ___________________________________

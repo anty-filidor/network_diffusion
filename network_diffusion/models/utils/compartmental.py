@@ -22,116 +22,164 @@
 
 import itertools
 from random import choice
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import networkx as nx
 import numpy as np
 
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
-class PropagationModel:
+
+class CompartmentalGraph:
     """Class which encapsulates model of processes speared in network."""
+
+    reserved_names = {"graph", "background_weight", "_seeding_budget"}
 
     def __init__(self) -> None:
         """Create empty object."""
         self.graph: Dict[str, nx.Graph] = {}
         self.background_weight: float = float("inf")
+        self._seeding_budget: Dict[str, Tuple[NumericType, ...]] = {}
 
-    def add(self, layer_name: str, layer_type: List[str]) -> None:
+    @property
+    def seeding_budget(self) -> Dict[str, Tuple[NumericType, ...]]:
         """
-        Add propagation model for the given layer.
+        Get seeding budget as % of the nodes in form of compartments as a dict.
 
-        :param layer: name of network's layer
-        :param type: type of model, i.e. names of states like ['s', 'i', 'r']
+        E.g. something like that: {"ill": (90, 8, 2), "aware": (60, 40),
+        "vacc": (70, 30)} for compartments such as: "ill": [s, i, r], "aware":
+        [u, a], "vacc": [n, v]
         """
-        assert len(layer_type) == len(
-            set(layer_type)
-        ), f"Phenomena names {layer_type} must be unique!"
-        assert layer_name != "graph", 'Layer cannot be named "graph"'
-        assert (
-            layer_name != "background_weight"
-        ), 'Layer cannot be named "background_weight"'
-        self.__setattr__(layer_name, layer_type)
+        return self._seeding_budget
 
-    def describe(
-        self, to_print: bool = True, full_graph: bool = False
-    ) -> Optional[str]:
-        """
-        Print out parameters of the object.
-
-        :param to_print: a flag, if true method prints out description to
-            console, otherwise it returns string
-        :param full_graph: a flag, if true method prints out all propagation
-            model states with those with 0 weight
-
-        :return: if to_print == True returns string describing object,
-            otherwise returns None, but prints out description to the console
-        """
-        dscrpt_str = self._get_description_str(full_graph)
-        if not to_print:
-            return dscrpt_str
-        else:
-            print(dscrpt_str)
-            return None
-
-    def _get_description_str(self, full_graph: bool = False) -> str:
-        """
-        Get string describing the object.
-
-        :param full_graph: a flag, if true method prints out all propagation
-            model states with those with 0 weight
-
-        :return: string describing object
-        """
-        # pylint: disable=R1702, R1719
-        detailed_str = ""
-        basic_str = (
-            "============================================\n"
-            "model of propagation\n"
-            "--------------------------------------------\n"
+    @seeding_budget.setter
+    def seeding_budget(
+        self, proposed_is: Dict[str, Tuple[NumericType, ...]]
+    ) -> None:
+        """Set seeding budget in each of compartments."""
+        assert proposed_is.keys() == self.get_compartments().keys(), (
+            "Layer names in argument should be the same as layer names in "
+            "propagation model!"
         )
-        basic_str += "phenomenas and their states:"
-        for name, val in self.__dict__.items():
-            if name == "graph":
-                if len(self.graph) == 0:
-                    basic_str += f"\n\t{name}: not initialised\n"
+
+        ass_states_arg = [len(s) for s in proposed_is.values()]
+        ass_states_net = [len(s) for s in self.get_compartments().values()]
+        assert ass_states_net == ass_states_arg, (
+            f"Shape of argument {ass_states_arg} should be the same as shape "
+            f"of states in propagation model {ass_states_net}!"
+        )
+
+        # check if proposed dict has values that sum to 100 in each process
+        for states in proposed_is.values():
+            if sum(states) != 100:
+                raise ValueError("Sum in each process must equals to 100!")
+
+        self._seeding_budget = proposed_is
+
+    def get_seeding_budget_for_network(
+        self, net: MultilayerNetwork, actorwise: bool = False
+    ) -> Dict[str, Dict[Any, int]]:
+        """
+        Transform seeding budget from %s to numbers according to nodes/actors.
+
+        :param net: input network to convert seeding budget for
+        :param actorwise: compute seeding budget for actors, else for nodes
+        :return: dictionary in form as e.g.:
+            {"ill": {"suspected": 45, "infected": 4, "recovered": 1}, "vacc":
+            {"unvaccinated": 35, "vaccinated": 15}} for seeding_budget dict:
+            {"ill": (90, 8, 2), "vacc": (70, 30)} and 50 nodes in each layer
+            and nodewise mode.
+        """
+        if actorwise:
+            actors_num = net.get_actors_num()
+
+            def get_size(process: str) -> int:  # pylint: disable=W0613
+                return actors_num
+
+        else:  # nodewise
+            nodes_num = net.get_nodes_num()
+
+            def get_size(process: str) -> int:
+                return nodes_num[process]
+
+        seeding_budget = {}
+        for process, pcts in self.seeding_budget.items():
+            bins = self._int_to_bins(pcts, get_size(process))
+            states = self.get_compartments()[process]
+            seeding_budget[process] = dict(zip(states, bins))
+        return seeding_budget
+
+    @staticmethod
+    def _int_to_bins(
+        bins: Tuple[NumericType, ...], base_num: int
+    ) -> List[int]:
+        binned_number: List[int] = []
+        for idx, percentage in enumerate(bins, 1):
+            size_of_bin = int(percentage * base_num / 100)
+            while sum(binned_number) + size_of_bin > base_num:
+                size_of_bin -= 1
+            if idx == len(bins):
+                while sum(binned_number) + size_of_bin < base_num:
+                    size_of_bin += 1
+            binned_number.append(size_of_bin)
+
+        return binned_number
+
+    def add(self, process_name: str, states: List[str]) -> None:
+        """
+        Add process with allowed states to the compartmental graph.
+
+        :param layer: name of process, e.g. "Illness"
+        :param type: names of states like ['s', 'i', 'r']
+        """
+        assert len(states) == len(set(states)), "Names must be unique!"
+        assert process_name not in self.reserved_names, "Invalid name"
+        self.__setattr__(process_name, states)
+
+    def describe(self) -> str:
+        """
+        Print out parameters of the compartmental model.
+
+        :return: returns string describing object,
+        """
+        assert len(self.graph) > 0, "Process graph not initialised!"
+
+        # obtain info about phenomena that are modelled, their states and seeds
+        global_info = (
+            f"{BOLD_UNDERLINE}\ncompartmental model\n{THIN_UNDERLINE}\n"
+            "processes, their states and initial sizes:"
+        )
+        for process, pcts in self.seeding_budget.items():
+            states = self.get_compartments()[process]
+            global_info += f"\n\t'{process}': ["
+            for state, percentage in zip(states, pcts):
+                global_info += f"{state}:{percentage}%, "
+            global_info = global_info[:-2] + "]"
+
+        # obtain info about transitions in the process graph
+        transitions_info = "\n"
+        for g_name, g_net in self.graph.items():
+            transitions_info += (
+                f"{THIN_UNDERLINE}\n"
+                f"process '{g_name}' transitions with nonzero weight:\n"
+            )
+            for edge in g_net.edges():
+                if g_net.edges[edge]["weight"] == 0.0:
                     continue
-                detailed_str += "\n"
-                for g_name, g_net in val.items():
-                    if full_graph:
-                        detailed_str += f"\n{g_name} transitions: "
-                        detailed_str += f"{g_net.edges().data()}\n"
-                    else:
-                        detailed_str += (
-                            f"\nlayer '{g_name}' transitions with nonzero "
-                            f"probability:\n"
-                        )
-                        for edge in g_net.edges():
-                            if g_net.edges[edge]["weight"] == 0.0:
-                                continue
-                            mask = [
-                                True if g_name in _ else False for _ in edge[0]
-                            ]
-                            start = np.array(edge[0])[mask][0].split(".")[1]
-                            finish = np.array(edge[1])[mask][0].split(".")[1]
-                            constraints = np.array(edge[0])[
-                                [not _ for _ in mask]
-                            ]
-                            weight = g_net.edges[edge]["weight"]
-                            detailed_str += (
-                                f"\tfrom {start} to {finish} with "
-                                f"probability {weight} and constrains "
-                                f"{constraints}\n"
-                            )
-            elif name == "background_weight":
-                continue
-            else:
-                basic_str += f"\n\t{name}: {val}"
+                mask = [g_name in _ for _ in edge[0]]
+                start = np.array(edge[0])[mask][0].split(".")[1]
+                finish = np.array(edge[1])[mask][0].split(".")[1]
+                constraints = np.array(edge[0])[[not _ for _ in mask]]
+                transitions_info += (
+                    f"\tfrom {start} to {finish} with probability "
+                    f"{g_net.edges[edge]['weight']} and constrains "
+                    f"{constraints}\n"
+                )
 
-        detailed_str += "============================================"
+        return global_info + transitions_info + BOLD_UNDERLINE
 
-        return basic_str + detailed_str
-
-    def get_model_hyperparams(self) -> Dict[str, Tuple[Dict[str, Any]]]:
+    def get_compartments(self) -> Dict[str, Tuple[str, ...]]:
         """
         Get model parameters, i.e. names of layers and states in each layer.
 
@@ -140,7 +188,7 @@ class PropagationModel:
         """
         hyperparams = {}
         for name, val in self.__dict__.items():
-            if name not in {"graph", "background_weight"}:
+            if name not in self.reserved_names:
                 hyperparams[name] = val
         return hyperparams
 
@@ -166,7 +214,7 @@ class PropagationModel:
 
         # create transition graph for each layer
         for layer_name, layer_type in self.__dict__.items():
-            if layer_name in {"graph", "background_weight"}:
+            if layer_name in self.reserved_names:
                 continue
             if track_changes:
                 print(layer_name)
@@ -180,8 +228,8 @@ class PropagationModel:
             # constants for current layer
             self_dict_copy = self.__dict__.copy()
             del self_dict_copy[layer_name]
-            del self_dict_copy["graph"]
-            del self_dict_copy["background_weight"]
+            for attr in self.reserved_names:
+                del self_dict_copy[attr]
 
             # prepare names in other layers which are constant to current layer
             ol_names = []
@@ -213,7 +261,7 @@ class PropagationModel:
         self.background_weight = background_weight
 
     def set_transition_canonical(
-        self, layer: str, transition: nx.Graph.edges.__class__, weight: float
+        self, layer: str, transition: nx.graph.EdgeView, weight: float
     ) -> None:
         """
         Set weight of certain transition in propagation model.
@@ -292,7 +340,7 @@ class PropagationModel:
                 edges_list.append(edge)
 
                 # assign weight to picked edge
-                self.set_transition_canonical(name, edge, wght)
+                self.set_transition_canonical(name, edge, wght)  # type: ignore
 
     def get_possible_transitions(
         self, state: Tuple[str, ...], layer: str
@@ -315,24 +363,15 @@ class PropagationModel:
         ), "Failed to process. Compile model first!"
 
         # initialise empty container for possible transitions
-        states = {}
+        reachable_states = {}
 
-        # if given general node state doesn't exist in model definition,
-        # return all possible states in the given layer with background_weight
-        # as possible transitions
-        if state not in self.graph[layer]:
-            _ = self.get_model_hyperparams()[layer]
-            for s_name in _:
-                states[s_name] = self.background_weight
-            return states
-
-        # otherwise read possible states from model
+        # read possible states from model
         for neighbour in self.graph[layer].neighbors(state):
             if self.graph[layer].edges[(state, neighbour)]["weight"] > 0:
                 # parse general state to keep only state name in given layer
                 for n in neighbour:
                     if layer in n:
-                        states[n.split(".")[1]] = self.graph[layer].edges[
-                            (state, neighbour)
-                        ]["weight"]
-        return states
+                        reachable_states[n.split(".")[1]] = self.graph[
+                            layer
+                        ].edges[(state, neighbour)]["weight"]
+        return reachable_states

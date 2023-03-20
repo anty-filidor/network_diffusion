@@ -5,16 +5,16 @@ Module  ``multilayer_network``
 
 What is a multilayer network?
 ______________________________
-Multilayer network is a class to extend functionality of ``networkx`` library
-to store and manipulate multilayer networks, which is a fundamental thing in
-multiprocess diffusion experiments. Module also allows to read network from
-*mlx* text files which stores such a structures.
+Multilayer nNtwork is a class to extend functionality of ``networkx.Graph``
+library to store and manipulate multilayer networks, which are a fundamental
+structure in the library. Module also allows to read network from *mpx* text
+files which stores such a structures.
 
 Available data
 ______________
-Multilayer networks are not widely available to public. They are very rare.
-Thus authors decided to make multilayer module compatible with one of the
-biggest `hub <http://multilayer.it.uu.se/datasets.html>`_ for such a files.
+Here is an exemplar repository with multilayer networks:
+`hub <http://multilayer.it.uu.se/datasets.html>`_, but you find them in many
+other sited around Internet.
 
 Example of usage
 ________________
@@ -22,13 +22,12 @@ Let's crete some multilayer networks in several ways.
 
 1. By defining separate graphs and layer names::
 
-    from network_diffusion import MultilayerNetwork
+    from network_diffusion.mln.mlnetwork import MultilayerNetwork
     import networkx as nx
 
     M = [nx.les_miserables_graph(), nx.les_miserables_graph(), nx.les_miserables_graph()]
 
-    mpx = MultilayerNetwork()
-    mpx.load_layers_nx(M)
+    mpx = MultilayerNetwork.from_nx_layers(M)
     mpx.describe()
 
 .. code-block:: console
@@ -61,12 +60,11 @@ Let's crete some multilayer networks in several ways.
 
 2. By defining separate graphs and using default names of layers::
 
-    from network_diffusion import MultilayerNetwork
+    from network_diffusion.mln.mlnetwork import MultilayerNetwork
     import networkx as nx
     M = [nx.les_miserables_graph(), nx.les_miserables_graph(), nx.les_miserables_graph()]
 
-    mpx = MultilayerNetwork()
-    mpx.load_layers_nx(M, ['A', 'B', 'C'])
+    mpx = MultilayerNetwork.from_nx_layer(M, ['A', 'B', 'C'])
     mpx.describe()
 
 .. code-block:: console
@@ -100,8 +98,7 @@ Let's crete some multilayer networks in several ways.
 
 3. By reading out mpx file::
 
-    mpx = MultilayerNetwork()
-    mpx.load_mlx('/my_project/monastery.mpx')
+    mpx = MultilayerNetwork.from_mpx('/my_project/monastery.mpx')
     mpx.describe()
 
 

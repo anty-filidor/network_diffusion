@@ -19,7 +19,7 @@
 """Functions for logging experiments."""
 
 # pylint: disable=W0141
-
+import json
 from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
@@ -45,20 +45,29 @@ class ExperimentLogger:
         """
         self._model_description = model_description
         self._network_description = network_description
-        self._raw_stats: List[Dict[str, Any]] = []
-        self._stats: Dict[str, Any] = {}
 
-    def _add_log(self, log: Dict[str, Any]) -> None:
+        # stores data of network global state in each epoch
+        self._global_stats: List[Dict[str, Any]] = []
+        self._global_stats_converted: Dict[str, Any] = {}
+
+        # stores data of each of nodes that changed their state in each epoch
+        self._local_stats: Dict[int, List[Dict[str, str]]] = {}
+
+    def add_global_stat(self, log: Dict[str, Any]) -> None:
         """
-         Add raw log from single epoch to the object.
+        Add raw log from single epoch to the object.
 
         :param log: raw log (i.e. a single call of
-            MultiplexNetwork.get_nodes_states())
+            MultiplexNetwork.get_states_num())
         """
-        self._raw_stats.append(log)
+        self._global_stats.append(log)
 
-    def _convert_logs(
-        self, model_parameters: Dict[str, Tuple[Dict[str, Any]]]
+    def add_local_stat(self, epoch: int, stats: List[Dict[str, str]]) -> None:
+        """Add local log from single epoch to the object."""
+        self._local_stats[epoch] = stats
+
+    def convert_logs(
+        self, model_parameters: Dict[str, Tuple[str, ...]]
     ) -> None:
         """
         Convert raw logs into pandas dataframe.
@@ -68,25 +77,28 @@ class ExperimentLogger:
         :param model_parameters: parameters of the propagation model to store
         """
         # initialise container for splatted data
-        self._stats = {
+        self._global_stats_converted = {
             k: pd.DataFrame(columns=model_parameters[k])
             for k in model_parameters.keys()
         }
 
         # fill containers
-        for epoch in self._raw_stats:
+        for epoch in self._global_stats:
             for layer, vals in epoch.items():
-                self._stats[layer] = pd.concat(
-                    [self._stats[layer], pd.DataFrame(dict(vals), index=[0])],
+                self._global_stats_converted[layer] = pd.concat(
+                    [
+                        self._global_stats_converted[layer],
+                        pd.DataFrame(dict(vals), index=[0]),
+                    ],
                     ignore_index=True,
                 )
 
         # change NaN values to 0 and all values to integers
-        for layer, vals in self._stats.items():
-            self._stats[layer] = vals.fillna(0).astype(int)
+        for layer, vals in self._global_stats_converted.items():
+            self._global_stats_converted[layer] = vals.fillna(0).astype(int)
 
     def __str__(self) -> str:
-        return str(self._stats)
+        return str(self._global_stats_converted)
 
     def plot(self, to_file: bool = False, path: Optional[str] = None) -> None:
         """
@@ -98,16 +110,16 @@ class ExperimentLogger:
         """
         fig = plt.figure()
 
-        for i, layer in enumerate(self._stats, 1):
-            ith_axis = fig.add_subplot(len(self._stats), 1, i)
-            self._stats[layer].plot(ax=ith_axis, legend=True)
+        for i, layer in enumerate(self._global_stats_converted, 1):
+            ith_axis = fig.add_subplot(len(self._global_stats_converted), 1, i)
+            self._global_stats_converted[layer].plot(ax=ith_axis, legend=True)
             ith_axis.set_title(layer)
             ith_axis.legend(loc="upper right")
             ith_axis.set_ylabel("Nodes")
             if i == 1:
-                y_tics_num = self._stats[layer].iloc[0].sum()
+                y_tics_num = self._global_stats_converted[layer].iloc[0].sum()
             ith_axis.set_yticks(np.arange(0, y_tics_num + 1, 20))
-            if i == len(self._stats):
+            if i == len(self._global_stats_converted):
                 ith_axis.set_xlabel("Epoch")
             ith_axis.grid()
 
@@ -120,7 +132,6 @@ class ExperimentLogger:
     def report(
         self,
         visualisation: bool = False,
-        to_file: bool = False,
         path: Optional[str] = None,
     ) -> None:
         """
@@ -131,36 +142,41 @@ class ExperimentLogger:
 
         :param visualisation: (bool) a flag, if true visualisation is being
             plotted
-        :param to_file: a flag, if true report is saved in files,
-            otherwise it is printed out on the screen
-        :param path: (str) path to folder where report will be saved
+        :param path: (str) path to folder where report will be saved if not
+            provided logs are printed out on the screen
         """
-        if to_file:
-            if path is None:
-                raise AttributeError(
-                    "If to_file is True, then path cannot be None!"
-                )
+        if path is not None:
+
             # create directory from given path
             create_directory(path)
+
             # save progress in propagation of each layer to csv file
-            for stat in self._stats:
-                self._stats[stat].to_csv(
+            for stat in self._global_stats_converted:
+                self._global_stats_converted[stat].to_csv(
                     path + "/" + stat + "_propagation_report.csv",
                     index_label="epoch",
                 )
+
+            # save loacal stats of each epoch
+            with open(f"{path}/local_stats.json", "w", encoding="utf-8") as f:
+                json.dump(self._local_stats, f)
+
             # save description of model to txt file
             with open(
                 file=path + "/model_report.txt", mode="w", encoding="utf=8"
             ) as file:
                 file.write(self._model_description)
+
             # save description of network to txt file
             with open(
                 file=path + "/network_report.txt", mode="w", encoding="utf=8"
             ) as file:
                 file.write(self._network_description)
+
             # save figure
             if visualisation:
                 self.plot(to_file=True, path=path)
+
         else:
             print(self._network_description)
             print(self._model_description)
@@ -169,8 +185,8 @@ class ExperimentLogger:
                 "propagation report\n"
                 "--------------------------------------------"
             )
-            for stat in self._stats:
-                print(stat, "\n", self._stats[stat], "\n")
+            for stat in self._global_stats_converted:
+                print(stat, "\n", self._global_stats_converted[stat], "\n")
             print("============================================")
             if visualisation:
                 self.plot()

@@ -20,14 +20,14 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../../"))
+sys.path.insert(0, os.path.abspath("../.."))
 
 from network_diffusion import __version__
 
 # -- Project information -----------------------------------------------------
 
 project = "Network Diffusion"
-copyright = "2022, Michał Czuba, Piotr Bródka"
+copyright = "2023, Michał Czuba, Piotr Bródka"
 author = "Michał Czuba, Piotr Bródka"
 
 # The full version, including alpha/beta/rc tags
@@ -48,6 +48,9 @@ extensions = [
     "sphinx.ext.githubpages",
     "sphinx.ext.autodoc",
 ]
+
+# Remove full paths in function signatures
+add_module_names = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -103,4 +106,4 @@ pygments_style = "sphinx"
 # 'searchbox.html']``.
 #
 # html_sidebars = {}
-html_theme = "sphinx_rtd_theme"
+html_theme = "sphinx_book_theme"

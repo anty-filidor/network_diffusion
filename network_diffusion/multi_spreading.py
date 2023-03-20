@@ -17,123 +17,45 @@
 # =============================================================================
 
 """Functions for the phenomena spreading definition."""
+from typing import List, Optional
 
-# pylint: disable=W0141
-
-from copy import deepcopy
-from random import shuffle
-from typing import Dict, List, Tuple
-
-import networkx as nx
-import numpy as np
 from tqdm import tqdm
 
 from network_diffusion.experiment_logger import ExperimentLogger
-from network_diffusion.multilayer_network import MultilayerNetwork
-from network_diffusion.propagation_model import PropagationModel
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
+from network_diffusion.models.base_model import BaseModel
+from network_diffusion.models.utils.types import NetworkUpdateBuffer
 
 
 class MultiSpreading:
     """Perform experiment defined by PropagationModel on MultiLayerNetwork."""
 
-    def __init__(
-        self, model: PropagationModel, network: MultilayerNetwork
-    ) -> None:
+    def __init__(self, model: BaseModel, network: MultilayerNetwork) -> None:
         """
-        Construct an object..
+        Construct an object.
 
         :param model: model of propagation which determines how experiment
             looks like
         :param network: a network which is being examined during experiment
         """
-        assert network.layers.keys() == model.get_model_hyperparams().keys(), (
-            "Layer names in network should be the same as layer names in "
-            "propagation model"
-        )
         self._model = model
-        self._network = deepcopy(network)
+        self._network = network
+        self.stopping_counter = 0
 
-    def set_initial_states(
-        self,
-        states_seeds: Dict[str, Tuple[int, ...]],
-        track_changes: bool = False,
+    def _update_counter(
+        self, nodes_to_update: List[NetworkUpdateBuffer]
     ) -> None:
-        """
-        Prepare network to be used during simulation.
+        """Update a counter of dead epochs."""
+        if len(nodes_to_update) == 0:
+            self.stopping_counter += 1
+        else:
+            self.stopping_counter = 0
 
-        It changes status of certain nodes as passed in states_seeds. After
-        execution of this method experiment is reeady to be done.
-
-        :param states_seeds: dictionary with numbers of nodes to be initialised
-            in each layer of network. For example following argument:
-            {'illness': (75, 2, 0), 'awareness': (60, 17), 'vaccination':
-            (70, 7) } is correct with this model of propagation: [ illness :
-            ('S', 'I', 'R'), awareness : ('UA', 'A'), vaccination : ('UV', 'V')
-            ]. Note, that values in dictionary says how many nodes should have
-            state <x> at the beginning of the experiment.
-        :param track_changes: flag, if true changes are being printed out
-        """
-        # pylint: disable=R0914
-
-        model_hyperparams = self._model.get_model_hyperparams()
-
-        # check if argument has good shape
-        ass_states_arg = [len(s) for s in states_seeds.values()]
-        ass_states_net = [len(s) for s in model_hyperparams.values()]
-        assert ass_states_net == ass_states_arg, (
-            f"Shape of argument {ass_states_arg} should be the same as shape "
-            f"of states in propagation model {ass_states_net}"
-        )
-
-        # check if given argument has good keys
-        assert states_seeds.keys() == model_hyperparams.keys(), (
-            "Layer names in argument should be the same as layer names in "
-            "propagation model"
-        )
-
-        # check if given argument has good values
-        ass_states_sum = [
-            sum(s[1]) == len(self._network.layers[s[0]].nodes())
-            for s in states_seeds.items()
-        ]
-        for ssum in ass_states_sum:
-            assert ssum, (
-                "Sum of size of states for each layer should be equal to "
-                "number of its nodes!"
-            )
-
-        # set initial states in each layer of network
-        for name, layer in self._network.layers.items():
-            states = model_hyperparams[name]
-            vals = states_seeds[name]
-            nodes_number = len(layer.nodes())
-            if track_changes:
-                print(name, states, vals, nodes_number)
-
-            # shuffle nodes
-            nodes = [*layer.nodes()]
-            shuffle(nodes)
-
-            # set ranges
-            _rngs = [sum(vals[:x]) for x in range(len(vals))] + [nodes_number]
-            ranges: List[Tuple[int, int]] = list(zip(_rngs[:-1], _rngs[1:]))
-            if track_changes:
-                print(ranges)
-
-            # append states to nodes
-            for i, _ in enumerate(ranges):
-                pair = ranges[i]
-                state = states[i]
-                if track_changes:
-                    print(pair, state)
-                for index in range(pair[0], pair[1]):
-                    if track_changes:
-                        print(index, nodes[index], layer.node[nodes[index]])
-                    layer.nodes[nodes[index]]["status"] = state
-                    if track_changes:
-                        print(index, nodes[index], layer.node[nodes[index]])
-
-    def perform_propagation(self, n_epochs: int) -> ExperimentLogger:
+    def perform_propagation(
+        self,
+        n_epochs: int,
+        patience: Optional[int] = None,
+    ) -> ExperimentLogger:
         """
         Perform experiment on given network and given model.
 
@@ -141,68 +63,49 @@ class MultiSpreading:
         analysis.
 
         :param n_epochs: number of epochs to do experiment
+        :param patience: if provided experiment will be stopped when in
+            "patience" (e.g. 4) consecutive epoch there was no propagation
         :return: logs of experiment stored in special object
         """
-        # pylint: disable=W0212, R1702
-        logger = ExperimentLogger(
-            self._model._get_description_str(),
-            self._network._get_description_str(),
-        )
+        if patience is not None and patience <= 0:
+            raise ValueError("Patience must be None or integer > 0!")
+        logger = ExperimentLogger(str(self._model), str(self._network))
 
-        # add logs from initial state
-        logger._add_log(self._network.get_nodes_states())
+        # set and add logs from initialising states
+        initial_state = self._model.set_initial_states(self._network)
+        logger.add_global_stat(self._network.get_states_num())
+        logger.add_local_stat(0, initial_state)
 
         # iterate through epochs
-        progress_bar = tqdm(range(n_epochs))
+        progress_bar = tqdm(
+            range(n_epochs), desc="experiment", leave=False, colour="blue"
+        )
         for epoch in progress_bar:
             progress_bar.set_description_str(f"Processing epoch {epoch}")
 
-            # in each epoch iterate through layers
-            for layer_name, layer_graph in self._network.layers.items():
-
-                # in each layer iterate through nodes
-                for n in layer_graph.nodes():
-
-                    # read state of node
-                    state = self._network.get_node_state(n)
-
-                    # import possible transitions for state of the node
-                    possible_transitions = (
-                        self._model.get_possible_transitions(state, layer_name)
-                    )
-
-                    # if there is no possible transition don't do anything,
-                    # otherwise:
-                    if len(possible_transitions) > 0:
-
-                        # iterate through neighbours of current node
-                        for nbr in nx.neighbors(layer_graph, n):
-                            status = layer_graph.nodes[nbr]["status"]
-
-                            # if state of neighbour node is in possible
-                            # transitions and tossed 1 due to it's weight
-                            if (
-                                status in possible_transitions
-                                and np.random.choice(
-                                    [0, 1],
-                                    p=[
-                                        1 - possible_transitions[status],
-                                        possible_transitions[status],
-                                    ],
-                                )
-                                == 1
-                            ):
-                                # change state of current node and breag
-                                # iterating through neighbours
-                                layer_graph.nodes[n][
-                                    "status"
-                                ] = layer_graph.nodes[nbr]["status"]
-                                break
+            # do a forward step and update network
+            nodes_to_update = self._model.network_evaluation_step(
+                self._network
+            )
+            epoch_json = self._model.update_network(
+                self._network, nodes_to_update
+            )
 
             # add logs from current epoch
-            logger._add_log(self._network.get_nodes_states())
+            logger.add_global_stat(self._network.get_states_num())
+            logger.add_local_stat(epoch + 1, epoch_json)
+
+            # check if there is no progress and therefore stop simulation
+            if patience:
+                self._update_counter(nodes_to_update)
+                if self.stopping_counter >= patience:
+                    progress_bar.set_description_str(
+                        f"Experiment stopped - no progress in last "
+                        f"{patience} epochs!"
+                    )
+                    break
 
         # convert logs to dataframe
-        logger._convert_logs(self._model.get_model_hyperparams())
+        logger.convert_logs(self._model.get_allowed_states(self._network))
 
         return logger

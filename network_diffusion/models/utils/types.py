@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-
-# Copyright 2022 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright 2023 by Michał Czuba, Piotr Bródka. All Rights Reserved.
 #
 # This file is part of Network Diffusion.
 #
@@ -18,13 +16,27 @@
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
-"""Network Diffusion is package for simulating spreading phenomenas."""
+"""Definition of the aux types used in the library."""
 
-# flake8: noqa
+from dataclasses import dataclass
+from typing import Dict
 
-from network_diffusion import models, seeding
-from network_diffusion.mln.actor import MLNetworkActor
-from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.multi_spreading import MultiSpreading
 
-__version__ = "0.8.0"
+@dataclass
+class NetworkUpdateBuffer:
+    """Auxiliary class to keep info about nodes that needs to be updated."""
+
+    node_name: str
+    layer_name: str
+    new_state: str
+
+    def __str__(self) -> str:
+        return f"{self.layer_name}:{self.node_name}:{self.new_state}"
+
+    def to_json(self) -> Dict[str, str]:
+        """Return dict writable to JSON."""
+        return {
+            "layer_name": self.layer_name,
+            "node_name": self.node_name,
+            "new_state": self.new_state,
+        }
