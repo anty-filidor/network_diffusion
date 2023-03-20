@@ -22,7 +22,7 @@
 
 from typing import List
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 from network_diffusion import __version__
 
@@ -67,7 +67,7 @@ setup(
     long_description="Network Diffusion",
     author="Michał Czuba, Piotr Bródka",
     author_email="michal.czuba@pwr.edu.pl, piotr.brodka@pwr.edu.pl",
-    packages=["network_diffusion"],
+    packages=find_packages(exclude=["*tests*"]),
     install_requires=parse_requirements(),
     python_requires=">=3.7",
 )

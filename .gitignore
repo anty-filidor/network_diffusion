@@ -2,6 +2,7 @@
 /docs/html/
 /docs/doctrees/
 /dist/
+/build/
 /network_diffusion.egg-info/
 /conda_build/
 .DS_Store
