@@ -1,5 +1,5 @@
 =============================================
-Welcome to documentation of Network Diffusion package!
+Documentation of Network Diffusion package
 =============================================
 
 Network Diffusion is a library that allows to design and run diffusion
@@ -10,7 +10,8 @@ propagation models from scratch, use predefined ones, and perform simulations.
 
 Please cite as:
 ..  code-block:: typoscript
-    :caption: A paper that describes operation principle of the library
+   :caption: A paper that describes operation principle of the library
+
    @INPROCEEDINGS{czuba2022networkdiffusion,
       author={Czuba, Michał and Bródka, Piotr},
       booktitle={2022 IEEE 9th International Conference on Data Science and Advanced Analytics (DSAA)},
