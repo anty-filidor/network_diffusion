@@ -10,7 +10,7 @@ propagation models from scratch, use predefined ones, and perform simulations.
 
 Please cite this library as:
 
-..  code-block:: console
+..  code-block:: bibtex
 
     @INPROCEEDINGS{czuba2022networkdiffusion,
          author={Czuba, Micha\l{} and Br\'{o}dka, Piotr},

@@ -24,23 +24,17 @@ Please cite as:
 
 ```
 @INPROCEEDINGS{czuba2022networkdiffusion,
-        author={Czuba, Micha\l{} and Br\'{o}dka, Piotr},
-        booktitle={
-            2022 IEEE 9th International Conference on Data Science and
-            Advanced Analytics (DSAA)
-        },
-        title={
-            Simulating Spreading of Multiple Interacting Processes in
-            Complex Networks
-        },
-        year={2022},
-        month={oct},
-        volume={},
-        number={},
-        pages={1-10},
-        publisher={IEEE},
-        address={Shenzhen, China},
-        doi={10.1109/DSAA54385.2022.10032425},
+    author={Czuba, Micha\l{} and Br\'{o}dka, Piotr},
+    booktitle={2022 IEEE 9th International Conference on Data Science and Advanced Analytics (DSAA)},
+    title={Simulating Spreading of Multiple Interacting Processes in Complex Networks},
+    year={2022},
+    month={oct},
+    volume={},
+    number={},
+    pages={1-10},
+    publisher={IEEE},
+    address={Shenzhen, China},
+    doi={10.1109/DSAA54385.2022.10032425},
 }
 ```
 
