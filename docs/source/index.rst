@@ -1,16 +1,39 @@
 =============================================
-Welcome to Network Diffusion's documentation!
+Welcome to documentation of Network Diffusion package!
 =============================================
 
-Network Diffusion is a library which allows to design and run diffusion
-phenomena processes in networks. Package has been built basing on
-`networkx <https://networkx.github.io>`_ and is fully compatible with it. With
-Network Diffusion user is able to work with multi and single layer networks,
-define models of propagation from scratch or use predefined ones and perform
-simulations.
+Network Diffusion is a library that allows to design and run diffusion
+phenomena processes in networks. The package has been built based on
+`networkx <https://networkx.github.io>`_ and is fully compatible. With Network
+Diffusion, the user can work with multi- and single-layer networks, define
+propagation models from scratch, use predefined ones, and perform simulations.
+
+Please cite as:
+..  code-block:: typoscript
+    :caption: A paper that describes operation principle of the library
+   @INPROCEEDINGS{czuba2022networkdiffusion,
+      author={Czuba, Michał and Bródka, Piotr},
+      booktitle={2022 IEEE 9th International Conference on Data Science and Advanced Analytics (DSAA)},
+      title={Simulating Spreading of Multiple Interacting Processes in Complex Networks},
+      year={2022},
+      month={oct},
+      volume={},
+      number={},
+      pages={1-10},
+      publisher={IEEE},
+      address={Shenzhen, China},
+      doi={10.1109/DSAA54385.2022.10032425},
+   }
 
 
-Content of the website
+Feel free to contribute! We strongly believe in open-source projects. Hence our
+library provides open interfaces for new models, metrics, and functions. If you
+need to implement a piece of code and, by that, enhance the package, please let
+us know in the form of a pull request. In case of any questions, do not hesitate
+to contact us: **michal.czuba@pwr.edu.pl**
+
+
+Contents of the website
 =============================================
 
 .. toctree::

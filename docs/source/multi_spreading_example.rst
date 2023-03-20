@@ -5,10 +5,10 @@ Module  ``multi_spreading``
 
 What is multilayer spreading?
 ______________________________
-Multilayer spreading is a module which enables to perform previously designed
+Multilayer Spreading is a module that allows to perform previously designed
 experiment. To run it we need a network of Multilayer class (note that it
 can as well have one layer) and corresponding model. After the experiment
-is completed user is able to see results in form of report and visualisation
+is completed, user is able to see results in form of report and visualisation
 of global states of the nodes.
 
 Example of usage
@@ -48,7 +48,7 @@ ________________
         ('awareness.UA', 'illness.I', 'vaccination.UV')), 0.7)
 
 
-3. Initialise starting parameters of propagation in network. Parameters' names
+3. Initialise initial parameters of propagation in network. Parameters' names
 must correspond with names in model and network. Numbers in tuples describe
 how many nodes has which local state (in alphabetic order)::
 

@@ -28,7 +28,7 @@ import networkx as nx
 import numpy as np
 
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
 
 class CompartmentalGraph:
@@ -40,10 +40,10 @@ class CompartmentalGraph:
         """Create empty object."""
         self.graph: Dict[str, nx.Graph] = {}
         self.background_weight: float = float("inf")
-        self._seeding_budget: Dict[str, Tuple[int, ...]] = {}
+        self._seeding_budget: Dict[str, Tuple[NumericType, ...]] = {}
 
     @property
-    def seeding_budget(self) -> Dict[str, Tuple[int, ...]]:
+    def seeding_budget(self) -> Dict[str, Tuple[NumericType, ...]]:
         """
         Get seeding budget as % of the nodes in form of compartments as a dict.
 
@@ -54,7 +54,9 @@ class CompartmentalGraph:
         return self._seeding_budget
 
     @seeding_budget.setter
-    def seeding_budget(self, proposed_is: Dict[str, Tuple[int, ...]]) -> None:
+    def seeding_budget(
+        self, proposed_is: Dict[str, Tuple[NumericType, ...]]
+    ) -> None:
         """Set seeding budget in each of compartments."""
         assert proposed_is.keys() == self.get_compartments().keys(), (
             "Layer names in argument should be the same as layer names in "
@@ -111,7 +113,9 @@ class CompartmentalGraph:
         return seeding_budget
 
     @staticmethod
-    def _int_to_bins(bins: Tuple[int, ...], base_num: int) -> List[int]:
+    def _int_to_bins(
+        bins: Tuple[NumericType, ...], base_num: int
+    ) -> List[int]:
         binned_number: List[int] = []
         for idx, percentage in enumerate(bins, 1):
             size_of_bin = int(percentage * base_num / 100)

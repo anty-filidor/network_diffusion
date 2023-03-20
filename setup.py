@@ -66,7 +66,7 @@ setup(
     description="Package to design and run diffusion phenomena in networks.",
     long_description="Network Diffusion",
     author="Michał Czuba, Piotr Bródka",
-    author_email="michal.czuba.1995@gmail.com, piotr.brodka@pwr.edu.pl",
+    author_email="michal.czuba@pwr.edu.pl, piotr.brodka@pwr.edu.pl",
     packages=["network_diffusion"],
     install_requires=parse_requirements(),
     python_requires=">=3.7",

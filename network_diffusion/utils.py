@@ -22,7 +22,9 @@
 import os
 import pathlib
 import string
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
+
+import numpy as np
 
 BOLD_UNDERLINE = "============================================"
 THIN_UNDERLINE = "--------------------------------------------"
@@ -93,3 +95,6 @@ def create_directory(dest_path: str) -> None:
 def get_absolute_path() -> str:
     """Get absolute path of library."""
     return str(pathlib.Path(__file__).parent)
+
+
+NumericType = Union[int, float, np.number]

@@ -23,6 +23,7 @@
 # flake8: noqa
 
 from network_diffusion import models, seeding
+from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.multi_spreading import MultiSpreading
 

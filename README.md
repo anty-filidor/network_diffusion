@@ -18,4 +18,22 @@ experiments in multilayer networks. Package has been built basing on
 Documentation and tutorials are available
 [here](https://network-diffusion.readthedocs.io/en/latest/).
 
+Please cite as:
+
+```
+@INPROCEEDINGS{czuba2022networkdiffusion,
+    author={Czuba, Michał and Bródka, Piotr},
+    booktitle={2022 IEEE 9th International Conference on Data Science and Advanced Analytics (DSAA)},
+    title={Simulating Spreading of Multiple Interacting Processes in Complex Networks},
+    year={2022},
+    month={oct},
+    volume={},
+    number={},
+    pages={1-10},
+    publisher={IEEE},
+    address={Shenzhen, China},
+    doi={10.1109/DSAA54385.2022.10032425},
+}
+```
+
 **To install package run this command: `pip install network_diffusion`**

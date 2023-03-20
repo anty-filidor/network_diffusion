@@ -16,6 +16,7 @@ class MockyActorSelector(BaseSeedSelector):
     def __init__(self, preselected_actors: List[MLNetworkActor]) -> None:
         """Initialise object."""
         self.preselected_actors = preselected_actors
+        super().__init__()
 
     def __str__(self) -> str:
         """Return seed method's description."""

@@ -12,6 +12,11 @@ from network_diffusion.mln.mlnetwork import MultilayerNetwork
 class BaseSeedSelector(ABC):
     """Base abstract class for seed selectors."""
 
+    # flake8: noqa
+    def __init__(self, **kwargs: Any) -> None:
+        """Initialise the object."""
+        pass
+
     def __call__(
         self, network: MultilayerNetwork, actorwise: bool = False
     ) -> Union[Dict[str, List[Any]], List[MLNetworkActor]]:

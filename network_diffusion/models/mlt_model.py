@@ -28,7 +28,7 @@ from network_diffusion.models.base_model import BaseModel
 from network_diffusion.models.base_model import NetworkUpdateBuffer as NUBuff
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.seeding.base_selector import BaseSeedSelector
-from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
 
 class MLTModel(BaseModel):
@@ -47,7 +47,7 @@ class MLTModel(BaseModel):
 
     def __init__(  # pylint: disable=R0913
         self,
-        seeding_budget: Tuple[int, int],
+        seeding_budget: Tuple[NumericType, NumericType],
         seed_selector: BaseSeedSelector,
         protocol: str,
         mi_value: float,
@@ -89,7 +89,7 @@ class MLTModel(BaseModel):
 
     def _create_compartments(
         self,
-        seeding_budget: Tuple[int, int],
+        seeding_budget: Tuple[NumericType, NumericType],
         mi_value: float,
     ) -> CompartmentalGraph:
         """
