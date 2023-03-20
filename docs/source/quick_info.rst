@@ -25,3 +25,11 @@ There is an option to make a dry run of the package using an interactive
 capsule published at CodeOcean. Visit
 `this <https://codeocean.com/capsule/8807709/tree>`_ page to play with Network
 Diffusion!
+
+Experiments on LTM model
+=========================
+
+`Here <https://github.com/anty-filidor/ltm-seeding-mln>`_ is another project
+which bases on this package. You can find there pipelines that evaluate
+effectivness of various seed selection methods (like Page Rank or Degree
+Centrality) on Linear Threshold Model.

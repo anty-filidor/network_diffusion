@@ -86,12 +86,10 @@ class CompartmentalGraph:
         :param net: input network to convert seeding budget for
         :param actorwise: compute seeding budget for actors, else for nodes
         :return: dictionary in form as e.g.:
-            {
-                "ill": {"suspected": 45, "infected": 4, "recovered": 1},
-                "vacc": {"unvaccinated": 35, "vaccinated": 15}
-            }
-            for seeding_budget dict: {"ill": (90, 8, 2), "vacc": (70, 30)} and
-            50 nodes in each layer and nodewise mode.
+            {"ill": {"suspected": 45, "infected": 4, "recovered": 1}, "vacc":
+            {"unvaccinated": 35, "vaccinated": 15}} for seeding_budget dict:
+            {"ill": (90, 8, 2), "vacc": (70, 30)} and 50 nodes in each layer
+            and nodewise mode.
         """
         if actorwise:
             actors_num = net.get_actors_num()

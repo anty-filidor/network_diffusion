@@ -1,1 +1,1 @@
-"""Contains modules to handle multilayer networks."""
+"""Contains modules to handle operations on multilayer networks."""

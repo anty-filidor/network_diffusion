@@ -1,4 +1,4 @@
-# Copyright 2022 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright 2023 by Michał Czuba, Piotr Bródka. All Rights Reserved.
 #
 # This file is part of Network Diffusion.
 #
