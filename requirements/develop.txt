@@ -35,7 +35,7 @@ lazy-object-proxy==1.7.1
 m2r==0.2.1
 MarkupSafe==2.1.1
 mccabe==0.7.0
-mistune==2.0.2
+mistune==2.0.3
 multidict==6.0.2
 nodeenv==1.7.0
 packaging==21.3
@@ -79,6 +79,7 @@ urllib3==1.26.15
 vcrpy==4.0.2
 virtualenv==20.16.3
 wcwidth==0.2.5
+wheel
 webencodings==0.5.1
 wrapt==1.14.1
 yarl==1.7.2
