@@ -1,7 +1,5 @@
 
-
-from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Tuple
+from typing import Dict, List, Tuple
 import random
 import numpy as np
 import networkx as nx
@@ -13,15 +11,15 @@ from network_diffusion.models.utils.types import NetworkUpdateBuffer as NUBff
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
+
 class ICModel(BaseModel):
 
     INACTIVE_NODE = "0"
     ACTIVE_NODE = "1"
     PROCESS_NAME = "ICM"
     DONE = "-1"
-    STOP = 0
     NODE_TO_EXECUTE = Dict
-    probability =0
+    probability = 0
 
     def __init__(
         self,
@@ -31,10 +29,13 @@ class ICModel(BaseModel):
         probability: float
     ) -> None:
         self.probability = probability
+
+        assert 0 <= probability <= 1, f"incorrect probability: {probability}!"
+
         compart_graph = self._create_comparents(seeding_budget)
         super().__init__(compart_graph, seed_selector)
         if protocol == "AND":
-           self.protocol = self._protocol_and
+            self.protocol = self._protocol_and
 
         elif protocol == "OR":
             self.protocol = self._protocol_or
@@ -45,10 +46,9 @@ class ICModel(BaseModel):
         """Return string representation of the object."""
         descr = f"{BOLD_UNDERLINE}\nMultilayer Independent Cascade Model"
         descr += f"\n{THIN_UNDERLINE}\n"
-        #descr += self._compartmental_graph.describe()
         descr += str(self._seed_selector)
         descr += f"{BOLD_UNDERLINE}\nauxiliary parameters\n{THIN_UNDERLINE}"
-        descr += f"\n\tprotocole: {self.protocol.__name__}"
+        descr += f"\n\tprotocols: {self.protocol.__name__}"
         descr += f"\n\tactive state abbreviation: {self.ACTIVE_NODE}"
         descr += f"\n\tinactive state abbreviation: {self.INACTIVE_NODE}"
         descr += f"\n{BOLD_UNDERLINE}"
@@ -60,16 +60,14 @@ class ICModel(BaseModel):
     ) -> CompartmentalGraph:
 
         compart_graph = CompartmentalGraph()
-       # assert 0 <= probality <= 1, f"incorrect probality: {probality}!"
-
-        compart_graph.add(process_name=self.PROCESS_NAME, states=[self.ACTIVE_NODE,self.INACTIVE_NODE])
+        compart_graph.add(process_name=self.PROCESS_NAME, states=[self.ACTIVE_NODE, self.INACTIVE_NODE])
         compart_graph.seeding_budget = {self.PROCESS_NAME: sending_budget}
 
+        return compart_graph
 
-        return  compart_graph
     @staticmethod
     def _protocol_or(inputs: Dict[str, str]) -> bool:
-        inputs_bool = np.array([bool(int (input)) for input in inputs.values()])
+        inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.any())
 
     @staticmethod
@@ -82,7 +80,7 @@ class ICModel(BaseModel):
     ) -> List[Dict[str, str]]:
 
         budget = self._compartmental_graph.get_seeding_budget_for_network(
-            net= net,
+            net=net,
             actorwise=True
         )
         seed_nodes: List[NUBff] = []
@@ -110,96 +108,110 @@ class ICModel(BaseModel):
         net: MultilayerNetwork
 
     ) -> str:
+        # function only check state of actor
 
         l_graph: nx.Graph = net.layers[layer_name]
-        current_state = l_graph.nodes[agent.actor_id]["status"] # tylko sprawdzanie statusu
-        return  current_state
-
+        current_state = l_graph.nodes[agent.actor_id]["status"]
+        return current_state
 
     def network_evaluation_step(
-        self, net: MultilayerNetwork
+         self,
+         net: MultilayerNetwork
     ) -> List[NUBff]:
+
         self.NODE_TO_EXECUTE = net.get_actors()
         activated_nodes: List[NUBff] = []
-        layer_inputs ={}
-        active_nodes = self.symulacja(net)
+        active_nodes = self.simulation(net)
 
-        for actor in net.get_actors(): # sprawdzanie po wyniku z symulacji wezłów
+        for actor in net.get_actors():
             layer_inputs = {}
 
-            for layer_name in actor.layers: # przejscie po warstwach wezła
-                layer_inputs[layer_name] = self.agent_evaluation_step(actor,layer_name,net) # ustalenie stanu
-                if self.protocol(layer_inputs): # zgodność z protokołem
+            for layer_name in actor.layers:  # checking each layer in site
+                # saving state of each node's layer to layer_inputs
+                layer_inputs[layer_name] = self.agent_evaluation_step(actor, layer_name, net)
+                if self.protocol(layer_inputs):  # checking conditions for selected protocol
                     activated_nodes.extend(
                         [
-                        NUBff(
+                         NUBff(
                             node_name=actor.actor_id,
                             layer_name=layer_name,
                             new_state=self.ACTIVE_NODE,
-                        )
-                        for layer_name in layer_inputs # aktywacja wezła w warstwach
+                         )
+                         for layer_name in layer_inputs
                         ]
                     )
         return activated_nodes
 
+    def simulation(self, net: MultilayerNetwork) -> List[NUBff]:
+        """
 
+        Return list of activated nodes in this simulation
 
+        """
 
-
-
-    def symulacja(self, net:MultilayerNetwork) -> List[NUBff]:
         probability = self.probability
-        node_to_sprw = []
+        node_to_check = []  # list of nodes to check in next turn
         activated_nodes: List[NUBff] = []
-        node_to_execute = net.get_actors() # ustalenie wezłów do przejrzenia
+        node_to_execute = net.get_actors()  # loading nodes to simulation
 
         for layer_name in net.layers:
 
-            l_graph: nx.Graph = net.layers[layer_name] # określenie warstwy sieci
+            l_graph: nx.Graph = net.layers[layer_name]  # choosing a layer of site
 
-            for node in node_to_execute: # wybór wezłów
-
-                if l_graph.nodes[node.actor_id]["status"] == self.ACTIVE_NODE: #sprawdzenie czy wezeł aktywny w przeciwnym razie operacja nie następuje
+            for node in node_to_execute:  # choosing of node
+                # checking a state of node, only active node can do next steps
+                if l_graph.nodes[node.actor_id]["status"] == self.ACTIVE_NODE:
                     for neighbour in l_graph.neighbors(node.actor_id):
-                        if l_graph.nodes[neighbour]["status"] == self.ACTIVE_NODE: # sprawdzenie czy sąsiad nie jest czasem aktywny
-                            continue # jeśli tak to pomijamy go
-                        r = random.random() # losowanie liczby
-                        if r < probability:  # warunek prawdopodobieństwa
-                            l_graph.nodes[neighbour]["status"] = self.ACTIVE_NODE # uaktualnienie statusu na aktive
+                        # checking a state of neighbour of node
+                        if l_graph.nodes[neighbour]["status"] == self.ACTIVE_NODE:
+                            continue  # if neighbour is active leave it
+                        r = random.random()  # randomization
+                        if r < probability:  # condition of probability
+                            # status is changed on active
+                            l_graph.nodes[neighbour]["status"] = self.ACTIVE_NODE
+                            # saving to the activated nodes
                             activated_nodes.extend(
-                            [NUBff( # uaktualnienie stanu wezła globalnie (wpływa na pętle?)
+                             [NUBff(
                                 node_name=neighbour,
                                 layer_name=layer_name,
                                 new_state=self.ACTIVE_NODE
-                            )])
-                            node_to_sprw.append(neighbour) # dodanie do listy wykonującej
-                    l_graph.nodes[node.actor_id]["status"] = self.DONE # gdy węzeł skończył pracę zmienia tryb na -1
+                             )])
+                            # adding neighbour to the next list
+                            node_to_check.append(neighbour)
+                            # checking a node's state on DONE if finish its proces
+                    l_graph.nodes[node.actor_id]["status"] = self.DONE
 
-            while len(node_to_sprw) != 0: # procedura dla sasiadów zapisanych w liście
-                for node_n in node_to_sprw:
+            # the nest turn for activated neighbours
 
+            while len(node_to_check) != 0:  # list can't be null
+                for node_n in node_to_check:
+
+                    # node's state must be active
                     if l_graph.nodes[node_n]["status"] != self.ACTIVE_NODE:
-
-                        node_to_sprw.remove(node_n) # usunięcie węzła po sprw
+                        node_to_check.remove(node_n)   # removing the node after verification
                         continue
-                    for neighbour_n in l_graph.neighbors(node_n): # sprawdzenie sąsiedztwa
-                        if l_graph.nodes[neighbour_n]["status"] == self.ACTIVE_NODE: # sprawdzenie czy sąsiad nie jest już aktywny
+
+                    for neighbour_n in l_graph.neighbors(node_n):  # checking the neighborhood
+                        # checking if neighbour is activated
+                        if l_graph.nodes[neighbour_n]["status"] == self.ACTIVE_NODE:
                             continue
-                        r = random.random() # losowanie liczby
-                        if r < probability:  # warunek prawdopodobieństwa
-                                l_graph.nodes[neighbour_n]["status"] = self.ACTIVE_NODE # ustawienie statusu na aktywny
-                                activated_nodes.extend(
-                                    [NUBff(  # uaktualnienie stanu wezła globalnie (wpływa na pętle?)
+
+                        r = random.random()  # randomization
+                        if r < probability:  # condition of probability
+                            # changing the node's state on active
+                            l_graph.nodes[neighbour_n]["status"] = self.ACTIVE_NODE
+                            activated_nodes.extend(
+                                    [NUBff(
                                         node_name=neighbour_n,
                                         layer_name=layer_name,
                                         new_state=self.ACTIVE_NODE
                                     )])
-                                node_to_sprw.append(neighbour_n) # dodanie sąsiada do listy sprawdzającej
-                    node_to_sprw.remove(node_n) # usunięcie węzła po skończonej pracy
-            for node_udp in node_to_execute: # wezły ze statusem -1 otrzymują na powrót 1
+                            node_to_check.append(neighbour_n)  # adding neighbour on the end of list
+                    node_to_check.remove(node_n)  # removing node after proces
+            for node_udp in node_to_execute:  # changing node statuses from DONE to ACTIVE
                 if l_graph.nodes[node_udp.actor_id]["status"] == self.DONE:
-                    l_graph.nodes[node_udp.actor_id]["status"] = self.ACTIVE_NODE #
-        return  activated_nodes
+                    l_graph.nodes[node_udp.actor_id]["status"] = self.ACTIVE_NODE
+        return activated_nodes
 
     def get_allowed_states(self, net: MultilayerNetwork) -> Dict[str, Tuple[str, ...]]:
         """
@@ -209,5 +221,3 @@ class ICModel(BaseModel):
         """
         cmprt = self._compartmental_graph.get_compartments()[self.PROCESS_NAME]
         return {l_name: cmprt for l_name in net.layers}
-
-
