@@ -17,8 +17,7 @@ class ICModel(BaseModel):
     INACTIVE_NODE = "0"
     ACTIVE_NODE = "1"
     PROCESS_NAME = "ICM"
-    DONE = "-1"
-    NODE_TO_EXECUTE = Dict
+    ACTIVATED_NODE = "-1"
     probability = 0
 
     def __init__(
@@ -114,18 +113,19 @@ class ICModel(BaseModel):
         param_net is choosing network
 
         """
-        probability = self.probability
+
         l_graph: nx.Graph = net.layers[layer_name]
         current_state = l_graph.nodes[agent.actor_id]["status"]
         if current_state == self.ACTIVE_NODE:
-            return current_state
+            return self.ACTIVATED_NODE
         # checking neighborhood of actor
         for neighbour in l_graph.neighbors(agent.actor_id):
             # if neighbour is active, it can send signal to activation of actor
             if l_graph.nodes[neighbour]["status"] == self.ACTIVE_NODE:
+                # random is homogeneous distribution
                 r = random.random()
                 # actor is activated if a probability allow its
-                if r < probability:
+                if r < self.probability:
                     return self.ACTIVE_NODE
         return current_state
 
@@ -144,7 +144,7 @@ class ICModel(BaseModel):
         for actor in net.get_actors():  # checking each node
             layer_inputs = {}
 
-            if set(actor.states.values()) == set(self.ACTIVE_NODE):
+            if set(actor.states.values()) == set(self.ACTIVATED_NODE):
                 continue
             for layer_name in actor.layers:
                 # downloading the status of actor
