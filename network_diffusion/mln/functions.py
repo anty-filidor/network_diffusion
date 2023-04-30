@@ -26,6 +26,31 @@ from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
+def betweennes(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
+    """Return value of centrality for actors from the network"""
+    bet: Dict[MLNetworkActor, int] = {}
+
+    l_graph: Dict[str, Dict] = {}
+
+    for l_name in net.layers:
+        grap: nx.Graph = net.layers[l_name]
+        l_graph[l_name] = nx.betweenness_centrality(grap)
+    for actor in net.get_actors():
+        for l_name in actor.layers:
+            bet[actor] = l_graph[l_name][actor.actor_id]
+    return bet
+
+def closenes(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
+    """Return value of centrality for actors from the network"""
+    close: Dict[MLNetworkActor, float] = {}
+    l_graph: Dict[str, Dict] = {}
+    for l_name in net.layers:
+        grap: nx.Graph = net.layers[l_name]  # site of choosing layer
+        l_graph[l_name] = nx.closeness_centrality(grap)  # values of closeness for one layer
+        for actor in net.get_actors():
+            close[actor] = l_graph[l_name][actor.actor_id]  # saving information to the dict
+    return close
+
 def degree(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
     """Return number of connecting links per all actors from the network."""
     degrees: Dict[MLNetworkActor, int] = {}
@@ -35,7 +60,6 @@ def degree(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
             a_neighbours += len(net.layers[l_name].adj[actor.actor_id])
         degrees[actor] = a_neighbours
     return degrees
-
 
 def _ns_helper(
     net: MultilayerNetwork, actor: MLNetworkActor, hop: int = 1
