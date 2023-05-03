@@ -17,8 +17,7 @@ class ICModel(BaseModel):
     INACTIVE_NODE = "0"
     ACTIVE_NODE = "1"
     PROCESS_NAME = "ICM"
-    DONE = "-1"
-    NODE_TO_EXECUTE = Dict
+    ACTIVATED_NODE = "-1"
     probability = 0
 
     def __init__(
@@ -28,10 +27,8 @@ class ICModel(BaseModel):
         protocol: str,
         probability: float
     ) -> None:
-        self.probability = probability
-
         assert 0 <= probability <= 1, f"incorrect probability: {probability}!"
-
+        self.probability = probability
         compart_graph = self._create_comparents(seeding_budget)
         super().__init__(compart_graph, seed_selector)
         if protocol == "AND":
@@ -39,6 +36,7 @@ class ICModel(BaseModel):
 
         elif protocol == "OR":
             self.protocol = self._protocol_or
+
         else:
             raise ValueError("Only AND & OR value is allowed!")
 
@@ -108,109 +106,61 @@ class ICModel(BaseModel):
         net: MultilayerNetwork
 
     ) -> str:
-        # function only check state of actor
+        """
+
+        param_agent is node to check
+        param_layer_name is node's layer
+        param_net is choosing network
+
+        """
 
         l_graph: nx.Graph = net.layers[layer_name]
         current_state = l_graph.nodes[agent.actor_id]["status"]
+        if current_state == self.ACTIVE_NODE:
+            return self.ACTIVATED_NODE
+        # checking neighborhood of actor
+        for neighbour in l_graph.neighbors(agent.actor_id):
+            # if neighbour is active, it can send signal to activation of actor
+            if l_graph.nodes[neighbour]["status"] == self.ACTIVE_NODE:
+                # random is homogeneous distribution
+                r = random.random()
+                # actor is activated if a probability allow its
+                if r < self.probability:
+                    return self.ACTIVE_NODE
         return current_state
 
     def network_evaluation_step(
-         self,
-         net: MultilayerNetwork
+        self, net: MultilayerNetwork
     ) -> List[NUBff]:
 
-        self.NODE_TO_EXECUTE = net.get_actors()
-        activated_nodes: List[NUBff] = []
-        active_nodes = self.simulation(net)
+        """
+        param_net: load network
+        return a list of activated_nodes if the protocol allow
 
-        for actor in net.get_actors():
+        """
+
+        activated_nodes: List[NUBff] = []
+
+        for actor in net.get_actors():  # checking each node
             layer_inputs = {}
 
-            for layer_name in actor.layers:  # checking each layer in site
-                # saving state of each node's layer to layer_inputs
+            if set(actor.states.values()) == set(self.ACTIVATED_NODE):
+                continue
+            for layer_name in actor.layers:
+                # downloading the status of actor
                 layer_inputs[layer_name] = self.agent_evaluation_step(actor, layer_name, net)
-                if self.protocol(layer_inputs):  # checking conditions for selected protocol
-                    activated_nodes.extend(
-                        [
-                         NUBff(
+            if self.protocol(layer_inputs):  # checking the protocol's conditions
+                # adding to list
+                activated_nodes.extend(
+                    [
+                        NUBff(
                             node_name=actor.actor_id,
                             layer_name=layer_name,
                             new_state=self.ACTIVE_NODE,
-                         )
-                         for layer_name in layer_inputs
-                        ]
-                    )
-        return activated_nodes
-
-    def simulation(self, net: MultilayerNetwork) -> List[NUBff]:
-        """
-
-        Return list of activated nodes in this simulation
-
-        """
-
-        probability = self.probability
-        node_to_check = []  # list of nodes to check in next turn
-        activated_nodes: List[NUBff] = []
-        node_to_execute = net.get_actors()  # loading nodes to simulation
-
-        for layer_name in net.layers:
-
-            l_graph: nx.Graph = net.layers[layer_name]  # choosing a layer of site
-
-            for node in node_to_execute:  # choosing of node
-                # checking a state of node, only active node can do next steps
-                if l_graph.nodes[node.actor_id]["status"] == self.ACTIVE_NODE:
-                    for neighbour in l_graph.neighbors(node.actor_id):
-                        # checking a state of neighbour of node
-                        if l_graph.nodes[neighbour]["status"] == self.ACTIVE_NODE:
-                            continue  # if neighbour is active leave it
-                        r = random.random()  # randomization
-                        if r < probability:  # condition of probability
-                            # status is changed on active
-                            l_graph.nodes[neighbour]["status"] = self.ACTIVE_NODE
-                            # saving to the activated nodes
-                            activated_nodes.extend(
-                             [NUBff(
-                                node_name=neighbour,
-                                layer_name=layer_name,
-                                new_state=self.ACTIVE_NODE
-                             )])
-                            # adding neighbour to the next list
-                            node_to_check.append(neighbour)
-                            # checking a node's state on DONE if finish its proces
-                    l_graph.nodes[node.actor_id]["status"] = self.DONE
-
-            # the nest turn for activated neighbours
-
-            while len(node_to_check) != 0:  # list can't be null
-                for node_n in node_to_check:
-
-                    # node's state must be active
-                    if l_graph.nodes[node_n]["status"] != self.ACTIVE_NODE:
-                        node_to_check.remove(node_n)   # removing the node after verification
-                        continue
-
-                    for neighbour_n in l_graph.neighbors(node_n):  # checking the neighborhood
-                        # checking if neighbour is activated
-                        if l_graph.nodes[neighbour_n]["status"] == self.ACTIVE_NODE:
-                            continue
-
-                        r = random.random()  # randomization
-                        if r < probability:  # condition of probability
-                            # changing the node's state on active
-                            l_graph.nodes[neighbour_n]["status"] = self.ACTIVE_NODE
-                            activated_nodes.extend(
-                                    [NUBff(
-                                        node_name=neighbour_n,
-                                        layer_name=layer_name,
-                                        new_state=self.ACTIVE_NODE
-                                    )])
-                            node_to_check.append(neighbour_n)  # adding neighbour on the end of list
-                    node_to_check.remove(node_n)  # removing node after proces
-            for node_udp in node_to_execute:  # changing node statuses from DONE to ACTIVE
-                if l_graph.nodes[node_udp.actor_id]["status"] == self.DONE:
-                    l_graph.nodes[node_udp.actor_id]["status"] = self.ACTIVE_NODE
+                        )
+                        for layer_name in layer_inputs
+                    ]
+                )
         return activated_nodes
 
     def get_allowed_states(self, net: MultilayerNetwork) -> Dict[str, Tuple[str, ...]]:
