@@ -30,14 +30,9 @@ class ClosenessSelector(BaseSeedSelector):
 
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Get ranking for actors using Closeness Centrality metric."""
-
-        closeness_centrality_values: Dict[MLNetworkActor, float] = {}
         ranking_list: List[MLNetworkActor] = []
-        for actor, a_close in closenes(net=net).items():
-            # a closenes's value is added to dict
-            closeness_centrality_values[actor] = a_close
-            # sorted by value of dictonaries
-        for dc_val, val in sorted(closeness_centrality_values.items(), reverse=True, key=lambda x: x[1]):
+        # sorted by value of dictonaries
+        for dc_val, val in sorted(closenes(net=net).items(), reverse=True, key=lambda x: x[1]):
             # Adding actor to list
             ranking_list.append(dc_val)
         return ranking_list

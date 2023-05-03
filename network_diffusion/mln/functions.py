@@ -26,30 +26,36 @@ from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
-def betweennes(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
+def betweennes(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
     """Return value of centrality for actors from the network"""
-    bet: Dict[MLNetworkActor, int] = {}
-
-    l_graph: Dict[str, Dict] = {}
+    bet_mean: Dict[MLNetworkActor, float] = {}
+    bet: List = []
+    b_graph: Dict[str, Dict] = {}
 
     for l_name in net.layers:
         grap: nx.Graph = net.layers[l_name]
-        l_graph[l_name] = nx.betweenness_centrality(grap)
+        b_graph[l_name] = nx.betweenness_centrality(grap)
     for actor in net.get_actors():
         for l_name in actor.layers:
-            bet[actor] = l_graph[l_name][actor.actor_id]
-    return bet
+            bet.append(b_graph[l_name][actor.actor_id])
+        bet_mean[actor] = sum(bet)/len(bet)
+        bet.clear()
+    return bet_mean
 
 def closenes(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
     """Return value of centrality for actors from the network"""
-    close: Dict[MLNetworkActor, float] = {}
-    l_graph: Dict[str, Dict] = {}
+    close_mean: Dict[MLNetworkActor, float] = {}
+    c_graph: Dict[str, Dict] = {}
+    close: List = []
     for l_name in net.layers:
         grap: nx.Graph = net.layers[l_name]  # site of choosing layer
-        l_graph[l_name] = nx.closeness_centrality(grap)  # values of closeness for one layer
-        for actor in net.get_actors():
-            close[actor] = l_graph[l_name][actor.actor_id]  # saving information to the dict
-    return close
+        c_graph[l_name] = nx.closeness_centrality(grap)  # values of closeness for one layer
+    for actor in net.get_actors():
+        for l_name in actor.layers:
+            close.append(c_graph[l_name][actor.actor_id])  # saving information to the dict
+        close_mean[actor] = sum(close)/len(close)
+        close.clear()
+    return close_mean
 
 def degree(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
     """Return number of connecting links per all actors from the network."""

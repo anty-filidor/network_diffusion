@@ -31,15 +31,9 @@ class BetweennessSelector(BaseSeedSelector):
 
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Get ranking for actors using Betweenness Centrality metric."""
-        betweennes_centrality_values: Dict[MLNetworkActor, float] = {}
         ranking_list: List[MLNetworkActor] = []
-
-        for actor, a_betweennes in betweennes(net=net).items():
-            #a betweennes's value is added to dict
-            betweennes_centrality_values[actor] = a_betweennes
             #sorted by value of dictonaries
-        for dc_val, val in sorted(betweennes_centrality_values.items(), reverse=True, key=lambda x: x[1]):
+        for dc_val, val in sorted(betweennes(net=net).items(), reverse=True, key=lambda x: x[1]):
             #Adding actor to list
             ranking_list.append(dc_val)
-
         return ranking_list
