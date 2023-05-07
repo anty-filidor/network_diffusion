@@ -57,6 +57,21 @@ def closenes(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
         close.clear()
     return close_mean
 
+def katz(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
+    """Return value of centrality for actors from the network"""
+    katz_mean: Dict[MLNetworkActor, float] = {}
+    k_graph: Dict[str, Dict] = {}
+    kat: List = []
+    for l_name in net.layers:
+        grap: nx.Graph = net.layers[l_name]  # site of choosing layer
+        k_graph[l_name] = nx.katz_centrality(grap)  # values of closeness for one layer
+    for actor in net.get_actors():
+        for l_name in actor.layers:
+            kat.append(k_graph[l_name][actor.actor_id])  # saving information to the dict
+        katz_mean[actor] = sum(kat)/len(kat)
+        kat.clear()
+    return katz_mean
+
 def degree(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
     """Return number of connecting links per all actors from the network."""
     degrees: Dict[MLNetworkActor, int] = {}
