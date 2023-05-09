@@ -12,7 +12,7 @@ from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
 
-class ICModel(BaseModel):
+class MICModel(BaseModel):
 
     INACTIVE_NODE = "0"
     ACTIVE_NODE = "1"
