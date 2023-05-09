@@ -132,14 +132,11 @@ class ICModel(BaseModel):
     def network_evaluation_step(
         self, net: MultilayerNetwork
     ) -> List[NUBff]:
-
         """
         param_net: load network
         return a list of activated_nodes if the protocol allow
-
         """
-
-        activated_nodes: List[NUBff] = []
+        nodes_to_update: List[NUBff] = []
 
         for actor in net.get_actors():  # checking each node
             layer_inputs = {}
@@ -148,20 +145,30 @@ class ICModel(BaseModel):
                 continue
             for layer_name in actor.layers:
                 # downloading the status of actor
-                layer_inputs[layer_name] = self.agent_evaluation_step(actor, layer_name, net)
-            if self.protocol(layer_inputs):  # checking the protocol's conditions
-                # adding to list
-                activated_nodes.extend(
-                    [
-                        NUBff(
-                            node_name=actor.actor_id,
-                            layer_name=layer_name,
-                            new_state=self.ACTIVE_NODE,
-                        )
-                        for layer_name in layer_inputs
-                    ]
+                layer_inputs[layer_name] = self.agent_evaluation_step(
+                    actor, layer_name, net
                 )
-        return activated_nodes
+
+            # determine final state of the actor basing on impulses from layers
+            if set(layer_inputs.values())[0] == self.ACTIVATED_NODE:
+                new_state = self.ACTIVATED_NODE
+            elif self.protocol(layer_inputs):
+                new_state = self.ACTIVE_NODE
+            else:
+                continue
+
+            # if actor changes state append it to a list of actors to be updated
+            nodes_to_update.extend(
+                [
+                    NUBff(
+                        node_name=actor.actor_id,
+                        layer_name=layer_name,
+                        new_state=new_state,
+                    )
+                    for layer_name in layer_inputs
+                ]
+            )
+        return nodes_to_update
 
     def get_allowed_states(self, net: MultilayerNetwork) -> Dict[str, Tuple[str, ...]]:
         """
