@@ -254,10 +254,8 @@ class TestExperimentLogger(unittest.TestCase):
 
         logger.convert_logs(model_hyperparams)
         for phenomena, stat in logger._global_stats_converted.items():
-            self.assertTrue(
-                exp_logs_converted[phenomena].equals(stat),
-                f"Logs for phenomena {phenomena} incorrect. Expected value"
-                f" {exp_logs_converted[phenomena]}, got {stat}",
+            pd.testing.assert_frame_equal(
+                exp_logs_converted[phenomena], stat, check_dtype=False
             )
 
     def test__add_log(self):
