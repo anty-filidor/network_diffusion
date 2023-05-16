@@ -27,4 +27,4 @@ from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.multi_spreading import MultiSpreading
 
-__version__ = "0.8.0"
+__version__ = "0.9.0"
