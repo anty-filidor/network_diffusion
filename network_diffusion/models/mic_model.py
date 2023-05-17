@@ -1,4 +1,21 @@
-"""Independent Cascade Model class."""
+# Copyright 2022 by Damian Dąbrowski, Michał Czuba. All Rights Reserved.
+#
+# This file is part of Network Diffusion.
+#
+# Network Diffusion is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 3 of the License, or (at your option) any
+# later version.
+#
+# Network Diffusion is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# =============================================================================
+"""Multilayer Independent Cascade Model class."""
 
 import random
 from typing import Dict, List, Tuple
@@ -16,20 +33,16 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
 
 class MICModel(BaseModel):
-    """This model implements Multilayer Independent Cascade Model.
-
-    The model is extended by Multilayer
-    """
+    """This model implements Multilayer Independent Cascade Model."""
 
     INACTIVE_NODE = "0"
     ACTIVE_NODE = "1"
-    PROCESS_NAME = "ICM"
     ACTIVATED_NODE = "-1"
-    probability = 0.0
+    PROCESS_NAME = "MICM"
 
     def __init__(
         self,
-        seeding_budget: Tuple[NumericType, NumericType],
+        seeding_budget: Tuple[NumericType, NumericType, NumericType],
         seed_selector: BaseSeedSelector,
         protocol: str,
         probability: float,
@@ -37,27 +50,25 @@ class MICModel(BaseModel):
         """
         Create the object.
 
-        :param seeding_budget: a proportion of INACTIVE and ACTIVE nodes in
-            each layer
+        :param seeding_budget: a proportion of INACTIVE, ACTIVE and ACTIVATED 
+            nodes in each layer
         :param seed_selector: class that selects initial seeds for simulation
         :param protocol: logical operator that determines how to activate actor
             can be OR (then actor gets activated if it gets positive input in
             one layer) or AND (then actor gets activated if it gets positive
             input in all layers)
-        :param probability: threshold parameter which activate actor( a random
+        :param probability: threshold parameter which activate actor(a random
              variable must be greater than this param)
-
         """
         assert 0 <= probability <= 1, f"incorrect probability: {probability}!"
         self.probability = probability
+
         compart_graph = self._create_comparents(seeding_budget)
         super().__init__(compart_graph, seed_selector)
         if protocol == "AND":
             self.protocol = self._protocol_and
-
         elif protocol == "OR":
             self.protocol = self._protocol_or
-
         else:
             raise ValueError("Only AND & OR value is allowed!")
 
@@ -65,25 +76,55 @@ class MICModel(BaseModel):
         """Return string representation of the object."""
         descr = f"{BOLD_UNDERLINE}\nMultilayer Independent Cascade Model"
         descr += f"\n{THIN_UNDERLINE}\n"
-        descr += str(self._seed_selector)
+        descr += self._compartmental_graph.describe()
+        descr += f"\n{self._seed_selector}"
         descr += f"{BOLD_UNDERLINE}\nauxiliary parameters\n{THIN_UNDERLINE}"
-        descr += f"\n\tprotocols: {self.protocol.__name__}"
-        descr += f"\n\tactive state abbreviation: {self.ACTIVE_NODE}"
+        descr += f"\n\tprotocol: {self.protocol.__name__}"
         descr += f"\n\tinactive state abbreviation: {self.INACTIVE_NODE}"
+        descr += f"\n\tactive state abbreviation: {self.ACTIVE_NODE}"
+        descr += f"\n\tactivated state abbreviation: {self.ACTIVATED_NODE}"
         descr += f"\n{BOLD_UNDERLINE}"
         return descr
 
     def _create_comparents(
-        self,
-        sending_budget: Tuple[NumericType, NumericType],
+        self, sending_budget: Tuple[NumericType, NumericType],
     ) -> CompartmentalGraph:
+        """
+        Create compartmental graph for the model.
 
+        Create one process with three states: 0, 1, -1 and assign transition 
+        weights for transition 0 -> 1 (self.probability) and 1 -> -1 (1.0)
+        """
         compart_graph = CompartmentalGraph()
+
+        # Add allowed states and seeding budget
         compart_graph.add(
             process_name=self.PROCESS_NAME,
-            states=[self.ACTIVE_NODE, self.INACTIVE_NODE],
+            states=[self.INACTIVE_NODE, self.ACTIVE_NODE, self.ACTIVATED_NODE],
         )
         compart_graph.seeding_budget = {self.PROCESS_NAME: sending_budget}
+
+        # Add allowed transitions
+        compart_graph.compile(background_weight=0.0)
+        for edge in compart_graph.graph[self.PROCESS_NAME].edges:
+            if (
+                f"{self.PROCESS_NAME}.{self.INACTIVE_NODE}" in edge[0]
+                and f"{self.PROCESS_NAME}.{self.ACTIVE_NODE}" in edge[1]
+            ):
+                compart_graph.set_transition_canonical(
+                    layer=self.PROCESS_NAME,
+                    transition=edge,  # type: ignore
+                    weight=self.probability,
+                )
+            elif (
+                f"{self.PROCESS_NAME}.{self.ACTIVE_NODE}" in edge[0]
+                and f"{self.PROCESS_NAME}.{self.ACTIVATED_NODE}" in edge[1]
+            ):
+                compart_graph.set_transition_canonical(
+                    layer=self.PROCESS_NAME,
+                    transition=edge,  # type: ignore
+                    weight=1,
+                )            
 
         return compart_graph
 
@@ -112,14 +153,17 @@ class MICModel(BaseModel):
         budget = self._compartmental_graph.get_seeding_budget_for_network(
             net=net, actorwise=True
         )
-
         seed_nodes: List[NUBff] = []
+
         for idx, actor in enumerate(self._seed_selector.actorwise(net=net)):
+
+            # select initial state for given actor according to budget
             if idx < budget[self.PROCESS_NAME][self.ACTIVE_NODE]:
                 a_state = self.ACTIVE_NODE
             else:
                 a_state = self.INACTIVE_NODE
 
+            # generate update buffer for the actor
             for l_name in actor.layers:
                 seed_nodes.append(
                     NUBff(
@@ -128,6 +172,8 @@ class MICModel(BaseModel):
                         new_state=a_state,
                     )
                 )
+
+        # set initial states and return json to save in logs
         out_json = self.update_network(net=net, activated_nodes=seed_nodes)
         return out_json
 
@@ -135,52 +181,56 @@ class MICModel(BaseModel):
         self, agent: MLNetworkActor, layer_name: str, net: MultilayerNetwork
     ) -> str:
         """
+        Try to change state of given actor of the network according to model.
 
-        param_agent is node to check.
+        :param agent: actor to evaluate in given layer
+        :param layer_name: a layer where the actor exists
+        :param net: a network where the actor exists
 
-        param_layer_name is node's layer
-
-        param_net is choosing network
-
+        :return: state of the actor in particular layer to be set after epoch
         """
         l_graph: nx.Graph = net.layers[layer_name]
         current_state = l_graph.nodes[agent.actor_id]["status"]
+
+        # trivial case - node is already active and it looses a potential
         if current_state == self.ACTIVE_NODE:
             return self.ACTIVATED_NODE
-        # checking neighborhood of actor
+
+        # iterate through neighbours of node and compute impuls
         for neighbour in l_graph.neighbors(agent.actor_id):
+
             # if neighbour is active, it can send signal to activation of actor
             if l_graph.nodes[neighbour]["status"] == self.ACTIVE_NODE:
-                # random is homogeneous distribution
-                rand = random.random()
-                # actor is activated if a probability allow its
-                if rand < self.probability:
+
+                # if a tossed number from unif. distr. > threshold, activ. node
+                if random.random()  < self.probability:
                     return self.ACTIVE_NODE
+
         return current_state
 
     def network_evaluation_step(self, net: MultilayerNetwork) -> List[NUBff]:
         """
+        Evaluate the network at one time stamp with MICModel.
 
-        param_net: load network.
-
-        return a list of activated_nodes if the protocol allow
-
+        :param network: a network to evaluate
+        :return: list of nodes that changed state after the evaluation
         """
         nodes_to_update: List[NUBff] = []
 
-        for actor in net.get_actors():  # checking each node
-            layer_inputs = {}
+        for actor in net.get_actors():
 
-            if list(set(actor.states.values()))[0] == set(self.ACTIVATED_NODE):
+            if list(set(actor.states.values())) == [self.ACTIVATED_NODE]:
                 continue
-            for layer_name in actor.layers:
-                # downloading the status of actor
-                layer_inputs[layer_name] = self.agent_evaluation_step(
-                    actor, layer_name, net
-                )
+
+            # evaluate actor in each layer where it exist
+            layer_inputs = {
+                l_name: self.agent_evaluation_step(actor, l_name, net)
+                for l_name in actor.layers
+            }
 
             # determine final state of the actor basing on impulses from layers
-            if list(set(layer_inputs.values()))[0] == self.ACTIVATED_NODE:
+            unique_inputs = set(layer_inputs.values())
+            if len(unique_inputs) == 1 and unique_inputs.pop() == self.ACTIVATED_NODE:
                 new_state = self.ACTIVATED_NODE
             elif self.protocol(layer_inputs):
                 new_state = self.ACTIVE_NODE
@@ -195,9 +245,10 @@ class MICModel(BaseModel):
                         layer_name=layer_name,
                         new_state=new_state,
                     )
-                    for layer_name in layer_inputs
+                    for layer_name in actor.layers
                 ]
             )
+
         return nodes_to_update
 
     def get_allowed_states(

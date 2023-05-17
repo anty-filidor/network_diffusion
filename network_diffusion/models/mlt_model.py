@@ -81,7 +81,7 @@ class MLTModel(BaseModel):
         descr += self._compartmental_graph.describe()
         descr += str(self._seed_selector)
         descr += f"{BOLD_UNDERLINE}\nauxiliary parameters\n{THIN_UNDERLINE}"
-        descr += f"\n\tprotocole: {self.protocol.__name__}"
+        descr += f"\n\tprotocol: {self.protocol.__name__}"
         descr += f"\n\tactive state abbreviation: {self.ACTIVE_STATE}"
         descr += f"\n\tinactive state abbreviation: {self.INACTIVE_STATE}"
         descr += f"\n{BOLD_UNDERLINE}"
@@ -181,7 +181,7 @@ class MLTModel(BaseModel):
 
         :param agent: actor to evaluate in given layer
         :param layer_name: a layer where the actor exists
-        :param network: a network where the actor exists
+        :param net: a network where the actor exists
 
         :return: state of the actor in particular layer to be set after epoch
         """
