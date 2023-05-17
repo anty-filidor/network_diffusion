@@ -50,7 +50,7 @@ class MICModel(BaseModel):
         """
         Create the object.
 
-        :param seeding_budget: a proportion of INACTIVE, ACTIVE and ACTIVATED 
+        :param seeding_budget: a proportion of INACTIVE, ACTIVE and ACTIVATED
             nodes in each layer
         :param seed_selector: class that selects initial seeds for simulation
         :param protocol: logical operator that determines how to activate actor
@@ -87,12 +87,13 @@ class MICModel(BaseModel):
         return descr
 
     def _create_comparents(
-        self, sending_budget: Tuple[NumericType, NumericType],
+        self,
+        sending_budget: Tuple[NumericType, NumericType, NumericType],
     ) -> CompartmentalGraph:
         """
         Create compartmental graph for the model.
 
-        Create one process with three states: 0, 1, -1 and assign transition 
+        Create one process with three states: 0, 1, -1 and assign transition
         weights for transition 0 -> 1 (self.probability) and 1 -> -1 (1.0)
         """
         compart_graph = CompartmentalGraph()
@@ -124,7 +125,7 @@ class MICModel(BaseModel):
                     layer=self.PROCESS_NAME,
                     transition=edge,  # type: ignore
                     weight=1,
-                )            
+                )
 
         return compart_graph
 
@@ -203,7 +204,7 @@ class MICModel(BaseModel):
             if l_graph.nodes[neighbour]["status"] == self.ACTIVE_NODE:
 
                 # if a tossed number from unif. distr. > threshold, activ. node
-                if random.random()  < self.probability:
+                if random.random() < self.probability:
                     return self.ACTIVE_NODE
 
         return current_state
@@ -230,7 +231,10 @@ class MICModel(BaseModel):
 
             # determine final state of the actor basing on impulses from layers
             unique_inputs = set(layer_inputs.values())
-            if len(unique_inputs) == 1 and unique_inputs.pop() == self.ACTIVATED_NODE:
+            if (
+                len(unique_inputs) == 1
+                and unique_inputs.pop() == self.ACTIVATED_NODE
+            ):
                 new_state = self.ACTIVATED_NODE
             elif self.protocol(layer_inputs):
                 new_state = self.ACTIVE_NODE
