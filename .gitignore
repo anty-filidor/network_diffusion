@@ -13,3 +13,5 @@
 /conda_build/
 /.vscode/
 **/__pycache__/
+**/*.ipynb
+experiment/
