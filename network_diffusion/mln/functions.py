@@ -26,8 +26,8 @@ from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
-def betweennes(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
-    """Return value of centrality for actors from the network"""
+def betweenness(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
+    """Return value of betweennes centrality for actors from the network."""
     bet_mean: Dict[MLNetworkActor, float] = {}
     bet: List = []
     b_graph: Dict[str, Dict] = {}
@@ -38,39 +38,50 @@ def betweennes(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
     for actor in net.get_actors():
         for l_name in actor.layers:
             bet.append(b_graph[l_name][actor.actor_id])
-        bet_mean[actor] = sum(bet)/len(bet)
+        bet_mean[actor] = sum(bet) / len(bet)
         bet.clear()
     return bet_mean
 
-def closenes(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
-    """Return value of centrality for actors from the network"""
+
+def closeness(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
+    """Return value of closeness centrality for actors from the network."""
     close_mean: Dict[MLNetworkActor, float] = {}
     c_graph: Dict[str, Dict] = {}
     close: List = []
     for l_name in net.layers:
         grap: nx.Graph = net.layers[l_name]  # site of choosing layer
-        c_graph[l_name] = nx.closeness_centrality(grap)  # values of closeness for one layer
+        c_graph[l_name] = nx.closeness_centrality(
+            grap
+        )  # values of closeness for one layer
     for actor in net.get_actors():
         for l_name in actor.layers:
-            close.append(c_graph[l_name][actor.actor_id])  # saving information to the dict
-        close_mean[actor] = sum(close)/len(close)
+            close.append(
+                c_graph[l_name][actor.actor_id]
+            )  # saving information to the dict
+        close_mean[actor] = sum(close) / len(close)
         close.clear()
     return close_mean
 
+
 def katz(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
-    """Return value of centrality for actors from the network"""
+    """Return value of Katz centrality for actors from the network."""
     katz_mean: Dict[MLNetworkActor, float] = {}
     k_graph: Dict[str, Dict] = {}
     kat: List = []
     for l_name in net.layers:
         grap: nx.Graph = net.layers[l_name]  # site of choosing layer
-        k_graph[l_name] = nx.katz_centrality(grap)  # values of closeness for one layer
+        k_graph[l_name] = nx.katz_centrality(
+            grap
+        )  # values of closeness for one layer
     for actor in net.get_actors():
         for l_name in actor.layers:
-            kat.append(k_graph[l_name][actor.actor_id])  # saving information to the dict
-        katz_mean[actor] = sum(kat)/len(kat)
+            kat.append(
+                k_graph[l_name][actor.actor_id]
+            )  # saving information to the dict
+        katz_mean[actor] = sum(kat) / len(kat)
         kat.clear()
     return katz_mean
+
 
 def degree(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
     """Return number of connecting links per all actors from the network."""
@@ -81,6 +92,7 @@ def degree(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
             a_neighbours += len(net.layers[l_name].adj[actor.actor_id])
         degrees[actor] = a_neighbours
     return degrees
+
 
 def _ns_helper(
     net: MultilayerNetwork, actor: MLNetworkActor, hop: int = 1
