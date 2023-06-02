@@ -27,7 +27,7 @@ from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
 def betweenness(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
-    """Return value of betweennes centrality for actors from the network."""
+    """Return value of mean betweennes centrality for actors layers."""
     bet_mean: Dict[MLNetworkActor, float] = {}
     bet: List = []
     b_graph: Dict[str, Dict] = {}
@@ -44,7 +44,7 @@ def betweenness(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
 
 
 def closeness(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
-    """Return value of closeness centrality for actors from the network."""
+    """Return value of mean closeness centrality for actors layers."""
     close_mean: Dict[MLNetworkActor, float] = {}
     c_graph: Dict[str, Dict] = {}
     close: List = []
@@ -64,7 +64,7 @@ def closeness(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
 
 
 def katz(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
-    """Return value of Katz centrality for actors from the network."""
+    """Return value of mean Katz centrality for actors layers."""
     katz_mean: Dict[MLNetworkActor, float] = {}
     k_graph: Dict[str, Dict] = {}
     kat: List = []

@@ -1,4 +1,4 @@
-"""A definition of the seed selector based on closeness centrality."""
+"""A definition of the seed selector based on Katz centrality."""
 
 from typing import List
 
