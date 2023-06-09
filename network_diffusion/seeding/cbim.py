@@ -130,9 +130,8 @@ class CBIMselector(BaseSeedSelector):
         com_list: List[
             MLNetworkActor
         ] = []  # a list with each node which is in some community
-        deg = DegreeCentralitySelector()
-        degre = list(deg.actorwise(net))
-        # print(len(degre))
+        degre = list(DegreeCentralitySelector().actorwise(net))
+
         for l_name in net.layers:
             com_list.clear()  # after change layer, the list is cleared
             grap: nx.Graph = net.layers[l_name]
@@ -290,7 +289,7 @@ class CBIMselector(BaseSeedSelector):
                         ),
                         f"{l_name}",
                     ]
-                    # print(f"COMUNITY:{new_community}")
+
                     while len(new_community.index.to_list()) == 0:
 
                         data.at[
@@ -315,7 +314,6 @@ class CBIMselector(BaseSeedSelector):
                 if len(minimum) == 0:
                     break
 
-            # print(data)
         return data
 
     @staticmethod
@@ -374,11 +372,10 @@ class CBIMselector(BaseSeedSelector):
         param_net: Multilayer Network
         param_cbim: database in pandas which has information about communities
         param_l_name: name of layer
+
         return start the next function
         """
-        # actor_ews: Dict[MLNetworkActor, int] = {}
         graph: nx.Graph = net.layers[l_name]
-        # extra = ListsEws()
         cbim[f"Quota{l_name}"] = 0
         cbim[f"Sorted{l_name}"] = None
         cbim[f"Sorted{l_name}"] = cbim[f"Sorted{l_name}"].astype(object)
@@ -393,10 +390,7 @@ class CBIMselector(BaseSeedSelector):
 
             if (data != 0 and len(str(data)) > 0) and data is not np.nan:
                 ListsEws.actor_list = []
-                # list_actors = []
                 ListsEws.degree_actor = {}
-                # dict_degree = {}
-                # print(col)
                 self.adj_matrix_calculate(data, graph)
 
                 if len(ListsEws.sort_list) != 0:
