@@ -1,7 +1,6 @@
 """A definition community based influence maximization selector class."""
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 
 import networkx as nx
 import numpy as np
@@ -16,22 +15,32 @@ from network_diffusion.seeding.degreecentrality_selector import (
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 
+class ListsEws:
+    """Valuables for lists in ews function."""
+
+    actor_list: List[MLNetworkActor] = []
+    sort_list: List[MLNetworkActor] = []
+    ews_actor: Dict[MLNetworkActor, int] = {}
+    degree_actor: Dict[MLNetworkActor, int] = {}
+    seed_size: float = 0
+
+
 class CBIMselector(BaseSeedSelector):
     """CBIM seed selector."""
 
-    def __init__(self, threshold: float, seed_size: int = None) -> None:
+    def __init__(
+        self, threshold: float, seed_size: Optional[float] = None
+    ) -> None:
         """Object."""
         super().__init__()
         assert (
-            seed_size is None or 0 <= seed_size <= 100
+            seed_size is None or 0 <= seed_size < 1
         ), f"incorrect seed_size value: {seed_size}!"
         if seed_size is None:
             self.seed_default = True  # seed_default say if seed_size is None
         else:
             self.seed_default = False
-            self.seed_proc = (
-                seed_size / 100
-            )  # size like procent of the hole graph
+            ListsEws.seed_size = seed_size
         self.threshold = threshold
 
     alpha = 0.1  # can be different, but in article that is the best
@@ -42,16 +51,6 @@ class CBIMselector(BaseSeedSelector):
             f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
             f"\tCBIM choice\n{BOLD_UNDERLINE}\n"
         )
-
-    @dataclass
-    class ListsEws:
-        """Valuables for lists in ews function."""
-
-        actor_list: List[MLNetworkActor] = field(default_factory=list)
-        sort_list: List[MLNetworkActor] = field(default_factory=list)
-        ews_actor: Dict[MLNetworkActor, int] = field(default_factory=dict)
-        degree_actor: Dict[MLNetworkActor, int] = field(default_factory=dict)
-        seed_size: float = 0
 
     @staticmethod
     def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
@@ -65,48 +64,20 @@ class CBIMselector(BaseSeedSelector):
         lis: set[MLNetworkActor] = set()
         actors_l = self.cbim(net)
 
-        size_l = self.ListsEws.seed_size // len(
+        size_l = ListsEws.seed_size // len(
             net.layers
         )  # how many nodes to select from one layer
-        size_r = self.ListsEws.seed_size % len(
+        size_r = ListsEws.seed_size % len(
             net.layers
-        )  # the rest to select
-
-        for l_name in net.layers:
-            size = 0
-            actors = [
-                values for _, values in enumerate(actors_l[l_name])
-            ]  # actors from select layer
-            while size < size_l:
-
-                if len(actors) == 0:
-                    break
-                while actors[0] in lis:
-                    del actors[0]  # if actor is in lis remove it
-                lis.add(actors[0])
-                # remove actor help checking list if it has already selected
-                del actors[0]
-                size = size + 1
-            actors_l[l_name] = set(actors)
-        size = 0
-        for (
-            l_name
-        ) in net.layers:  # loop for actors which are not included in size_l
-            if size == size_r:
-                break
-
-            actors = [values for _, values in enumerate(actors_l[l_name])]
-            if len(actors) == 0:
-                continue
-            while actors[0] in lis:  # checking if actor has already selected
-                del actors[0]
-            lis.add(actors[0])  # adding to list
-            del actors[0]
-            size = size + 1
-            continue
+        )  # the rest nodes to select which are not in size_l
+        lis = self.ranking_list(
+            net=net, actors_l=actors_l, size_l=size_l, lis=lis
+        )
+        lis = lis.union(
+            self.ranking_list_additional(net, size_r, actors_l, lis)
+        )  # adding chosen nodes to lis from the rest size
 
         ranking_list = list(lis)
-        # print(len(net.get_actors()))
         for (
             actor
         ) in net.get_actors():  # checking if each actor has added to list
@@ -123,18 +94,12 @@ class CBIMselector(BaseSeedSelector):
         Calculate cbim.
 
         param_net: Multilayer Network
+        return actors with calculated ews for each node
         """
-        actors: Dict[str, set[MLNetworkActor]] = {}
-
         communities = pd.DataFrame(self.create_by_degree(net))
 
         for l_name in net.layers:
-            # if self.seed_default:
-            #   self.seed_size = len(net.layers[l_name])
-            # else:
-            # self.seed_size = self.seed_proc * len(
-            #   net.layers[l_name]
-            # )  # selecting seed size by procent of whole
+            # selecting seed size by procent of whole
             for (
                 community,
                 _,
@@ -146,14 +111,8 @@ class CBIMselector(BaseSeedSelector):
             net, communities
         )  # merge communities
 
-        for l_name in net.layers:
-            if self.seed_default:  # select seed_size again for calculate ews
-                self.ListsEws.seed_size = len(net.layers[l_name])
-            else:
-                self.ListsEws.seed_size = self.seed_proc * len(
-                    net.layers[l_name]
-                )
-            actors[l_name] = self.ews(net, merged_communities, l_name)
+        actors = self.seed_size_to_calculate_ews(net, merged_communities)
+
         return actors
 
     @staticmethod
@@ -263,6 +222,7 @@ class CBIMselector(BaseSeedSelector):
             0 <= self.threshold <= 1
         ), f"incorrect threshold: {self.threshold}!"
         tab: Dict[str, float] = {}
+        new_community: pd.DataFrame  # it can be new community
         merging_index_threshold = (
             self.threshold
             * sum(max(data[f"Merge{layer}"]) for layer in net.layers)
@@ -283,7 +243,6 @@ class CBIMselector(BaseSeedSelector):
                 # merging communities to merging_index_threshold,
                 minimum[f"Merge{l_name}"]
             ) / len(minimum[f"Merge{l_name}"]):
-
                 for (
                     idx,
                     val,
@@ -323,7 +282,6 @@ class CBIMselector(BaseSeedSelector):
                     community_to_merge = max(tab.items(), key=lambda x: x[1])[
                         0
                     ]  # select maks value
-                    new_community: pd.DataFrame  # it can be new community
 
                     # it collects communities which are free or cleared
                     new_community = data.loc[
@@ -347,40 +305,13 @@ class CBIMselector(BaseSeedSelector):
                                 f"{l_name}",
                             ]
                         )
-
-                    community_candydat = new_community.index.to_list()[
-                        0
-                    ]  # selected community to save information
-                    # print(new_community)
-
-                    data.at[community_candydat, f"{l_name}"] = (
-                        data.loc[community_to_merge, f"{l_name}"]
-                        + data.loc[idx, f"{l_name}"]  # merging communities
+                    data, minimum = self.communities_change(
+                        net,
+                        data,
+                        new_community,
+                        [community_to_merge, l_name, idx],
                     )
-                    data.at[
-                        community_candydat, f"Merge{l_name}"
-                    ] = self.merge_index(
-                        net, data, community_candydat, l_name
-                    )  # calculate merge index for new community
-                    data.at[
-                        community_to_merge, f"{l_name}"
-                    ] = (
-                        np.nan
-                    )  # clear value and create empty place for new community
-                    data.at[community_to_merge, f"Merge{l_name}"] = 0
-                    data.at[
-                        idx, f"{l_name}"
-                    ] = (
-                        np.nan
-                    )  # clear value and create empty place for new community
-                    data.at[idx, f"Merge{l_name}"] = 0
-                    minimal = (
-                        data[f"Merge{l_name}"].loc[lambda x: x != 0].min()
-                    )
-                    minimum = data.loc[
-                        data[f"Merge{l_name}"]
-                        == minimal  # get minimum value from Merge label
-                    ]
+
                 if len(minimum) == 0:
                     break
 
@@ -443,10 +374,11 @@ class CBIMselector(BaseSeedSelector):
         param_net: Multilayer Network
         param_cbim: database in pandas which has information about communities
         param_l_name: name of layer
+        return start the next function
         """
         # actor_ews: Dict[MLNetworkActor, int] = {}
         graph: nx.Graph = net.layers[l_name]
-        extra = self.ListsEws()
+        # extra = ListsEws()
         cbim[f"Quota{l_name}"] = 0
         cbim[f"Sorted{l_name}"] = None
         cbim[f"Sorted{l_name}"] = cbim[f"Sorted{l_name}"].astype(object)
@@ -455,80 +387,37 @@ class CBIMselector(BaseSeedSelector):
             row,
         ) in cbim.iterrows():  # enumerate by community number and date
 
-            extra.ews_actor.clear()
-            # actor_ews.clear()
+            ListsEws.ews_actor.clear()
             data = row[f"{l_name}"]
-            extra.actor_list.clear()
-            # list_actors.clear()
+            ListsEws.actor_list.clear()
 
             if (data != 0 and len(str(data)) > 0) and data is not np.nan:
-                extra.actor_list = []
+                ListsEws.actor_list = []
                 # list_actors = []
-                extra.degree_actor = {}
+                ListsEws.degree_actor = {}
                 # dict_degree = {}
                 # print(col)
+                self.adj_matrix_calculate(data, graph)
 
-                for _, val in enumerate(
-                    data
-                ):  # enumerate actors to calculate ews
-                    extra.degree_actor[val.actor_id] = graph.degree[
-                        val.actor_id
-                    ]
-                    # dict_degree[val.actor_id] = graph.degree[val.actor_id]
-                    extra.actor_list.append(val.actor_id)
-
-                adj_matrix = nx.adjacency_matrix(
-                    graph, extra.actor_list
-                ).toarray()  # adjacency matrix to type array
-
-                for _, val in enumerate(data):
-
-                    ews = 0  # ews for node in community
-
-                    for length in range(1, len(graph.nodes) + 1):
-                        ews += np.sum(
-                            pow(self.alpha, length)
-                            * extra.degree_actor[val.actor_id]
-                            * np.linalg.matrix_power(adj_matrix, length)
-                        )
-                    extra.ews_actor[val] = ews
-                    # actor_ews[val] = ews
-                extra.sort_list.clear()
-                # sorted_list.clear()
-                if len(extra.ews_actor.keys()) == len(
-                    extra.ews_actor.values()
-                ):
-                    # Convert dictionary to DataFrame
-                    dataf = pd.DataFrame(  # create it like dataframe
-                        extra.ews_actor.items(), columns=["Key", "Value"]
-                    )
-                    extra.sort_list = dataf.sort_values(
-                        by="Value", ascending=False
-                    )["Key"].tolist()
-
-                else:
-                    raise ValueError(
-                        "Error: Length of keys and values must be equal."
-                    )
-
-                if len(extra.sort_list) != 0:
+                if len(ListsEws.sort_list) != 0:
                     cbim.at[
                         col, f"Sorted{l_name}"
                     ] = (
-                        extra.sort_list.copy()
+                        ListsEws.sort_list.copy()
                     )  # saving sorted actors in Sorted label
-                # print(cbim["Sorted{}".format(l_name)])
+
         return self.quota(cbim, net, l_name)
 
-    def quota(
-        self, cbim: pd.DataFrame, net: MultilayerNetwork, l_name: str
-    ) -> set:
+    @staticmethod
+    def quota(cbim: pd.DataFrame, net: MultilayerNetwork, l_name: str) -> set:
         """
         Select actor to take from each community in layer by defined number.
 
         param_cbim: database with information about communities
         param_net: Multilayernetwork
         param_l_name: name of layer
+
+        return sorted seed for each layer
         """
         graph: nx.Graph = net.layers[l_name]
         nodes_to_activated = 0
@@ -538,12 +427,12 @@ class CBIMselector(BaseSeedSelector):
             if val[f"Sorted{l_name}"] is None:
                 continue
 
-            quota_value = self.ListsEws.seed_size * (
+            quota_value = ListsEws.seed_size * (
                 len(val[f"Sorted{l_name}"]) / len(graph.nodes)
             )
             quota[str(idx)] = quota_value
             if (
-                nodes_to_activated == self.ListsEws.seed_size
+                nodes_to_activated == ListsEws.seed_size
             ):  # this is limited, big size of seed can inflate the result
                 break
             for idx1, actor in enumerate(val[f"Sorted{l_name}"]):
@@ -554,10 +443,10 @@ class CBIMselector(BaseSeedSelector):
 
         # for those elements which weren't selected and budget is higher
         while (
-            nodes_to_activated < self.ListsEws.seed_size
+            nodes_to_activated < ListsEws.seed_size
         ):  # selected nodes must be equal seed_size
             for comm, _ in sorted(quota.items(), key=lambda x: x[1]):
-                if nodes_to_activated == self.ListsEws.seed_size:
+                if nodes_to_activated == ListsEws.seed_size:
                     break
                 for _, actor in enumerate(cbim.loc[comm, f"Sorted{l_name}"]):
                     if actor in seed:
@@ -567,5 +456,192 @@ class CBIMselector(BaseSeedSelector):
                     nodes_to_activated += 1
                     break
 
-        # print(f"seed:{seed}\n len:{len(seed)}")
         return seed
+
+    def seed_size_to_calculate_ews(
+        self,
+        net: MultilayerNetwork,
+        merged_communities: pd.DataFrame,
+    ) -> Dict[str, set[MLNetworkActor]]:
+        """
+        Calculatee seed_size and parametr ews.
+
+        param_net: load Multilayer Network
+        param_merged_communities: database after merging
+
+        return actors with ews parametr
+        """
+        actors: Dict[str, set[MLNetworkActor]] = {}
+        for l_name in net.layers:
+            if self.seed_default:  # select seed_size again for calculate ews
+                ListsEws.seed_size = len(net.layers[l_name])
+            else:
+                ListsEws.seed_size = ListsEws.seed_size * len(
+                    net.layers[l_name]
+                )
+            actors[l_name] = self.ews(net, merged_communities, l_name)
+        return actors
+
+    @staticmethod
+    def ranking_list(
+        net: MultilayerNetwork,
+        actors_l: Dict[str, set[MLNetworkActor]],
+        size_l: float,
+        lis: set[MLNetworkActor],
+    ) -> set[MLNetworkActor]:
+        """
+        Select actors where actors are taken equal from each layer.
+
+        param_net: load Multilayer Network
+        param_actors_l: actors sorted descending to the best to take
+        param_size_l: number actors to take from each layer
+        param_lis: selected actors
+
+        return set of selected actors
+
+        """
+        for l_name in net.layers:
+            size = 0
+            actors = [
+                values for _, values in enumerate(actors_l[l_name])
+            ]  # actors from select layer
+            while size < size_l:
+
+                if len(actors) == 0:
+                    break
+                while actors[0] in lis:
+                    del actors[0]  # if actor is in lis remove it
+                lis.add(actors[0])
+                # remove actor help checking list if it has already selected
+                del actors[0]
+                size = size + 1
+            actors_l[l_name] = set(actors)
+        return lis
+
+    @staticmethod
+    def ranking_list_additional(
+        net: MultilayerNetwork,
+        size_r: float,
+        actors_l: Dict[str, set[MLNetworkActor]],
+        lis: set[MLNetworkActor],
+    ) -> set[MLNetworkActor]:
+        """
+        Select the others node form size_r.
+
+        param_net: load Multilayer Network
+        param_size_r: number of actors to suplement
+        param_actors_l: actors which are sorted to take
+        lis: set of actors to select
+
+        return selected actors
+
+        """
+        size = 0
+        for (
+            l_name
+        ) in net.layers:  # loop for actors which are not included in size_l
+            if size == size_r:
+                break
+
+            actors = [values for _, values in enumerate(actors_l[l_name])]
+            if len(actors) == 0:
+                continue
+            while actors[0] in lis:  # checking if actor has already selected
+                del actors[0]
+            lis.add(actors[0])  # adding to list
+            del actors[0]
+            size = size + 1
+            continue
+        return lis
+
+    def communities_change(
+        self,
+        net: MultilayerNetwork,
+        data: pd.DataFrame,
+        new_community: pd.DataFrame,
+        community_info: List,  # community to merge , l_name, idx
+    ) -> Tuple[pd.DataFrame, float]:
+        """
+        Create new community, clear the olds and searching the new minimal.
+
+        param_net: load Multilayer Network
+        param_data: database with communities attributes
+        param_new_community: new place to save merged community
+        param_community_infor: a list which include information
+        about community to merge,
+         layer name and first community index to merge
+
+        return tuple with database and minimal value
+
+        """
+        community_candydat = new_community.index.to_list()[
+            0
+        ]  # selected community to save information
+
+        data.at[community_candydat, f"{community_info[1]}"] = (
+            data.loc[community_info[0], f"{community_info[1]}"]
+            + data.loc[
+                community_info[2], f"{community_info[1]}"
+            ]  # merging communities
+        )
+        data.at[
+            community_candydat, f"Merge{community_info[1]}"
+        ] = self.merge_index(
+            net, data, community_candydat, community_info[1]
+        )  # calculate merge index for new community
+        data.at[
+            community_info[0], f"{community_info[1]}"
+        ] = np.nan  # clear value and create empty place for new community
+        data.at[community_info[0], f"Merge{community_info[1]}"] = 0
+        data.at[
+            community_info[2], f"{community_info[1]}"
+        ] = np.nan  # clear value and create empty place for new community
+        data.at[community_info[2], f"Merge{community_info[1]}"] = 0
+        minimal = data[f"Merge{community_info[1]}"].loc[lambda x: x != 0].min()
+        minimum = data.loc[
+            data[f"Merge{community_info[1]}"]
+            == minimal  # get minimum value from Merge label
+        ]
+        return data, minimum
+
+    def adj_matrix_calculate(
+        self, data: pd.DataFrame, graph: nx.Graph
+    ) -> None:
+        """
+        Calculate adjacency matrix and ews paramentr.
+
+        param_data: database with communities attributes
+        param_graph: generated graph from layer
+
+        """
+        for _, val in enumerate(data):  # enumerate actors to calculate ews
+            ListsEws.degree_actor[val.actor_id] = graph.degree[val.actor_id]
+            ListsEws.actor_list.append(val.actor_id)
+
+        adj_matrix = nx.adjacency_matrix(
+            graph, ListsEws.actor_list
+        ).toarray()  # adjacency matrix to type array
+
+        for _, val in enumerate(data):
+
+            ews = 0  # ews for node in community
+
+            for length in range(1, len(graph.nodes) + 1):
+                ews += np.sum(
+                    pow(self.alpha, length)
+                    * ListsEws.degree_actor[val.actor_id]
+                    * np.linalg.matrix_power(adj_matrix, length)
+                )
+            ListsEws.ews_actor[val] = ews
+        ListsEws.sort_list.clear()
+        if len(ListsEws.ews_actor.keys()) == len(ListsEws.ews_actor.values()):
+            # Convert dictionary to DataFrame
+            dataf = pd.DataFrame(  # create it like dataframe
+                ListsEws.ews_actor.items(), columns=["Key", "Value"]
+            )
+            ListsEws.sort_list = dataf.sort_values(
+                by="Value", ascending=False
+            )["Key"].tolist()
+
+        else:
+            raise ValueError("Error: Length of keys and values must be equal.")
