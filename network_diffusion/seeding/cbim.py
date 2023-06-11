@@ -1,3 +1,21 @@
+# Copyright 2023 by D. Dąbrowski, M. Czuba, P. Bródka. All Rights Reserved.
+#
+# This file is part of Network Diffusion.
+#
+# Network Diffusion is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 3 of the License, or (at your option) any
+# later version.
+#
+# Network Diffusion is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# =============================================================================
+
 """A definition community based influence maximization selector class."""
 
 from typing import Any, Dict, List, Optional, Tuple
@@ -16,7 +34,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 
 class ListsEws:
-    """Valuables for lists in ews function."""
+    """Valueles for lists in the CBIMselector.Ews function."""
 
     actor_list: List[MLNetworkActor] = []
     sort_list: List[MLNetworkActor] = []
@@ -26,12 +44,27 @@ class ListsEws:
 
 
 class CBIMselector(BaseSeedSelector):
-    """CBIM seed selector."""
+    """
+    CBIM seed selector.
+
+    This is an implementation based on:
+    Chen, X., Deng, L., Zhao, Y. et al.
+    Community-based influence maximization in location-based social network.
+    World Wide Web 24, 1903–1928 (2021).
+    https://doi.org/10.1007/s11280-021-00935-x
+    """
 
     def __init__(
         self, threshold: float, seed_size: Optional[float] = None
     ) -> None:
-        """Object."""
+        """
+        Create an object.
+
+        :param threshold: a threshold proper to the CBIM.
+        :param seed_size: seed size to compute a ranking for; if not provided
+            then selector works on the bse parameters and includes all
+            parameters in the calculatopns.
+        """
         super().__init__()
         assert (
             seed_size is None or 0 <= seed_size < 1
@@ -60,7 +93,7 @@ class CBIMselector(BaseSeedSelector):
         )
 
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
-        """Get ranking using Community Based influence maximization."""
+        """Get ranking using Community Based Influence Maximization."""
         lis: set[MLNetworkActor] = set()
         actors_l = self.cbim(net)
 
@@ -93,8 +126,8 @@ class CBIMselector(BaseSeedSelector):
         """
         Calculate cbim.
 
-        param_net: Multilayer Network
-        return actors with calculated ews for each node
+        :param net: Multilayer Network
+        :return: actors with calculated ews for each node
         """
         communities = pd.DataFrame(self.create_by_degree(net))
 
@@ -120,9 +153,9 @@ class CBIMselector(BaseSeedSelector):
         net: MultilayerNetwork,
     ) -> Dict[str, Dict[str, List[MLNetworkActor]]]:
         """
-        param_net: Multilayer Network.
+        :param net: Multilayer Network.
 
-        return: dict with information about layer, community and actor.
+        :return: dict with information about layer, community and actor.
         """
         community: Dict[
             str, Dict[str, List[MLNetworkActor]]
@@ -177,10 +210,10 @@ class CBIMselector(BaseSeedSelector):
         """
         Calculate merge index for community.
 
-        param_net: Multilayer Network
-        param_cbim: database in pandas saving information about communities
-        param_community: selected community to calculate merge index
-        param_l_name: name of layer
+        :param net: a multilayer network
+        :param cbim: database in pandas saving information about communities
+        :param community: selected community to calculate merge index
+        :param l_name: name of layer
         """
         graph: nx.Graph = net.layers[l_name]
         ein, eout = 0, 0
@@ -209,13 +242,13 @@ class CBIMselector(BaseSeedSelector):
         self, net: MultilayerNetwork, data: pd.DataFrame
     ) -> pd.DataFrame:
         """
-        Two weak communities change on one .
+        Merge pairs of weak communities into a one.
 
-        param_net: Multilayer Network
-        param_data: database in pandas which has information about communities
-        param_threshold: the procent of average maximum values of merging index
-        from each layer
-
+        :param net: Multilayer Network
+        :param data: database in pandas which has information about communities
+        :param threshold: the procent of average maximum values of merging idx
+            from each layer
+        :return: a dataframe with communities
         """
         assert (
             0 <= self.threshold <= 1
@@ -327,11 +360,11 @@ class CBIMselector(BaseSeedSelector):
         """
         Calculate dice similarity between nodes in communities.
 
-        param_c: name second community to calculate
-        param_node1: list of actors in first community
-        param_node2: lis of actors in second community
-        param_net: Multilayer Network
-        param_l_name: name of layer
+        :param c: name second community to calculate
+        :param node1: list of actors in first community
+        :param node2: lis of actors in second community
+        :param net: Multilayer Network
+        :param l_name: name of layer
         """
         graph: nx.Graph = net.layers[l_name]
         dsc = 0.0
@@ -369,11 +402,11 @@ class CBIMselector(BaseSeedSelector):
         """
         Calculate parametr edge sum weight.
 
-        param_net: Multilayer Network
-        param_cbim: database in pandas which has information about communities
-        param_l_name: name of layer
+        :param net: Multilayer Network
+        :param cbim: database in pandas which has information about communities
+        :param l_name: name of layer
 
-        return start the next function
+        :return: start the next function
         """
         graph: nx.Graph = net.layers[l_name]
         cbim[f"Quota{l_name}"] = 0
@@ -407,11 +440,11 @@ class CBIMselector(BaseSeedSelector):
         """
         Select actor to take from each community in layer by defined number.
 
-        param_cbim: database with information about communities
-        param_net: Multilayernetwork
-        param_l_name: name of layer
+        :param cbim: database with information about communities
+        :param net: Multilayernetwork
+        :param l_name: name of layer
 
-        return sorted seed for each layer
+        :return: sorted seed for each layer
         """
         graph: nx.Graph = net.layers[l_name]
         nodes_to_activated = 0
@@ -458,12 +491,12 @@ class CBIMselector(BaseSeedSelector):
         merged_communities: pd.DataFrame,
     ) -> Dict[str, set[MLNetworkActor]]:
         """
-        Calculatee seed_size and parametr ews.
+        Calculatee seed_size and :parametr ews.
 
-        param_net: load Multilayer Network
-        param_merged_communities: database after merging
+        :param net: load Multilayer Network
+        :param merged_communities: database after merging
 
-        return actors with ews parametr
+        :return: actors with ews :parametr
         """
         actors: Dict[str, set[MLNetworkActor]] = {}
         for l_name in net.layers:
@@ -486,13 +519,12 @@ class CBIMselector(BaseSeedSelector):
         """
         Select actors where actors are taken equal from each layer.
 
-        param_net: load Multilayer Network
-        param_actors_l: actors sorted descending to the best to take
-        param_size_l: number actors to take from each layer
-        param_lis: selected actors
+        :param net: load Multilayer Network
+        :param actors_l: actors sorted descending to the best to take
+        :param size_l: number actors to take from each layer
+        :param lis: selected actors
 
-        return set of selected actors
-
+        :return: set of selected actors
         """
         for l_name in net.layers:
             size = 0
@@ -522,13 +554,12 @@ class CBIMselector(BaseSeedSelector):
         """
         Select the others node form size_r.
 
-        param_net: load Multilayer Network
-        param_size_r: number of actors to suplement
-        param_actors_l: actors which are sorted to take
+        :param net: load Multilayer Network
+        :param size_r: number of actors to suplement
+        :param actors_l: actors which are sorted to take
         lis: set of actors to select
 
-        return selected actors
-
+        :return: selected actors
         """
         size = 0
         for (
@@ -558,15 +589,14 @@ class CBIMselector(BaseSeedSelector):
         """
         Create new community, clear the olds and searching the new minimal.
 
-        param_net: load Multilayer Network
-        param_data: database with communities attributes
-        param_new_community: new place to save merged community
-        param_community_infor: a list which include information
+        :param net: load Multilayer Network
+        :param data: database with communities attributes
+        :param new_community: new place to save merged community
+        :param community_infor: a list which include information
         about community to merge,
          layer name and first community index to merge
 
-        return tuple with database and minimal value
-
+        :return: tuple with database and minimal value
         """
         community_candydat = new_community.index.to_list()[
             0
@@ -604,9 +634,8 @@ class CBIMselector(BaseSeedSelector):
         """
         Calculate adjacency matrix and ews paramentr.
 
-        param_data: database with communities attributes
-        param_graph: generated graph from layer
-
+        :param data: database with communities attributes
+        :param graph: generated graph from layer
         """
         for _, val in enumerate(data):  # enumerate actors to calculate ews
             ListsEws.degree_actor[val.actor_id] = graph.degree[val.actor_id]
