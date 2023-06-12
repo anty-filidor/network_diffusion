@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
+
 """Multilayer Linear Threshold Model class."""
 
 from typing import Dict, List, Tuple

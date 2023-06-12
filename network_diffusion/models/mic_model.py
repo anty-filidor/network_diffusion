@@ -1,4 +1,4 @@
-# Copyright 2022 by Damian Dąbrowski, Michał Czuba. All Rights Reserved.
+# Copyright 2023 by Damian Dąbrowski, Michał Czuba. All Rights Reserved.
 #
 # This file is part of Network Diffusion.
 #
@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
+
 """Multilayer Independent Cascade Model class."""
 
 import random
