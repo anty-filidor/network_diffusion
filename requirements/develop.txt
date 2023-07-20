@@ -1,5 +1,5 @@
 accessible-pygments==0.0.3
-aiohttp==3.7.4
+aiohttp==3.8.5
 alabaster==0.7.12
 astroid==2.11.7
 async-timeout==3.0.1
