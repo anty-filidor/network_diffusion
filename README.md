@@ -39,3 +39,9 @@ Please cite as:
 ```
 
 **To install package run this command: `pip install network_diffusion`**
+
+## New features incoming!
+
+Current board with issues and state of the progress torwards implementing new
+functionalities is here:
+https://github.com/users/anty-filidor/projects/6/views/1
