@@ -104,7 +104,7 @@ def get_snapshot(
 
 def read_tpn(
     file_path: str, time_window: int, directed: bool = True
-) -> Dict[int, List[Any]]:
+) -> Dict[int, Any]:
     """
     Read temporal network from a text file for the TemporalNetwork class.
 
