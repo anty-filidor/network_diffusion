@@ -19,11 +19,13 @@
 """Functions for the auxiliary operations."""
 
 
+import math
 import os
 import pathlib
 import string
 from typing import Any, Dict, List, Union
 
+import dynetx as dn
 import numpy as np
 
 BOLD_UNDERLINE = "============================================"
@@ -76,6 +78,52 @@ def read_mpx(file_path: str) -> Dict[str, List[Any]]:
         # append last line to dictionary
         net_dict.update({name: tab[:-1]})
     del net_dict["foo"]
+
+    return net_dict
+
+
+def get_snapshot(
+    graph: Union[dn.DynGraph, dn.DynDiGraph],
+    snap_id: int,
+    min_timestamp: int,
+    time_window: int,
+) -> Union[dn.DynGraph, dn.DynDiGraph]:
+    """
+    Get a snapshot for the given snapshot id.
+
+    :param graph: the dynamic graph
+    :param snap_id: the snapshot id
+    :param min_timestamp: the minimum timestamp in the graph
+    :param time_window: the size of the time window
+    :return: a snapshot graph of the given id
+    """
+    win_begin = snap_id * time_window + min_timestamp
+    win_end = (snap_id + 1) * time_window + min_timestamp
+    return graph.time_slice(t_from=win_begin, t_to=win_end)
+
+
+def read_tpn(
+    file_path: str, time_window: int, directed: bool = True
+) -> Dict[int, List[Any]]:
+    """
+    Read temporal network from a text file for the TemporalNetwork class.
+
+    :param file_path: path to file
+    :return: a dictionary with network to create class
+    """
+    net_dict = {}
+
+    graph = dn.read_snapshots(
+        file_path, directed=directed, nodetype=int, timestamptype=int
+    )
+    min_timestamp = min(graph.temporal_snapshots_ids())
+    max_timestamp = max(graph.temporal_snapshots_ids())
+    num_of_snaps = math.ceil((max_timestamp - min_timestamp) / time_window)
+
+    for snap_id in range(num_of_snaps):
+        net_dict[snap_id] = get_snapshot(
+            graph, snap_id, min_timestamp, time_window
+        )
 
     return net_dict
 
