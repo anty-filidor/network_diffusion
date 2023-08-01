@@ -19,6 +19,7 @@ cryptography==41.0.0
 dill==0.3.5.1
 distlib==0.3.6
 docutils==0.19
+dynetx==0.3.2
 fake-useragent==0.1.11
 filelock==3.10.0
 fonttools==4.39.2
