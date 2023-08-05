@@ -39,3 +39,5 @@ Please cite as:
 ```
 
 **To install package run this command: `pip install network_diffusion`**
+
+**To recreate development environment run `source requirements/init.sh`**
