@@ -40,6 +40,8 @@ Please cite as:
 
 **To install package run this command: `pip install network_diffusion`**
 
+**To recreate development environment run `source requirements/init.sh`**
+
 ## New features incoming!
 
 Current board with issues and state of the progress torwards implementing new
