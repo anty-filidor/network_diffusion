@@ -1,6 +1,6 @@
 """A script where a temporal network is defined."""
 
-from typing import Any, Dict, List, Optional  # , Union
+from typing import Any, Dict, List, Optional
 
 import networkx as nx
 
@@ -10,7 +10,6 @@ from network_diffusion.utils import read_tpn
 class TemporalNetwork:
     """Container for a temporal network."""
 
-    # def __init__(self, snaps: Dict[Union[str, int], nx.Graph]) -> None:
     def __init__(self, snaps: Dict[int, nx.Graph]) -> None:
         """
         Create a temporal network object.
@@ -27,7 +26,8 @@ class TemporalNetwork:
         Load a temporal network from a txt file.
 
         Note, the txt file should be in the form of: SRC DST UNIXTS.
-        The timestamps UNIXTS should be sorted.
+        The timestamps UNIXTS should be in ascending order.
+        The timestamps are expected to be provided in seconds.
 
         :param file_path: path to the file
         :param time_window: the time window size for each snapshot
