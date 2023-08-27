@@ -26,6 +26,8 @@ from setuptools import find_packages, setup
 
 from network_diffusion import __version__
 
+from distutils.core import setup, Extension
+
 
 def parse_requirements() -> List[str]:
     """Parse requirements from the txt file."""
@@ -69,5 +71,12 @@ setup(
     author_email="michal.czuba@pwr.edu.pl, piotr.brodka@pwr.edu.pl",
     packages=find_packages(exclude=["*tests*"]),
     install_requires=parse_requirements(),
+    ext_modules=[
+        Extension(
+            "cogsnet_lib",
+            include_dirs=["c_modules"],
+            sources=["c_modules/cogsnet_compute.c", "c_modules/cogsnet_lib.c"],
+        )
+    ],
     python_requires=">=3.7",
 )
