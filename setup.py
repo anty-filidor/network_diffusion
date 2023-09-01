@@ -54,7 +54,8 @@ setup(
         "Programming Language :: Python :: 3.10",
     ],
     keywords=[
-        "influence maximisation" "multilayer networks",
+        "influence maximisation",
+        "multilayer networks",
         "networkx",
         "network science",
         "phenomena spreading",
