@@ -26,14 +26,14 @@ import numpy as np
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.models.base_model import BaseModel
+from network_diffusion.models.base_ml_model import BaseMLModel
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.models.utils.types import NetworkUpdateBuffer as NUBff
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
 
-class MICModel(BaseModel):
+class MICModel(BaseMLModel):
     """This model implements Multilayer Independent Cascade Model."""
 
     INACTIVE_NODE = "0"
@@ -169,7 +169,7 @@ class MICModel(BaseModel):
             for l_name in actor.layers:
                 seed_nodes.append(
                     NUBff(
-                        node_name=actor.actor_id,
+                        node_name=actor.agent_id,
                         layer_name=l_name,
                         new_state=a_state,
                     )

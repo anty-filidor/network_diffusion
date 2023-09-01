@@ -222,7 +222,7 @@ class CBIMselector(BaseSeedSelector):
         if actors is np.nan:
             return 0
         for _, actor in enumerate(actors):
-            for neighbour in graph.neighbors(actor.actor_id):
+            for neighbour in graph.neighbors(actor.agent_id):
 
                 if net.get_actor(neighbour) in actors:
                     ein = ein + 1
@@ -372,12 +372,12 @@ class CBIMselector(BaseSeedSelector):
 
         for _, actor in enumerate(node1):  # actors from first community
             node1_len = set(
-                graph.neighbors(actor.actor_id)
+                graph.neighbors(actor.agent_id)
             )  # neighbours node 1
             for _, actor2 in enumerate(node2):  # actors from second community
 
                 node2_len = set(
-                    graph.neighbors(actor2.actor_id)
+                    graph.neighbors(actor2.agent_id)
                 )  # neighbours node 2
                 if node2_len == 0:  # list of neighbour can not be empty
                     continue
@@ -638,8 +638,8 @@ class CBIMselector(BaseSeedSelector):
         :param graph: generated graph from layer
         """
         for _, val in enumerate(data):  # enumerate actors to calculate ews
-            ListsEws.degree_actor[val.actor_id] = graph.degree[val.actor_id]
-            ListsEws.actor_list.append(val.actor_id)
+            ListsEws.degree_actor[val.agent_id] = graph.degree[val.agent_id]
+            ListsEws.actor_list.append(val.agent_id)
 
         adj_matrix = nx.adjacency_matrix(
             graph, ListsEws.actor_list
@@ -652,7 +652,7 @@ class CBIMselector(BaseSeedSelector):
             for length in range(1, len(graph.nodes) + 1):
                 ews += np.sum(
                     pow(self.alpha, length)
-                    * ListsEws.degree_actor[val.actor_id]
+                    * ListsEws.degree_actor[val.agent_id]
                     * np.linalg.matrix_power(adj_matrix, length)
                 )
             ListsEws.ews_actor[val] = ews

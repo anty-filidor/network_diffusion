@@ -283,12 +283,11 @@ class MultilayerNetwork:
 
     def get_states_num(self) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
         """
-        Return number of agents with all possible states in each layer.
+        Return number of agents with all possible states at the specific snapshot.
 
         :return: dictionary with items representing each of layers and with
             summary of nodes states in values
         """
-        assert len(self.layers) > 0, "Import network to the object first!"
         statistics = {}
         for name, layer in self.layers.items():
             tab = []

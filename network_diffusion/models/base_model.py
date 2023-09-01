@@ -106,13 +106,7 @@ class BaseModel(ABC):
         :param network: network to update
         :param activated_nodes: already activated nodes
         """
-        out_json = []
-        for activ_node in activated_nodes:
-            net.layers[activ_node.layer_name].nodes[activ_node.node_name][
-                "status"
-            ] = activ_node.new_state
-            out_json.append(activ_node.to_json())
-        return out_json
+        ...
 
     @abstractmethod
     def get_allowed_states(
