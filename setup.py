@@ -22,11 +22,9 @@
 
 from typing import List
 
-from setuptools import find_packages, setup
+from setuptools import Extension, find_packages, setup
 
 from network_diffusion import __version__
-
-from distutils.core import setup, Extension
 
 
 def parse_requirements() -> List[str]:
@@ -56,27 +54,27 @@ setup(
         "Programming Language :: Python :: 3.10",
     ],
     keywords=[
-        "disease",
-        "simulation",
-        "processes influence",
-        "network science",
-        "multilayer networks",
+        "influence maximisation" "multilayer networks",
         "networkx",
+        "network science",
+        "phenomena spreading",
+        "simulation",
+        "social influence",
         "spreading",
-        "phenomena",
+        "temporal networks",
     ],
     description="Package to design and run diffusion phenomena in networks.",
     long_description="Network Diffusion",
     author="Michał Czuba, Piotr Bródka",
     author_email="michal.czuba@pwr.edu.pl, piotr.brodka@pwr.edu.pl",
-    packages=find_packages(exclude=["*tests*"]),
     install_requires=parse_requirements(),
     ext_modules=[
         Extension(
-            "cogsnet_lib",
+            "network_diffusion.tpn.cogsnet_lib",
             include_dirs=["c_modules"],
             sources=["c_modules/cogsnet_compute.c", "c_modules/cogsnet_lib.c"],
         )
     ],
-    python_requires=">=3.7",
+    packages=find_packages(exclude=["*tests*"]),
+    python_requires=">=3.10",
 )

@@ -9,7 +9,8 @@ import unittest
 
 import networkx as nx
 
-from network_diffusion import MultilayerNetwork, utils
+from network_diffusion import utils
+from network_diffusion.mln import MultilayerNetwork
 from network_diffusion.mln.functions import multiplexing_coefficient
 
 

@@ -4,7 +4,7 @@ from typing import Dict, Tuple
 
 import networkx as nx
 
-from network_diffusion import MultilayerNetwork
+from network_diffusion.mln import MultilayerNetwork
 from network_diffusion.models import DSAAModel
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 
