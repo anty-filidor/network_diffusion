@@ -18,29 +18,10 @@
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
-"""
-Interface for C ports for CogSNet functions.
+"""Contains modules to handle operations on temporal networks."""
 
-This file needs to have a .so lib installed in the scope of parent module. You
-can build it with `python setup.py build`.
-"""
-
-# pylint: disable=W0613  # it's a stub for C functions
-# pylint: disable=R0913  # it's a scientific function, so ignore nb of args
+# flake8: noqa
 
 
-from typing import List
-
-
-def cogsnet(
-    forgettingType: str,
-    snapshotInterval: int,
-    mu: float,
-    theta: float,
-    lambda_: float,
-    units: int,
-    pathEvents: str,
-    delimiter: str,
-) -> List[List[float]]:
-    """Process a file and return a list of lists."""
-    ...
+from network_diffusion.tpn.cogsnet_lib import cogsnet
+from network_diffusion.tpn.tpnetwork import TemporalNetwork

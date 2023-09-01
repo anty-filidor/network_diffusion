@@ -9,7 +9,7 @@ import unittest
 
 import networkx as nx
 
-from network_diffusion import MultilayerNetwork
+from network_diffusion.mln import MultilayerNetwork
 from network_diffusion.seeding import DegreeCentralitySelector
 
 
