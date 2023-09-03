@@ -28,7 +28,7 @@ class MLNetworkActor:
         """
         Initialise the object.
 
-        :param actor_id: if of the actor
+        :param actor_id: id of the actor
         :param layers_states: a dictionary keyed by layer names where the actor
             exists and valued by its state in the given layer
         """
