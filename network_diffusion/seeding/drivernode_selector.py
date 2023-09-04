@@ -1,0 +1,63 @@
+"""A definition of the seed selector based on driver nodes."""
+
+from typing import List
+
+# from network_diffusion.seeding.base_selector import BaseSeedSelector
+from network_diffusion.tpn.tpnetwork import TemporalNetwork
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
+from network_diffusion.mln.actor import MLNetworkActor
+
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
+
+from network_diffusion.tpn.functions import driver_nodes
+from network_diffusion.seeding.betweenness_selector import BetweennessSelector
+from network_diffusion.seeding.degreecentrality_selector import DegreeCentralitySelector
+
+class DriverNodeSelector():
+    """Driver Node based seed selector."""
+
+    def __str__(self) -> str:
+        """Return seed method's description."""
+        return (
+            f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
+            f"\tdriver node\n{BOLD_UNDERLINE}\n"
+        )
+    
+    def snap_select(self, net: TemporalNetwork, snap_id: int, method: str) -> List[int]:
+        """Return list of driver node"""
+
+        snap = net.snaps[snap_id]
+
+        driver_nodes_list = driver_nodes(snap)
+
+        dummy_mln = MultilayerNetwork.from_nx_layer(snap, ['0']) # for using mln seed selection method
+        
+        match method:
+            case "betweenness":
+                selector = BetweennessSelector()
+                result = selector.actorwise(dummy_mln)
+                result = self.reorder_seeds(driver_nodes_list, result)
+            case "degreecentrality":
+                selector = DegreeCentralitySelector()
+                result = selector.actorwise(dummy_mln)
+                result = self.reorder_seeds(driver_nodes_list, result)                                
+            case _:
+                result = self.reorder_seeds(driver_nodes_list, dummy_mln.get_actors())
+        return result
+        
+    #TODO: keeping the rest non-driver-nodes or not?
+    def reorder_seeds(self, driver_nodes: List[int], all_nodes: List[MLNetworkActor]):
+        """Return a list of node ids, where driver nodes in the first"""
+        result = []
+        all_nodes = [x.actor_id for x in all_nodes]
+
+        for item in all_nodes[:]:
+            if item in driver_nodes:
+                result.append(item)
+                all_nodes.remove(item)
+
+        # result.extend(all_nodes)
+        return result
+
+
+
