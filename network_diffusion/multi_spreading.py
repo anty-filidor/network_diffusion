@@ -23,7 +23,7 @@ from tqdm import tqdm
 
 from network_diffusion.experiment_logger import ExperimentLogger
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.models.base_ml_model import BaseMLModel
+from network_diffusion.models.base_models import BaseMLModel
 from network_diffusion.models.utils.types import NetworkUpdateBuffer
 
 

@@ -25,6 +25,7 @@ from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.models.utils.types import NetworkUpdateBuffer
 from network_diffusion.seeding.base_selector import BaseSeedSelector
+from network_diffusion.tpn.tpnetwork import TemporalNetwork
 
 
 class BaseModel(ABC):
@@ -95,19 +96,6 @@ class BaseModel(ABC):
         """
         ...
 
-    @staticmethod
-    def update_network(
-        net: MultilayerNetwork,
-        activated_nodes: List[NetworkUpdateBuffer],
-    ) -> List[Dict[str, str]]:
-        """
-        Update the network global state by list of already activated nodes.
-
-        :param network: network to update
-        :param activated_nodes: already activated nodes
-        """
-        ...
-
     @abstractmethod
     def get_allowed_states(
         self, net: MultilayerNetwork
@@ -118,3 +106,51 @@ class BaseModel(ABC):
         :param net: a network to determine allowed nodes' states for
         """
         ...
+
+
+class BaseMLModel(BaseModel, ABC):
+    """Base abstract multilayer network propagation model."""
+
+    @staticmethod
+    def update_network(
+        net: MultilayerNetwork,
+        activated_nodes: List[NetworkUpdateBuffer],
+    ) -> List[Dict[str, str]]:
+        """
+        Update the network global state by list of already activated nodes.
+
+        :param net: network to update
+        :param activated_nodes: already activated nodes
+        """
+        out_json = []
+        for active_node in activated_nodes:
+            net.layers[active_node.layer_name].nodes[active_node.node_name][
+                "status"
+            ] = active_node.new_state
+            out_json.append(active_node.to_json())
+        return out_json
+
+
+class BaseTPModel(BaseModel, ABC):
+    """Base abstract temporal network propagation model."""
+
+    @staticmethod
+    def update_network(
+        net: TemporalNetwork,
+        agents: List[NetworkUpdateBuffer],
+        snapshot_id: int,
+    ) -> List[Dict[str, str]]:
+        """
+        Update the network snapshot state by list of already activated nodes.
+
+        :param net: network to update
+        :param agents: agents with changed attributes
+        :param snapshot_id: id of the snapshot to be updated
+        """
+        out_json = []
+        for agent in agents:
+            net.snaps[snapshot_id].nodes[agent.node_name][
+                "status"
+            ] = agent.new_state
+            out_json.append(agent.to_json())
+        return out_json

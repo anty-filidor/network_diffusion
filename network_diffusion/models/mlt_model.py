@@ -25,8 +25,8 @@ import numpy as np
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork as MLNetwork
-from network_diffusion.models.base_ml_model import BaseMLModel
-from network_diffusion.models.base_model import NetworkUpdateBuffer as NUBuff
+from network_diffusion.models.base_models import BaseMLModel
+from network_diffusion.models.base_models import NetworkUpdateBuffer as NUBuff
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType

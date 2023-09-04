@@ -372,12 +372,12 @@ class CBIMselector(BaseSeedSelector):
 
         for _, actor in enumerate(node1):  # actors from first community
             node1_len = set(
-                graph.neighbors(actor.agent_id)
+                graph.neighbors(actor.actor_id)
             )  # neighbours node 1
             for _, actor2 in enumerate(node2):  # actors from second community
 
                 node2_len = set(
-                    graph.neighbors(actor2.agent_id)
+                    graph.neighbors(actor2.actor_id)
                 )  # neighbours node 2
                 if node2_len == 0:  # list of neighbour can not be empty
                     continue

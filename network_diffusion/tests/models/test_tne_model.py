@@ -11,10 +11,6 @@ from network_diffusion.seeding import RandomSeedSelector
 from network_diffusion.temporal_spreading import TemporalSpreading
 
 
-random.seed(42)
-np.random.seed(42)
-
-
 def create_artificial_temporal_data():
     # Create a list of 10 nodes
     nodes = list(range(1, 11))
@@ -25,7 +21,9 @@ def create_artificial_temporal_data():
         G.add_nodes_from(nodes)
 
         # Add 20 random edges for each snapshot
-        edges = random.sample([(i, j) for i in nodes for j in nodes if i != j], 20)
+        edges = random.sample(
+            [(i, j) for i in nodes for j in nodes if i != j], 20
+        )
         G.add_edges_from(edges)
         return G
 
@@ -45,6 +43,10 @@ class TestDSAAModel(unittest.TestCase):
 
     def setUp(self) -> None:
         """Set up most common testing parameters."""
+
+        random.seed(42)
+        np.random.seed(42)
+
         # init temporal network from nx predefined network
         temporal_snaps = create_artificial_temporal_data()
         network = TemporalNetwork.from_nx_layers(temporal_snaps)
@@ -54,22 +56,22 @@ class TestDSAAModel(unittest.TestCase):
             seeding_budget=(50, 50),
             seed_selector=RandomSeedSelector(),
             trials_nr=10,
-            epsilon=0.05
+            epsilon=0.05,
         )
 
     def test_experiment_results(self) -> None:
         """Check if the experiment results are as expected."""
         expected_global_stats = [
-            {'TPN': (('A', 5), ('B', 5))},
-            {'TPN': (('A', 7), ('B', 3))},
-            {'TPN': (('A', 6), ('B', 4))},
-            {'TPN': (('A', 4), ('B', 6))},
-            {'TPN': (('A', 3), ('B', 7))},
-            {'TPN': (('A', 3), ('B', 7))},
-            {'TPN': (('B', 8), ('A', 2))},
-            {'TPN': (('B', 9), ('A', 1))},
-            {'TPN': (('B', 9), ('A', 1))},
-            {'TPN': (('B', 10),)}
+            {"TPN": (("A", 5), ("B", 5))},
+            {"TPN": (("A", 7), ("B", 3))},
+            {"TPN": (("A", 6), ("B", 4))},
+            {"TPN": (("A", 4), ("B", 6))},
+            {"TPN": (("A", 3), ("B", 7))},
+            {"TPN": (("A", 3), ("B", 7))},
+            {"TPN": (("B", 8), ("A", 2))},
+            {"TPN": (("B", 9), ("A", 1))},
+            {"TPN": (("B", 9), ("A", 1))},
+            {"TPN": (("B", 10),)},
         ]
 
         experiment = TemporalSpreading(self.model, self.network)

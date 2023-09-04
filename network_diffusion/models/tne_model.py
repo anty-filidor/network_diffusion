@@ -1,4 +1,4 @@
-# Copyright 2023 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright 2023 by Damian Serwata. All Rights Reserved.
 #
 # This file is part of Network Diffusion.
 #
@@ -18,16 +18,16 @@
 
 """Definition of the temporal network epistemology model."""
 
-from typing import Dict, List, Tuple, Any
+from typing import Any, Dict, List, Tuple
 
 import networkx as nx
 import numpy as np
 
-from network_diffusion.tpn.tpnetwork import TemporalNetwork
-from network_diffusion.models.base_tp_model import BaseTPModel
-from network_diffusion.models.utils.types import NetworkUpdateBuffer
+from network_diffusion.models.base_models import BaseTPModel
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
+from network_diffusion.models.utils.types import NetworkUpdateBuffer
 from network_diffusion.seeding.base_selector import BaseSeedSelector
+from network_diffusion.tpn.tpnetwork import TemporalNetwork
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
 
@@ -45,7 +45,7 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
         seeding_budget: Tuple[NumericType, NumericType],
         seed_selector: BaseSeedSelector,
         trials_nr: int,
-        epsilon: float
+        epsilon: float,
     ) -> None:
         """
         Create the object.
@@ -72,8 +72,7 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
         return descr
 
     def _create_compartments(
-        self,
-        seeding_budget: Tuple[NumericType, NumericType]
+        self, seeding_budget: Tuple[NumericType, NumericType]
     ) -> CompartmentalGraph:
         """
         Create compartmental graph for the model.
@@ -101,7 +100,9 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
 
         :return: a list of state of the network after initialisation
         """
-        budget = self._compartmental_graph.get_seeding_budget_for_network(net=net, actorwise=True)
+        budget = self._compartmental_graph.get_seeding_budget_for_network(
+            net=net, actorwise=True
+        )
         seed_nodes: List[NetworkUpdateBuffer] = []
 
         for idx, actor in enumerate(self._seed_selector.actorwise(net=net)):
@@ -110,7 +111,9 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
             if idx < budget[self.PROCESS_NAME][self.B_STATE]:
                 state = self.B_STATE
                 belief = np.random.uniform(0.5, 1)
-                evidence = np.random.binomial(self.trials_nr, 0.5 + self.epsilon)
+                evidence = np.random.binomial(
+                    self.trials_nr, 0.5 + self.epsilon
+                )
             else:
                 state = self.A_STATE
                 belief = np.random.uniform(0, 0.5)
@@ -122,13 +125,15 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
             seed_nodes.append(
                 NetworkUpdateBuffer(
                     node_name=node_id,
-                    layer_name='TPN',
-                    new_state=encoded_state
+                    layer_name="TPN",
+                    new_state=encoded_state,
                 )
             )
 
         # set initial states and return json to save in logs
-        out_json = self.update_network(net=net, agents=seed_nodes, snapshot_id=0)
+        out_json = self.update_network(
+            net=net, agents=seed_nodes, snapshot_id=0
+        )
         return out_json
 
     @staticmethod
@@ -142,7 +147,7 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
 
         :return: a string representation of agent status
         """
-        encoded_status = '_'.join([state, str(belief), str(evidence)])
+        encoded_status = "_".join([state, str(belief), str(evidence)])
         return encoded_status
 
     @staticmethod
@@ -155,12 +160,14 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
         :return: a tuple with agent state, belief level and evidence
         """
         # TODO: consider operating on dictionary instead of tuple
-        state: str = encoded_status.split('_')[0]
-        belief: float = float(encoded_status.split('_')[1])
-        evidence: int = int(encoded_status.split('_')[2])
+        state: str = encoded_status.split("_")[0]
+        belief: float = float(encoded_status.split("_")[1])
+        evidence: int = int(encoded_status.split("_")[2])
         return state, belief, evidence
 
-    def agent_evaluation_step(self, agent: Any, net: TemporalNetwork, snapshot_id: int) -> str:
+    def agent_evaluation_step(
+        self, agent: Any, net: TemporalNetwork, snapshot_id: int
+    ) -> str:
         """
         Try to change state of given actor of the network according to model.
 
@@ -176,8 +183,13 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
 
         # Gather evidence on action B performance
         state, belief, evidence = self.decode_actor_status(node["status"])
-        neighbours_states = [self.decode_actor_status(snapshot.nodes[n]["status"]) for n in snapshot.neighbors(node_id)]
-        b_neighbours_states = [state for state in neighbours_states if state[0] == self.B_STATE]
+        neighbours_states = [
+            self.decode_actor_status(snapshot.nodes[n]["status"])
+            for n in snapshot.neighbors(node_id)
+        ]
+        b_neighbours_states = [
+            state for state in neighbours_states if state[0] == self.B_STATE
+        ]
         n = len(b_neighbours_states) * self.trials_nr
         k = np.sum([states[2] for states in b_neighbours_states])
         if state == self.B_STATE:
@@ -185,19 +197,30 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
             k += evidence
 
         # Run credence update
-        new_belief = 1 / (1 + (1 - belief) * (((0.5 - self.epsilon) / (0.5 + self.epsilon)) ** (2 * k - n)) / belief)
+        new_belief = 1 / (
+            1
+            + (1 - belief)
+            * (((0.5 - self.epsilon) / (0.5 + self.epsilon)) ** (2 * k - n))
+            / belief
+        )
 
         if new_belief > 0.5:
             new_state = self.B_STATE
-            new_evidence = np.random.binomial(self.trials_nr, 0.5 + self.epsilon)
+            new_evidence = np.random.binomial(
+                self.trials_nr, 0.5 + self.epsilon
+            )
         else:
             new_state = self.A_STATE
             new_evidence = 0
 
-        encoded_state = self.encode_actor_status(new_state, new_belief, new_evidence)
+        encoded_state = self.encode_actor_status(
+            new_state, new_belief, new_evidence
+        )
         return encoded_state
 
-    def network_evaluation_step(self, net: TemporalNetwork, snapshot_id: int) -> List[NetworkUpdateBuffer]:
+    def network_evaluation_step(
+        self, net: TemporalNetwork, snapshot_id: int
+    ) -> List[NetworkUpdateBuffer]:
         """
         Evaluate the network at one time stamp with MLTModel.
 
@@ -210,21 +233,25 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
 
         for node_id, node in net.get_actors_from_snap(snapshot_id):
             actor = node_id, node
-            new_state_encoded = self.agent_evaluation_step(actor, net, snapshot_id)
+            new_state_encoded = self.agent_evaluation_step(
+                actor, net, snapshot_id
+            )
             nodes_to_update.append(
                 NetworkUpdateBuffer(
                     node_name=node_id,
-                    layer_name='TPN',
-                    new_state=new_state_encoded
+                    layer_name="TPN",
+                    new_state=new_state_encoded,
                 )
             )
         return nodes_to_update
 
-    def get_allowed_states(self, net: TemporalNetwork) -> Dict[str, Tuple[str, ...]]:
+    def get_allowed_states(
+        self, net: TemporalNetwork
+    ) -> Dict[str, Tuple[str, ...]]:
         """
         Return dict with allowed states of net if applied model.
 
         :param net: a network to determine allowed nodes' states for
         """
         cmprt = self._compartmental_graph.get_compartments()[self.PROCESS_NAME]
-        return {'TPN': cmprt}
+        return {"TPN": cmprt}
