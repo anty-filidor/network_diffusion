@@ -70,7 +70,7 @@ class TemporalSpreading:
         # iterate through epochs
         snapshot_ids = list(self._network.snaps.keys())
         progress_bar = tqdm(
-            range(self._network.get_size() - 1),
+            range(len(self._network) - 1),
             desc="experiment",
             leave=False,
             colour="blue",

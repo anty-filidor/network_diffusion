@@ -1,18 +1,19 @@
 """A script where a temporal network is defined."""
 
-import networkx as nx
 import random
-
 from collections import Counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+import networkx as nx
+
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.utils import read_tpn
 
 
 class TemporalNetwork:
     """Container for a temporal network."""
 
-    def __init__(self, snaps: Dict[int, nx.Graph]) -> None:
+    def __init__(self, snaps: Dict[int, MultilayerNetwork]) -> None:
         """
         Create a temporal network object.
 
@@ -36,13 +37,15 @@ class TemporalNetwork:
         :param directed: indicate if the graph is directed
         """
         snaps = read_tpn(file_path, time_window, directed)
-        return cls(snaps)
+        mln_snaps = {
+            idx: MultilayerNetwork({"layer_1": net})
+            for idx, net in enumerate(snaps)
+        }
+        return cls(mln_snaps)
 
     @classmethod
     def from_nx_layers(
-        cls,
-        network_list: List[nx.Graph],
-        snap_ids: Optional[List[Any]] = None
+        cls, network_list: List[nx.Graph], snap_ids: Optional[List[Any]] = None
     ) -> "TemporalNetwork":
         """
         Load a temporal network from a list of networks and their snapshot ids.
@@ -57,37 +60,28 @@ class TemporalNetwork:
                 snap_ids
             ), "Length of network list and metadata list is not equal"
             for snap, snap_id in zip(network_list, snap_ids):
-                snaps.update({snap_id: snap})
+                snaps.update({snap_id: MultilayerNetwork({"layer_0": snap})})
         else:
             for snap_id, snap in enumerate(network_list, start=0):
-                snaps.update({snap_id: snap})
-        prepared_snaps = cls._prepare_nodes_attribute(snaps)
-        return cls(prepared_snaps)
+                snaps.update({snap_id: MultilayerNetwork({"layer_0": snap})})
+        return cls(snaps)
 
-    @staticmethod
-    def _prepare_nodes_attribute(snaps: Dict[str, nx.Graph]) -> Dict[str, nx.Graph]:
-        """Prepare network to the experiment."""
-        for snap in snaps.values():
-            status_dict = {n: None for n in snap.nodes()}
-            nx.set_node_attributes(snap, status_dict, "status")
-        return snaps
-
-    def get_size(self):
+    def __len__(self) -> int:
+        """Return length of the network, i.e. num of actors."""
         return len(self.snaps)
 
     def get_actors(self, shuffle: bool = False) -> List[Dict[int, Dict]]:
         """
-        Get actors that exist in the network and read their states.
+        Get actors that from the first snapshot of network and their states.
 
         :param shuffle: a flag that determines whether to shuffle actor list
         :return: a list with actors that live in the network
         """
-        agent_list = list(self.snaps[0].nodes(data=True))
-        if shuffle:
-            random.shuffle(agent_list)
-        return agent_list
+        return self.get_actors_from_snap(0, shuffle)
 
-    def get_actors_from_snap(self, snapshot_id: int, shuffle: bool = False) -> List[Dict[int, Dict]]:
+    def get_actors_from_snap(
+        self, snapshot_id: int, shuffle: bool = False
+    ) -> List[Dict[int, Dict]]:
         """
         Get actors that exist in the network at given snapshotand read their states.
 
@@ -95,28 +89,25 @@ class TemporalNetwork:
         :param shuffle: a flag that determines whether to shuffle actor list
         :return: a list with actors that live in the network
         """
-        agent_list = list(self.snaps[snapshot_id].nodes(data=True))
-        if shuffle:
-            random.shuffle(agent_list)
-        return agent_list
+        return list(self.snaps[snapshot_id].get_actors(shuffle))
 
-    def get_actors_num(self) -> int:
-        """Get number of actors that live in the network."""
-        actors_set: Set[Any] = set(self.snaps[list(self.snaps.keys())[0]].nodes)
-        return len(actors_set)
+    # def get_actors_num(self) -> int:
+    #     """Get number of actors that live in the network."""
+    #     actors_set: Set[Any] = set(self.snaps[list(self.snaps.keys())[0]].nodes)
+    #     return len(actors_set)
 
-    def get_states_num(self, snapshot_id: str) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
-        """
-        Return number of agents with all possible states in each layer.
+    # def get_states_num(self, snapshot_id: str) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
+    #     """
+    #     Return number of agents with all possible states in each layer.
 
-        :return: dictionary with items representing summary of nodes states in values
-        """
-        statistics = {}
-        tab = []
-        graph = self.snaps[snapshot_id]
-        for node in graph.nodes():
-            # TODO: problem with visualization when encoding all agent features under the status field, it makes each status unique because of the belief and evidence values - we'd like to operate on actors'/nodes' states, not statuses
-            #tab.append(graph.nodes[node]["status"])
-            tab.append(graph.nodes[node]["status"].split('_')[0])
-        statistics["TPN"] = tuple(Counter(tab).items())
-        return statistics
+    #     :return: dictionary with items representing summary of nodes states in values
+    #     """
+    #     statistics = {}
+    #     tab = []
+    #     graph = self.snaps[snapshot_id]
+    #     for node in graph.nodes():
+    #         # TODO: problem with visualization when encoding all agent features under the status field, it makes each status unique because of the belief and evidence values - we'd like to operate on actors'/nodes' states, not statuses
+    #         #tab.append(graph.nodes[node]["status"])
+    #         tab.append(graph.nodes[node]["status"].split('_')[0])
+    #     statistics["TPN"] = tuple(Counter(tab).items())
+    #     return statistics
