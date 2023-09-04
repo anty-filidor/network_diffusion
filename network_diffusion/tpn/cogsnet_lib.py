@@ -33,13 +33,13 @@ from typing import List
 
 
 def cogsnet(
-    forgettingType: str,
-    snapshotInterval: int,
+    forgetting_type: str,
+    snapshot_interval: int,
     mu: float,
     theta: float,
     lambda_: float,
     units: int,
-    pathEvents: str,
+    path_events: str,
     delimiter: str,
 ) -> List[List[float]]:
     """Process a file and return a list of lists."""

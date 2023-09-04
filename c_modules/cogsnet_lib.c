@@ -5,35 +5,35 @@
 #include "cogsnet_compute.h"
 
 static PyObject* method_cogsnet(PyObject* self, PyObject* args) {
-  const char* forgettingType;
-  int snapshotInterval;
+  const char* forgetting_type;
+  int snapshot_interval;
   float mu;
   float theta;
   float lambda_;
   int units;
-  const char* pathEvents;
+  const char* path_events;
   const char* delimiter;
 
   // Parse arguments
-  if (!PyArg_ParseTuple(args, "sifffiss", &forgettingType, &snapshotInterval,
-                        &mu, &theta, &lambda_, &units, &pathEvents,
+  if (!PyArg_ParseTuple(args, "sifffiss", &forgetting_type, &snapshot_interval,
+                        &mu, &theta, &lambda_, &units, &path_events,
                         &delimiter)) {
     return NULL;
   }
 
   // Run cogsnet
-  struct Cogsnet network = cogsnet(forgettingType, snapshotInterval, mu, theta,
-                                   lambda_, units, pathEvents, delimiter);
+  struct Cogsnet network = cogsnet(forgetting_type, snapshot_interval, mu, theta,
+                                   lambda_, units, path_events, delimiter);
 
   // Snaphots of the network
   float*** snapshots = network.snapshots;
 
   // Create the Python list of lists
   PyObject* result_list = PyList_New(0);
-  if (network.exitStatus == 0) {
-    for (int i = 0; i < network.numberOfSnapshots; i++) {
+  if (network.exit_status == 0) {
+    for (int i = 0; i < network.number_of_snapshots; i++) {
       PyObject* inner_list = PyList_New(0);
-      for (int j = 0; j < network.numberOfNodes * network.numberOfNodes; j++) {
+      for (int j = 0; j < network.number_of_nodes * network.number_of_nodes; j++) {
         PyObject* uid1 = PyFloat_FromDouble(snapshots[i][j][0]);
         PyObject* uid2 = PyFloat_FromDouble(snapshots[i][j][1]);
         PyObject* weight = PyFloat_FromDouble(snapshots[i][j][2]);
@@ -57,8 +57,8 @@ static PyObject* method_cogsnet(PyObject* self, PyObject* args) {
       Py_DECREF(inner_list);
     }
 
-    for (int i = 0; i < network.numberOfSnapshots; i++) {
-      for (int j = 0; j < network.numberOfNodes * network.numberOfNodes; j++) {
+    for (int i = 0; i < network.number_of_snapshots; i++) {
+      for (int j = 0; j < network.number_of_nodes * network.number_of_nodes; j++) {
         free(network.snapshots[i][j]);
       }
       free(network.snapshots[i]);
@@ -66,8 +66,8 @@ static PyObject* method_cogsnet(PyObject* self, PyObject* args) {
     free(network.snapshots);
   } else {
     if (network.snapshots != NULL) {
-      for (int i = 0; i < network.numberOfSnapshots; i++) {
-        for (int j = 0; j < network.numberOfNodes * network.numberOfNodes;
+      for (int i = 0; i < network.number_of_snapshots; i++) {
+        for (int j = 0; j < network.number_of_nodes * network.number_of_nodes;
              j++) {
           free(network.snapshots[i][j]);
         }
@@ -77,7 +77,7 @@ static PyObject* method_cogsnet(PyObject* self, PyObject* args) {
     }
 
     PyObject* exception =
-        PyErr_Format(CogsnetException, "%s", network.errorMsg);
+        PyErr_Format(CogsnetException, "%s", network.error_msg);
     return NULL;
   }
 
