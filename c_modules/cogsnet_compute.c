@@ -62,7 +62,7 @@ float compute_weight_exponential(int new_event, float weight_last_event,
 // computing the weight, invoked for every new event and at the end (surveys'
 // dates)
 float compute_weight(int time_to_compute, int time_last_event,
-                     const char *forgettingType, float weight_last_event,
+                     const char *forgetting_type, float weight_last_event,
                      int new_event, float mu, float lambda, float theta,
                      int units) {
   // Compute the time difference between events
@@ -76,13 +76,13 @@ float compute_weight(int time_to_compute, int time_last_event,
     // Our new weigth of the edge
     float weight_new;
 
-    if (strncmp(forgettingType, "linear", 6) == 0) {
+    if (strncmp(forgetting_type, "linear", 6) == 0) {
       weight_new = compute_weight_linear(new_event, weight_last_event,
                                          time_difference, lambda, mu);
-    } else if (strncmp(forgettingType, "power", 5) == 0) {
+    } else if (strncmp(forgetting_type, "power", 5) == 0) {
       weight_new = compute_weight_power(new_event, weight_last_event,
                                         time_difference, lambda, mu);
-    } else if (strncmp(forgettingType, "exponential", 11) == 0) {
+    } else if (strncmp(forgetting_type, "exponential", 11) == 0) {
       weight_new = compute_weight_exponential(new_event, weight_last_event,
                                               time_difference, lambda, mu);
     } else {
@@ -103,91 +103,91 @@ float compute_weight(int time_to_compute, int time_last_event,
   }
 }
 
-void createSnapshot(int numberOfNodes, int snapshotsCounter, int snapshotTime,
-                    const char *forgettingType, float mu, float theta,
-                    float lambda, int units, int **recentEvents,
-                    float **currentWeights, float ***snapshots,
-                    int *realNodeIDs) {
-  for (int i = 0; i < numberOfNodes; i++) {
-    for (int j = 0; j < numberOfNodes; j++) {
-      float edgeWeight =
-          compute_weight(snapshotTime, recentEvents[i][j], forgettingType,
-                         currentWeights[i][j], 0, mu, lambda, theta, units);
-      snapshots[snapshotsCounter][i * numberOfNodes + j][0] = realNodeIDs[i];
-      snapshots[snapshotsCounter][i * numberOfNodes + j][1] = realNodeIDs[j];
-      snapshots[snapshotsCounter][i * numberOfNodes + j][2] = edgeWeight;
+void create_snapshot(int number_of_nodes, int snapshot_counter, int snapshot_time,
+                    const char *forgetting_type, float mu, float theta,
+                    float lambda, int units, int **recent_events,
+                    float **current_weights, float ***snapshots,
+                    int *real_node_ids) {
+  for (int i = 0; i < number_of_nodes; i++) {
+    for (int j = 0; j < number_of_nodes; j++) {
+      float edge_weight =
+          compute_weight(snapshot_time, recent_events[i][j], forgetting_type,
+                         current_weights[i][j], 0, mu, lambda, theta, units);
+      snapshots[snapshot_counter][i * number_of_nodes + j][0] = real_node_ids[i];
+      snapshots[snapshot_counter][i * number_of_nodes + j][1] = real_node_ids[j];
+      snapshots[snapshot_counter][i * number_of_nodes + j][2] = edge_weight;
     }
   }
 }
 
 // the main function responsible for computing CogSNet
-struct Cogsnet compute_cogsnet(int numberOfNodes, int *realNodeIDs, int E,
-                               int **events, int snapshotInterval, float mu,
+struct Cogsnet compute_cogsnet(int number_of_nodes, int *real_node_ids, int number_of_events,
+                               int **events, int snapshot_interval, float mu,
                                float theta, float lambda,
-                               const char *forgettingType, int units) {
+                               const char *forgetting_type, int units) {
   struct Cogsnet network;
 
   // we declare an array for storing last events between nodes
-  int **recentEvents = (int **)malloc(numberOfNodes * sizeof(int *));
-  for (int i = 0; i < numberOfNodes; i++) {
-    recentEvents[i] = (int *)malloc(numberOfNodes * sizeof(int));
+  int **recent_events = (int **)malloc(number_of_nodes * sizeof(int *));
+  for (int i = 0; i < number_of_nodes; i++) {
+    recent_events[i] = (int *)malloc(number_of_nodes * sizeof(int));
   }
 
   // we declare an array for storing weights between nodes
-  float **currentWeights = (float **)malloc(numberOfNodes * sizeof(float *));
-  for (int i = 0; i < numberOfNodes; i++) {
-    currentWeights[i] = (float *)malloc(numberOfNodes * sizeof(float));
+  float **current_weights = (float **)malloc(number_of_nodes * sizeof(float *));
+  for (int i = 0; i < number_of_nodes; i++) {
+    current_weights[i] = (float *)malloc(number_of_nodes * sizeof(float));
   }
 
   // Interval between network snapshots.
-  // The variable snapshotInterval is usually expressed in hours or minutes.
-  // The variable units scales the snapshotInterval to seconds.
-  snapshotInterval = snapshotInterval * units;
+  // The variable snapshot_interval is usually expressed in hours or minutes.
+  // The variable units scales the snapshot_interval to seconds.
+  snapshot_interval = snapshot_interval * units;
 
-  int numberOfSnapshots = 0;
-  if (snapshotInterval != 0) {
-    numberOfSnapshots =
-        (events[E - 1][2] - events[0][2]) / snapshotInterval + 1;
+  int number_of_snapshots = 0;
+  if (snapshot_interval != 0) {
+    number_of_snapshots =
+        (events[number_of_events - 1][2] - events[0][2]) / snapshot_interval + 1;
   } else {
-    numberOfSnapshots = E + 1;
+    number_of_snapshots = number_of_events + 1;
   }
 
   // Time of the next snapshot of the network.
   // The first snapshot will be taken relative to the time of the first event in
   // the dataset.
-  int snapshotTime = events[0][2] + snapshotInterval;
+  int snapshot_time = events[0][2] + snapshot_interval;
 
   // Snapshot counter
-  int snapshotCounter = 0;
+  int snapshot_counter = 0;
 
   // The array for storing a complete snapshot of the network.
   // It is saved to a file using the save_cogsnet function.
   // Due to the potentially large size of the array, we allocate memory using
   // malloc on the heap instead of the stack.
-  float ***snapshots = (float ***)malloc(numberOfSnapshots * sizeof(float **));
-  for (int i = 0; i < numberOfSnapshots; i++) {
+  float ***snapshots = (float ***)malloc(number_of_snapshots * sizeof(float **));
+  for (int i = 0; i < number_of_snapshots; i++) {
     snapshots[i] =
-        (float **)malloc(numberOfNodes * numberOfNodes * sizeof(float *));
-    for (int j = 0; j < numberOfNodes * numberOfNodes; j++) {
+        (float **)malloc(number_of_nodes * number_of_nodes * sizeof(float *));
+    for (int j = 0; j < number_of_nodes * number_of_nodes; j++) {
       snapshots[i][j] = (float *)malloc(3 * sizeof(float));
     }
   }
 
   // zeroing arrays
-  for (int i = 0; i < numberOfSnapshots; i++) {
-    for (int j = 0; j < numberOfNodes * numberOfNodes; j++) {
+  for (int i = 0; i < number_of_snapshots; i++) {
+    for (int j = 0; j < number_of_nodes * number_of_nodes; j++) {
       for (int k = 0; k < 3; k++) {
         snapshots[i][j][k] = 0;
       }
     }
   }
 
-  if (snapshotInterval == 0 ||
-      ((events[E - 1][2] - events[0][2]) / snapshotInterval) < E) {
+  if (snapshot_interval == 0 ||
+      ((events[number_of_events - 1][2] - events[0][2]) / snapshot_interval) < number_of_events) {
     // events have to be chronorogically ordered
-    for (int i = 0; i < E; i++) {
+    for (int i = 0; i < number_of_events; i++) {
       // new weight will be stored here
-      double newWeight = 0;
+      double new_weight = 0;
 
       int uid1 = events[i][0];
       int uid2 = events[i][1];
@@ -196,268 +196,265 @@ struct Cogsnet compute_cogsnet(int numberOfNodes, int *realNodeIDs, int E,
       // we check it by looking at weights array, since
       // meanwhile the weight could have dropped below theta
 
-      if (currentWeights[uid1][uid2] == 0) {
+      if (current_weights[uid1][uid2] == 0) {
         // no events before, we set the weight to mu
-        newWeight = mu;
+        new_weight = mu;
       } else {
         // there was an event before
-        newWeight = compute_weight(events[i][2], recentEvents[uid1][uid2],
-                                   forgettingType, currentWeights[uid1][uid2],
+        new_weight = compute_weight(events[i][2], recent_events[uid1][uid2],
+                                   forgetting_type, current_weights[uid1][uid2],
                                    1, mu, lambda, theta, units);
       }
 
       // set the new last event time
       // the edges are undirected, so we perform updates for both directions.
-      recentEvents[uid1][uid2] = events[i][2];
-      recentEvents[uid2][uid1] = events[i][2];
+      recent_events[uid1][uid2] = events[i][2];
+      recent_events[uid2][uid1] = events[i][2];
 
       // set the new weight
-      currentWeights[uid1][uid2] = newWeight;
-      currentWeights[uid2][uid1] = newWeight;
+      current_weights[uid1][uid2] = new_weight;
+      current_weights[uid2][uid1] = new_weight;
 
-      if (snapshotInterval != 0) {
+      if (snapshot_interval != 0) {
         // Take a snapshot after a specified interval has elapsed.
-        // - ((i+1) < E) - check if there is a next event
-        // - (snapshotTime < events[i+1][2]) - take a snapshot if the time of
+        // - ((i+1) < number_of_events) - check if there is a next event
+        // - (snapshot_time < events[i+1][2]) - take a snapshot if the time of
         // the next event is greater than the time of the next snapshot
         // - if the time of the snapshot and the next event is the same, the
         // snapshot will be taken after processing that event in the next
         // iteration of the for loop
         // - if the time between events is very distant, the while loop may take
         // multiple snapshots.
-        while (((i + 1) < E) && (snapshotTime < events[i + 1][2])) {
-          createSnapshot(numberOfNodes, snapshotCounter, snapshotTime,
-                         forgettingType, mu, theta, lambda, units, recentEvents,
-                         currentWeights, snapshots, realNodeIDs);
-          snapshotCounter++;
-          snapshotTime += snapshotInterval;
+        while (((i + 1) < number_of_events) && (snapshot_time < events[i + 1][2])) {
+          create_snapshot(number_of_nodes, snapshot_counter, snapshot_time,
+                         forgetting_type, mu, theta, lambda, units, recent_events,
+                         current_weights, snapshots, real_node_ids);
+          snapshot_counter++;
+          snapshot_time += snapshot_interval;
         }
       } else {
         // Take a snapshot after each event
-        while (((i + 1) < E) && (snapshotTime < events[i + 1][2])) {
-          createSnapshot(numberOfNodes, snapshotCounter, snapshotTime,
-                         forgettingType, mu, theta, lambda, units, recentEvents,
-                         currentWeights, snapshots, realNodeIDs);
-          snapshotCounter++;
-          snapshotTime = events[i + 1][2];
+        while (((i + 1) < number_of_events) && (snapshot_time < events[i + 1][2])) {
+          create_snapshot(number_of_nodes, snapshot_counter, snapshot_time,
+                         forgetting_type, mu, theta, lambda, units, recent_events,
+                         current_weights, snapshots, real_node_ids);
+          snapshot_counter++;
+          snapshot_time = events[i + 1][2];
         }
       }
     }
 
     //  As all events are processed, we take the final snapshot of the network.
-    createSnapshot(numberOfNodes, snapshotCounter, snapshotTime, forgettingType,
-                   mu, theta, lambda, units, recentEvents, currentWeights,
-                   snapshots, realNodeIDs);
-    snapshotCounter++;
+    create_snapshot(number_of_nodes, snapshot_counter, snapshot_time, forgetting_type,
+                   mu, theta, lambda, units, recent_events, current_weights,
+                   snapshots, real_node_ids);
+    snapshot_counter++;
 
     network.snapshots = snapshots;
-    network.numberOfSnapshots = snapshotCounter;
-    network.numberOfNodes = numberOfNodes;
-    network.exitStatus = 0;
+    network.number_of_snapshots = snapshot_counter;
+    network.number_of_nodes = number_of_nodes;
+    network.exit_status = 0;
   } else {
-    snprintf(network.errorMsg, sizeof(network.errorMsg),
+    snprintf(network.error_msg, sizeof(network.error_msg),
              "[ERROR] Number of snapshots cannot be bigger than number of "
              "events! Increase snapshot interval.\n");
-    network.exitStatus = 1;
+    network.exit_status = 1;
   }
 
   // Free the allocated memory
-  for (int i = 0; i < numberOfNodes; i++) {
-    free(recentEvents[i]);
-    free(currentWeights[i]);
+  for (int i = 0; i < number_of_nodes; i++) {
+    free(recent_events[i]);
+    free(current_weights[i]);
   }
-  free(recentEvents);
-  free(currentWeights);
+  free(recent_events);
+  free(current_weights);
 
   return network;
 }
 
 // checks whether a given element exists in an array
-int existingId(int x, int *array, int size) {
-  int isFound = -1;
+int existing_id(int x, int *array, int size) {
+  int is_found = -1;
 
   int i = 0;
 
-  while (isFound < 0 && i < size) {
+  while (is_found < 0 && i < size) {
     if (array[i] == x) {
-      isFound = i;
+      is_found = i;
       break;
     }
 
     i++;
   }
-  return isFound;
+  return is_found;
 }
 
 // this function returns the element in the CSV organized as three-column one
 // (x;y;timestamp) it is used to extract elements both from pathSurveyDates as
 // from pathSurveyDates
 
-int returnElementFromCSV(char eventLine[65536], int elementNumber,
+int return_element_from_csv(char event_line[65536], int element_number,
                          const char *delimiter) {
   char *ptr;
 
-  ptr = strtok(eventLine, delimiter);
+  ptr = strtok(event_line, delimiter);
 
-  int thisLineElementNumber = 0;
+  int this_line_element_number = 0;
 
   while (ptr != NULL) {
-    if (thisLineElementNumber == elementNumber) {
+    if (this_line_element_number == element_number) {
       return atoi(ptr);
     }
 
-    thisLineElementNumber++;
+    this_line_element_number++;
 
     ptr = strtok(NULL, delimiter);
   }
 }
 
-struct Cogsnet cogsnet(const char *forgettingType, int snapshotInterval,
+struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
                        float mu, float theta, float lambda, int units,
-                       const char *pathEvents, const char *delimiter) {
+                       const char *path_events, const char *delimiter) {
   char buffer[65536];
   char *line;
-  char lineCopy[65536];
+  char line_copy[65536];
 
   struct Cogsnet network;
   network.snapshots = NULL;
 
-  int numberOfLines = 0;
+  int number_of_lines = 0;
 
   // check if the file exists
-  if (access(pathEvents, F_OK) != -1) {
+  if (access(path_events, F_OK) != -1) {
     // define the stream for events
-    FILE *filePointer;
+    FILE *file_pointer;
 
-    filePointer = fopen(pathEvents, "r");
+    file_pointer = fopen(path_events, "r");
 
     // check if there is no other problem with the file stream
-    if (filePointer != NULL) {
+    if (file_pointer != NULL) {
       // firstly, we check how many lines we do have to read from the file
 
       // read the header
-      line = fgets(buffer, sizeof(buffer), filePointer);
+      line = fgets(buffer, sizeof(buffer), file_pointer);
 
       // we read one line (header)
-      numberOfLines++;
+      number_of_lines++;
 
       // now read the rest of the file until the condition won't be met
-      while ((line = fgets(buffer, sizeof(buffer), filePointer)) != NULL) {
-        numberOfLines++;
+      while ((line = fgets(buffer, sizeof(buffer), file_pointer)) != NULL) {
+        number_of_lines++;
       }
 
-      fclose(filePointer);
+      fclose(file_pointer);
 
-      // if the pathEvents has more then one line (header always should be
+      // if the path_events has more then one line (header always should be
       // there)
-      if (numberOfLines > 1) {
+      if (number_of_lines > 1) {
         // define an array for events
         // sender, receiver, timestamp
-        int numberOfEvents = numberOfLines - 1;
-        int **events = (int **)malloc(numberOfEvents * sizeof(int *));
-        for (int i = 0; i < numberOfEvents; i++) {
+        int number_of_events = number_of_lines - 1;
+        int **events = (int **)malloc(number_of_events * sizeof(int *));
+        for (int i = 0; i < number_of_events; i++) {
           events[i] = (int *)malloc(3 * sizeof(int));
         }
 
-        // now, reopen the pathEvents with events as the stream
-        filePointer = fopen(pathEvents, "r");
+        // now, reopen the path_events with events as the stream
+        file_pointer = fopen(path_events, "r");
 
         // skip first line, as it is a header
-        line = fgets(buffer, sizeof(buffer), filePointer);
+        line = fgets(buffer, sizeof(buffer), file_pointer);
 
         // read all further lines and put them into events' matrix
+        int events_node_id_sender = 0;
+        int events_node_id_receiver = 0;
+        int events_timestamp = 0;
 
-        int eventNumber = 0;
-
-        int eventsNodeIDSender = 0;
-        int eventsNodeIDReceiver = 0;
-        int eventsTimestamp = 0;
-
-        for (eventNumber = 0; eventNumber < numberOfEvents; eventNumber++) {
+        for (int event_number = 0; event_number < number_of_events; event_number++) {
           // read the line
-          line = fgets(buffer, sizeof(buffer), filePointer);
+          line = fgets(buffer, sizeof(buffer), file_pointer);
 
           // extract the first element (sender's nodeID)
-          strcpy(lineCopy, line);
-          eventsNodeIDSender = returnElementFromCSV(lineCopy, 0, delimiter);
+          strcpy(line_copy, line);
+          events_node_id_sender = return_element_from_csv(line_copy, 0, delimiter);
 
           // extract the second element (receiver's nodeID)
-          strcpy(lineCopy, line);
-          eventsNodeIDReceiver = returnElementFromCSV(lineCopy, 1, delimiter);
+          strcpy(line_copy, line);
+          events_node_id_receiver = return_element_from_csv(line_copy, 1, delimiter);
 
           // extract the second element (event timestamp)
-          strcpy(lineCopy, line);
-          eventsTimestamp = returnElementFromCSV(lineCopy, 2, delimiter);
+          strcpy(line_copy, line);
+          events_timestamp = return_element_from_csv(line_copy, 2, delimiter);
 
           // set the proper values of array
-          events[eventNumber][0] = eventsNodeIDSender;
-          events[eventNumber][1] = eventsNodeIDReceiver;
-          events[eventNumber][2] = eventsTimestamp;
+          events[event_number][0] = events_node_id_sender;
+          events[event_number][1] = events_node_id_receiver;
+          events[event_number][2] = events_timestamp;
         }
 
-        fclose(filePointer);
+        fclose(file_pointer);
 
         // the array holding real nodeIDs
-        int currentSize = 1;
-        int *realNodeIDs = (int *)malloc(currentSize * sizeof(int));
+        int current_size = 1;
+        int *real_node_ids = (int *)malloc(current_size * sizeof(int));
 
         // actual number of nodes in the events files
-        int numberOfNodes = 0;
+        int number_of_nodes = 0;
 
         // ----- convert node ids -----
-        for (int i = 0; i < numberOfEvents; i++) {
+        for (int i = 0; i < number_of_events; i++) {
           for (int j = 0; j < 2; j++) {
-            int realNodeID = events[i][j];
-            int convertedNodeID =
-                existingId(realNodeID, realNodeIDs, numberOfNodes);
+            int real_node_id = events[i][j];
+            int converted_node_id =
+                existing_id(real_node_id, real_node_ids, number_of_nodes);
 
-            // do we already have this nodeID in realNodeIDs?
-            if (convertedNodeID < 0) {
-              if (currentSize < (numberOfNodes + 1)) {
-                currentSize *= 2;  // double the size
-                realNodeIDs =
-                    (int *)realloc(realNodeIDs, currentSize * sizeof(int));
+            // do we already have this nodeID in real_node_ids?
+            if (converted_node_id < 0) {
+              if (current_size < (number_of_nodes + 1)) {
+                current_size *= 2;  // double the size
+                real_node_ids =
+                    (int *)realloc(real_node_ids, current_size * sizeof(int));
               }
               // no, we need to add it
-              realNodeIDs[numberOfNodes] = realNodeID;
-              events[i][j] = numberOfNodes;
+              real_node_ids[number_of_nodes] = real_node_id;
+              events[i][j] = number_of_nodes;
 
-              numberOfNodes++;
+              number_of_nodes++;
             } else {
-              events[i][j] = convertedNodeID;
+              events[i][j] = converted_node_id;
             }
           }
         }
-        network = compute_cogsnet(numberOfNodes, realNodeIDs, numberOfEvents,
-                                  events, snapshotInterval, mu, theta, lambda,
-                                  forgettingType, units);
+        network = compute_cogsnet(number_of_nodes, real_node_ids, number_of_events,
+                                  events, snapshot_interval, mu, theta, lambda,
+                                  forgetting_type, units);
 
         // free the allocated memory
-        for (int i = 0; i < numberOfEvents; i++) {
+        for (int i = 0; i < number_of_events; i++) {
           free(events[i]);
         }
         free(events);
-        free(realNodeIDs);
+        free(real_node_ids);
 
         return network;
       } else {
-        snprintf(network.errorMsg, sizeof(network.errorMsg),
+        snprintf(network.error_msg, sizeof(network.error_msg),
                  "[ERROR] Reading events from %s: no events to read\n",
-                 pathEvents);
+                 path_events);
       }
     } else {
       snprintf(
-          network.errorMsg, sizeof(network.errorMsg),
+          network.error_msg, sizeof(network.error_msg),
           "[ERROR] Reading events from %s: error reading from filestream\n",
-          pathEvents);
+          path_events);
     }
   } else {
-    snprintf(network.errorMsg, sizeof(network.errorMsg),
-             "[ERROR] Reading events from %s: file not found\n", pathEvents);
+    snprintf(network.error_msg, sizeof(network.error_msg),
+             "[ERROR] Reading events from %s: file not found\n", path_events);
   }
 
   // network.snapshots = snapshots;
-  network.exitStatus = 1;
+  network.exit_status = 1;
   return network;
 }
 
@@ -465,6 +462,6 @@ int main() {
   struct Cogsnet network =
       cogsnet("exponential", 180, 0.3, 0.1, 0.005, 3600,
               "/Users/mnurek/Projects/c-extensions-python/events.csv", ";");
-  printf("%i", network.exitStatus);
+  printf("%i", network.exit_status);
   return 0;
 }
