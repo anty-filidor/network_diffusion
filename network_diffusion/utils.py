@@ -25,6 +25,7 @@ import pathlib
 import string
 from typing import Any, Dict, List, Union
 
+import networkx as nx
 import dynetx as dn
 import numpy as np
 
@@ -81,7 +82,7 @@ def read_mpx(file_path: str) -> Dict[str, List[Any]]:
 
     return net_dict
 
-
+#TODO: old dynetx snapshots
 def get_snapshot(
     graph: Union[dn.DynGraph, dn.DynDiGraph],
     snap_id: int,
@@ -101,18 +102,36 @@ def get_snapshot(
     win_end = (snap_id + 1) * time_window + min_timestamp
     return graph.time_slice(t_from=win_begin, t_to=win_end)
 
+def get_nx_snapshot(
+    graph: Union[dn.DynGraph, dn.DynDiGraph],
+    snap_id: int,
+    min_timestamp: int,
+    time_window: int,
+) -> Union[dn.DynGraph, dn.DynDiGraph]:
+    """
+    Get an nxGraph typed snapshot for the given snapshot id.
 
-# TODO (YQ): convert snaps to nx.Graph
+    :param graph: the dynamic graph
+    :param snap_id: the snapshot id
+    :param min_timestamp: the minimum timestamp in the graph
+    :param time_window: the size of the time window
+    :return: a snapshot graph of the given id
+    """
+    win_begin = snap_id * time_window + min_timestamp
+    win_end = (snap_id + 1) * time_window + min_timestamp
+    return nx.Graph(graph.time_slice(t_from=win_begin, t_to=win_end).edges)
+
+
 def read_tpn(
     file_path: str, time_window: int, directed: bool = True
-) -> List[Union[dn.DynGraph, dn.DynDiGraph]]:
+) -> Dict[int, Any]:
     """
     Read temporal network from a text file for the TemporalNetwork class.
 
     :param file_path: path to file
     :return: a dictionary with network to create class
     """
-    snaps = []
+    net_dict = {}
 
     graph = dn.read_snapshots(
         file_path, directed=directed, nodetype=int, timestamptype=int
@@ -122,9 +141,11 @@ def read_tpn(
     num_of_snaps = math.ceil((max_timestamp - min_timestamp) / time_window)
 
     for snap_id in range(num_of_snaps):
-        snaps.append(get_snapshot(graph, snap_id, min_timestamp, time_window))
+        net_dict[snap_id] = get_nx_snapshot(
+            graph, snap_id, min_timestamp, time_window
+        )
 
-    return snaps
+    return net_dict
 
 
 def create_directory(dest_path: str) -> None:
