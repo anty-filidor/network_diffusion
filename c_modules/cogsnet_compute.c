@@ -139,11 +139,6 @@ struct Cogsnet compute_cogsnet(int number_of_nodes, int *real_node_ids, int numb
     current_weights[i] = (float *)malloc(number_of_nodes * sizeof(float));
   }
 
-  // Interval between network snapshots.
-  // The variable snapshot_interval is usually expressed in hours or minutes.
-  // The variable units scales the snapshot_interval to seconds.
-  snapshot_interval = snapshot_interval * units;
-
   int number_of_snapshots = 0;
   if (snapshot_interval != 0) {
     number_of_snapshots =
@@ -313,7 +308,7 @@ int return_element_from_csv(char event_line[65536], int element_number,
 }
 
 struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
-                       float mu, float theta, float lambda, int units,
+                       int edge_lifetime, float mu, float theta, int units,
                        const char *path_events, const char *delimiter) {
   char buffer[65536];
   char *line;
@@ -322,135 +317,207 @@ struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
   struct Cogsnet network;
   network.snapshots = NULL;
 
+  // validate parameters
+  if (strcmp(forgetting_type, "exponential") != 0 &&
+      strcmp(forgetting_type, "power") != 0 &&
+      strcmp(forgetting_type, "linear") != 0) {
+      network.exit_status = 1;
+      snprintf(network.error_msg, sizeof(network.error_msg),
+                "[ERROR] Invalid forgetting_type: %s. Allowed values are 'exponential', 'power', or 'linear'.\n", forgetting_type);
+      return network;
+  }
+
+  if (snapshot_interval < 0) {
+      network.exit_status = 1;
+      snprintf(network.error_msg, sizeof(network.error_msg),
+                "[ERROR] snapshot_interval (%d) cannot be less than 0.\n", snapshot_interval);
+      return network;
+  }
+
+  if (edge_lifetime <= 0) {
+      network.exit_status = 1;
+      snprintf(network.error_msg, sizeof(network.error_msg),
+                "[ERROR] edge_lifetime (%d) has to be greater than 0.\n", edge_lifetime);
+      return network;
+  }
+
+  if (mu <= 0 || mu > 1) {
+      network.exit_status = 1;
+      snprintf(network.error_msg, sizeof(network.error_msg),
+                "[ERROR] mu (%f) has to be greater than 0 and less than or equal to 1.\n", mu);
+      return network;
+  }
+
+  if (theta < 0 || theta >= mu) {
+      network.exit_status = 1;
+      snprintf(network.error_msg, sizeof(network.error_msg),
+                "[ERROR] theta (%f) has to be between 0 and mu (%f).\n", theta, mu);
+      return network;
+  }
+
+  if (units != 1 && units != 60 && units != 3600) {
+      network.exit_status = 1;
+      snprintf(network.error_msg, sizeof(network.error_msg),
+                "[ERROR] Invalid units: %d. Allowed values are 1 (seconds), 60 (minutes), or 3600 (hours).\n", units);
+      return network;
+  }
+
+  if (access(path_events, F_OK) != 0) {
+      network.exit_status = 1;
+      snprintf(network.error_msg, sizeof(network.error_msg),
+                "[ERROR] File does not exist: %s.\n", path_events);
+      return network;
+  }
+
+  if (!(strcmp(delimiter, ",") == 0 ||
+        strcmp(delimiter, ";") == 0 ||
+        strcmp(delimiter, "\t") == 0)) {
+      network.exit_status = 1;
+      snprintf(network.error_msg, sizeof(network.error_msg),
+                "[ERROR] Invalid delimiter: %s. Allowed delimiters are ',', ';', or '\\t'.\n", delimiter);
+      return network;
+  }
+
+  // The variable snapshot_interval and edge_lifetime are usually expressed in hours or minutes.
+  // The variable units scales the snapshot_interval and edge_lifetime to seconds.
+  snapshot_interval = snapshot_interval * units;
+  edge_lifetime = edge_lifetime * units;
+
+  // compute lambda
+  float lambda;
+  if (strncmp(forgetting_type, "exponential", 11) == 0) {
+    lambda = (1.0 / edge_lifetime) * log(mu / theta);
+  } else if (strncmp(forgetting_type, "power", 5) == 0) {
+    lambda = log(mu / theta) * log(edge_lifetime);;
+  } else { 
+    // linear
+    lambda = (1.0 / edge_lifetime) * (mu - theta);
+  }
+
+  // start reading events
+
+  // define the stream for events
+  FILE *file_pointer;
+  file_pointer = fopen(path_events, "r");
+
   int number_of_lines = 0;
 
-  // check if the file exists
-  if (access(path_events, F_OK) != -1) {
-    // define the stream for events
-    FILE *file_pointer;
+  // check if there is no other problem with the file stream
+  if (file_pointer != NULL) {
+    // firstly, we check how many lines we do have to read from the file
 
-    file_pointer = fopen(path_events, "r");
+    // read the header
+    line = fgets(buffer, sizeof(buffer), file_pointer);
 
-    // check if there is no other problem with the file stream
-    if (file_pointer != NULL) {
-      // firstly, we check how many lines we do have to read from the file
+    // we read one line (header)
+    number_of_lines++;
 
-      // read the header
+    // now read the rest of the file until the condition won't be met
+    while ((line = fgets(buffer, sizeof(buffer), file_pointer)) != NULL) {
+      number_of_lines++;
+    }
+
+    fclose(file_pointer);
+
+    // if the path_events has more then one line (header always should be
+    // there)
+    if (number_of_lines > 1) {
+      // define an array for events
+      // sender, receiver, timestamp
+      int number_of_events = number_of_lines - 1;
+      int **events = (int **)malloc(number_of_events * sizeof(int *));
+      for (int i = 0; i < number_of_events; i++) {
+        events[i] = (int *)malloc(3 * sizeof(int));
+      }
+
+      // now, reopen the path_events with events as the stream
+      file_pointer = fopen(path_events, "r");
+
+      // skip first line, as it is a header
       line = fgets(buffer, sizeof(buffer), file_pointer);
 
-      // we read one line (header)
-      number_of_lines++;
+      // read all further lines and put them into events' matrix
+      int events_node_id_sender = 0;
+      int events_node_id_receiver = 0;
+      int events_timestamp = 0;
 
-      // now read the rest of the file until the condition won't be met
-      while ((line = fgets(buffer, sizeof(buffer), file_pointer)) != NULL) {
-        number_of_lines++;
+      for (int event_number = 0; event_number < number_of_events; event_number++) {
+        // read the line
+        line = fgets(buffer, sizeof(buffer), file_pointer);
+
+        // extract the first element (sender's nodeID)
+        strcpy(line_copy, line);
+        events_node_id_sender = return_element_from_csv(line_copy, 0, delimiter);
+
+        // extract the second element (receiver's nodeID)
+        strcpy(line_copy, line);
+        events_node_id_receiver = return_element_from_csv(line_copy, 1, delimiter);
+
+        // extract the second element (event timestamp)
+        strcpy(line_copy, line);
+        events_timestamp = return_element_from_csv(line_copy, 2, delimiter);
+
+        // set the proper values of array
+        events[event_number][0] = events_node_id_sender;
+        events[event_number][1] = events_node_id_receiver;
+        events[event_number][2] = events_timestamp;
       }
 
       fclose(file_pointer);
 
-      // if the path_events has more then one line (header always should be
-      // there)
-      if (number_of_lines > 1) {
-        // define an array for events
-        // sender, receiver, timestamp
-        int number_of_events = number_of_lines - 1;
-        int **events = (int **)malloc(number_of_events * sizeof(int *));
-        for (int i = 0; i < number_of_events; i++) {
-          events[i] = (int *)malloc(3 * sizeof(int));
-        }
+      // the array holding real nodeIDs
+      int current_size = 1;
+      int *real_node_ids = (int *)malloc(current_size * sizeof(int));
 
-        // now, reopen the path_events with events as the stream
-        file_pointer = fopen(path_events, "r");
+      // actual number of nodes in the events files
+      int number_of_nodes = 0;
 
-        // skip first line, as it is a header
-        line = fgets(buffer, sizeof(buffer), file_pointer);
+      // ----- convert node ids -----
+      for (int i = 0; i < number_of_events; i++) {
+        for (int j = 0; j < 2; j++) {
+          int real_node_id = events[i][j];
+          int converted_node_id =
+              existing_id(real_node_id, real_node_ids, number_of_nodes);
 
-        // read all further lines and put them into events' matrix
-        int events_node_id_sender = 0;
-        int events_node_id_receiver = 0;
-        int events_timestamp = 0;
-
-        for (int event_number = 0; event_number < number_of_events; event_number++) {
-          // read the line
-          line = fgets(buffer, sizeof(buffer), file_pointer);
-
-          // extract the first element (sender's nodeID)
-          strcpy(line_copy, line);
-          events_node_id_sender = return_element_from_csv(line_copy, 0, delimiter);
-
-          // extract the second element (receiver's nodeID)
-          strcpy(line_copy, line);
-          events_node_id_receiver = return_element_from_csv(line_copy, 1, delimiter);
-
-          // extract the second element (event timestamp)
-          strcpy(line_copy, line);
-          events_timestamp = return_element_from_csv(line_copy, 2, delimiter);
-
-          // set the proper values of array
-          events[event_number][0] = events_node_id_sender;
-          events[event_number][1] = events_node_id_receiver;
-          events[event_number][2] = events_timestamp;
-        }
-
-        fclose(file_pointer);
-
-        // the array holding real nodeIDs
-        int current_size = 1;
-        int *real_node_ids = (int *)malloc(current_size * sizeof(int));
-
-        // actual number of nodes in the events files
-        int number_of_nodes = 0;
-
-        // ----- convert node ids -----
-        for (int i = 0; i < number_of_events; i++) {
-          for (int j = 0; j < 2; j++) {
-            int real_node_id = events[i][j];
-            int converted_node_id =
-                existing_id(real_node_id, real_node_ids, number_of_nodes);
-
-            // do we already have this nodeID in real_node_ids?
-            if (converted_node_id < 0) {
-              if (current_size < (number_of_nodes + 1)) {
-                current_size *= 2;  // double the size
-                real_node_ids =
-                    (int *)realloc(real_node_ids, current_size * sizeof(int));
-              }
-              // no, we need to add it
-              real_node_ids[number_of_nodes] = real_node_id;
-              events[i][j] = number_of_nodes;
-
-              number_of_nodes++;
-            } else {
-              events[i][j] = converted_node_id;
+          // do we already have this nodeID in real_node_ids?
+          if (converted_node_id < 0) {
+            if (current_size < (number_of_nodes + 1)) {
+              current_size *= 2;  // double the size
+              real_node_ids =
+                  (int *)realloc(real_node_ids, current_size * sizeof(int));
             }
+            // no, we need to add it
+            real_node_ids[number_of_nodes] = real_node_id;
+            events[i][j] = number_of_nodes;
+
+            number_of_nodes++;
+          } else {
+            events[i][j] = converted_node_id;
           }
         }
-        network = compute_cogsnet(number_of_nodes, real_node_ids, number_of_events,
-                                  events, snapshot_interval, mu, theta, lambda,
-                                  forgetting_type, units);
-
-        // free the allocated memory
-        for (int i = 0; i < number_of_events; i++) {
-          free(events[i]);
-        }
-        free(events);
-        free(real_node_ids);
-
-        return network;
-      } else {
-        snprintf(network.error_msg, sizeof(network.error_msg),
-                 "[ERROR] Reading events from %s: no events to read\n",
-                 path_events);
       }
+      network = compute_cogsnet(number_of_nodes, real_node_ids, number_of_events,
+                                events, snapshot_interval, mu, theta, lambda,
+                                forgetting_type, units);
+
+      // free the allocated memory
+      for (int i = 0; i < number_of_events; i++) {
+        free(events[i]);
+      }
+      free(events);
+      free(real_node_ids);
+
+      return network;
     } else {
-      snprintf(
-          network.error_msg, sizeof(network.error_msg),
-          "[ERROR] Reading events from %s: error reading from filestream\n",
-          path_events);
+      snprintf(network.error_msg, sizeof(network.error_msg),
+                "[ERROR] Reading events from %s: no events to read\n",
+                path_events);
     }
   } else {
-    snprintf(network.error_msg, sizeof(network.error_msg),
-             "[ERROR] Reading events from %s: file not found\n", path_events);
+    snprintf(
+        network.error_msg, sizeof(network.error_msg),
+        "[ERROR] Reading events from %s: error reading from filestream\n",
+        path_events);
   }
 
   // network.snapshots = snapshots;
@@ -459,9 +526,6 @@ struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
 }
 
 int main() {
-  struct Cogsnet network =
-      cogsnet("exponential", 180, 0.3, 0.1, 0.005, 3600,
-              "/Users/mnurek/Projects/c-extensions-python/events.csv", ";");
-  printf("%i", network.exit_status);
+  cogsnet("exponential", 180, 72, 0.3, 0.1, 3600, "network_diffusion/tests/data/cogsnet_data.csv", ";");
   return 0;
 }

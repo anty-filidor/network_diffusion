@@ -7,23 +7,23 @@
 static PyObject* method_cogsnet(PyObject* self, PyObject* args) {
   const char* forgetting_type;
   int snapshot_interval;
+  int edge_lifetime;
   float mu;
   float theta;
-  float lambda_;
   int units;
   const char* path_events;
   const char* delimiter;
 
   // Parse arguments
   if (!PyArg_ParseTuple(args, "sifffiss", &forgetting_type, &snapshot_interval,
-                        &mu, &theta, &lambda_, &units, &path_events,
+                        &edge_lifetime, &mu, &theta, &units, &path_events,
                         &delimiter)) {
     return NULL;
   }
 
   // Run cogsnet
-  struct Cogsnet network = cogsnet(forgetting_type, snapshot_interval, mu, theta,
-                                   lambda_, units, path_events, delimiter);
+  struct Cogsnet network = cogsnet(forgetting_type, snapshot_interval, edge_lifetime,
+                                   mu, theta, units, path_events, delimiter);
 
   // Snaphots of the network
   float*** snapshots = network.snapshots;
