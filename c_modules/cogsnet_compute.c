@@ -103,28 +103,31 @@ float compute_weight(int time_to_compute, int time_last_event,
   }
 }
 
-void create_snapshot(int number_of_nodes, int snapshot_counter, int snapshot_time,
-                    const char *forgetting_type, float mu, float theta,
-                    float lambda, int units, int **recent_events,
-                    float **current_weights, float ***snapshots,
-                    int *real_node_ids) {
+void create_snapshot(int number_of_nodes, int snapshot_counter,
+                     int snapshot_time, const char *forgetting_type, float mu,
+                     float theta, float lambda, int units, int **recent_events,
+                     float **current_weights, float ***snapshots,
+                     int *real_node_ids) {
   for (int i = 0; i < number_of_nodes; i++) {
     for (int j = 0; j < number_of_nodes; j++) {
       float edge_weight =
           compute_weight(snapshot_time, recent_events[i][j], forgetting_type,
                          current_weights[i][j], 0, mu, lambda, theta, units);
-      snapshots[snapshot_counter][i * number_of_nodes + j][0] = real_node_ids[i];
-      snapshots[snapshot_counter][i * number_of_nodes + j][1] = real_node_ids[j];
+      snapshots[snapshot_counter][i * number_of_nodes + j][0] =
+          real_node_ids[i];
+      snapshots[snapshot_counter][i * number_of_nodes + j][1] =
+          real_node_ids[j];
       snapshots[snapshot_counter][i * number_of_nodes + j][2] = edge_weight;
     }
   }
 }
 
 // the main function responsible for computing CogSNet
-struct Cogsnet compute_cogsnet(int number_of_nodes, int *real_node_ids, int number_of_events,
-                               int **events, int snapshot_interval, float mu,
-                               float theta, float lambda,
-                               const char *forgetting_type, int units) {
+struct Cogsnet compute_cogsnet(int number_of_nodes, int *real_node_ids,
+                               int number_of_events, int **events,
+                               int snapshot_interval, float mu, float theta,
+                               float lambda, const char *forgetting_type,
+                               int units) {
   struct Cogsnet network;
 
   // we declare an array for storing last events between nodes
@@ -142,7 +145,8 @@ struct Cogsnet compute_cogsnet(int number_of_nodes, int *real_node_ids, int numb
   int number_of_snapshots = 0;
   if (snapshot_interval != 0) {
     number_of_snapshots =
-        (events[number_of_events - 1][2] - events[0][2]) / snapshot_interval + 1;
+        (events[number_of_events - 1][2] - events[0][2]) / snapshot_interval +
+        1;
   } else {
     number_of_snapshots = number_of_events + 1;
   }
@@ -159,7 +163,8 @@ struct Cogsnet compute_cogsnet(int number_of_nodes, int *real_node_ids, int numb
   // It is saved to a file using the save_cogsnet function.
   // Due to the potentially large size of the array, we allocate memory using
   // malloc on the heap instead of the stack.
-  float ***snapshots = (float ***)malloc(number_of_snapshots * sizeof(float **));
+  float ***snapshots =
+      (float ***)malloc(number_of_snapshots * sizeof(float **));
   for (int i = 0; i < number_of_snapshots; i++) {
     snapshots[i] =
         (float **)malloc(number_of_nodes * number_of_nodes * sizeof(float *));
@@ -178,7 +183,8 @@ struct Cogsnet compute_cogsnet(int number_of_nodes, int *real_node_ids, int numb
   }
 
   if (snapshot_interval == 0 ||
-      ((events[number_of_events - 1][2] - events[0][2]) / snapshot_interval) < number_of_events) {
+      ((events[number_of_events - 1][2] - events[0][2]) / snapshot_interval) <
+          number_of_events) {
     // events have to be chronorogically ordered
     for (int i = 0; i < number_of_events; i++) {
       // new weight will be stored here
@@ -196,9 +202,9 @@ struct Cogsnet compute_cogsnet(int number_of_nodes, int *real_node_ids, int numb
         new_weight = mu;
       } else {
         // there was an event before
-        new_weight = compute_weight(events[i][2], recent_events[uid1][uid2],
-                                   forgetting_type, current_weights[uid1][uid2],
-                                   1, mu, lambda, theta, units);
+        new_weight = compute_weight(
+            events[i][2], recent_events[uid1][uid2], forgetting_type,
+            current_weights[uid1][uid2], 1, mu, lambda, theta, units);
       }
 
       // set the new last event time
@@ -220,19 +226,23 @@ struct Cogsnet compute_cogsnet(int number_of_nodes, int *real_node_ids, int numb
         // iteration of the for loop
         // - if the time between events is very distant, the while loop may take
         // multiple snapshots.
-        while (((i + 1) < number_of_events) && (snapshot_time < events[i + 1][2])) {
+        while (((i + 1) < number_of_events) &&
+               (snapshot_time < events[i + 1][2])) {
           create_snapshot(number_of_nodes, snapshot_counter, snapshot_time,
-                         forgetting_type, mu, theta, lambda, units, recent_events,
-                         current_weights, snapshots, real_node_ids);
+                          forgetting_type, mu, theta, lambda, units,
+                          recent_events, current_weights, snapshots,
+                          real_node_ids);
           snapshot_counter++;
           snapshot_time += snapshot_interval;
         }
       } else {
         // Take a snapshot after each event
-        while (((i + 1) < number_of_events) && (snapshot_time < events[i + 1][2])) {
+        while (((i + 1) < number_of_events) &&
+               (snapshot_time < events[i + 1][2])) {
           create_snapshot(number_of_nodes, snapshot_counter, snapshot_time,
-                         forgetting_type, mu, theta, lambda, units, recent_events,
-                         current_weights, snapshots, real_node_ids);
+                          forgetting_type, mu, theta, lambda, units,
+                          recent_events, current_weights, snapshots,
+                          real_node_ids);
           snapshot_counter++;
           snapshot_time = events[i + 1][2];
         }
@@ -240,9 +250,9 @@ struct Cogsnet compute_cogsnet(int number_of_nodes, int *real_node_ids, int numb
     }
 
     //  As all events are processed, we take the final snapshot of the network.
-    create_snapshot(number_of_nodes, snapshot_counter, snapshot_time, forgetting_type,
-                   mu, theta, lambda, units, recent_events, current_weights,
-                   snapshots, real_node_ids);
+    create_snapshot(number_of_nodes, snapshot_counter, snapshot_time,
+                    forgetting_type, mu, theta, lambda, units, recent_events,
+                    current_weights, snapshots, real_node_ids);
     snapshot_counter++;
 
     network.snapshots = snapshots;
@@ -289,7 +299,7 @@ int existing_id(int x, int *array, int size) {
 // from pathSurveyDates
 
 int return_element_from_csv(char event_line[65536], int element_number,
-                         const char *delimiter) {
+                            const char *delimiter) {
   char *ptr;
 
   ptr = strtok(event_line, delimiter);
@@ -321,65 +331,76 @@ struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
   if (strcmp(forgetting_type, "exponential") != 0 &&
       strcmp(forgetting_type, "power") != 0 &&
       strcmp(forgetting_type, "linear") != 0) {
-      network.exit_status = 1;
-      snprintf(network.error_msg, sizeof(network.error_msg),
-                "[ERROR] Invalid forgetting_type: %s. Allowed values are 'exponential', 'power', or 'linear'.\n", forgetting_type);
-      return network;
+    network.exit_status = 1;
+    snprintf(network.error_msg, sizeof(network.error_msg),
+             "[ERROR] Invalid forgetting_type: %s. Allowed values are "
+             "'exponential', 'power', or 'linear'.\n",
+             forgetting_type);
+    return network;
   }
 
   if (snapshot_interval < 0) {
-      network.exit_status = 1;
-      snprintf(network.error_msg, sizeof(network.error_msg),
-                "[ERROR] snapshot_interval (%d) cannot be less than 0.\n", snapshot_interval);
-      return network;
+    network.exit_status = 1;
+    snprintf(network.error_msg, sizeof(network.error_msg),
+             "[ERROR] snapshot_interval (%d) cannot be less than 0.\n",
+             snapshot_interval);
+    return network;
   }
 
   if (edge_lifetime <= 0) {
-      network.exit_status = 1;
-      snprintf(network.error_msg, sizeof(network.error_msg),
-                "[ERROR] edge_lifetime (%d) has to be greater than 0.\n", edge_lifetime);
-      return network;
+    network.exit_status = 1;
+    snprintf(network.error_msg, sizeof(network.error_msg),
+             "[ERROR] edge_lifetime (%d) has to be greater than 0.\n",
+             edge_lifetime);
+    return network;
   }
 
   if (mu <= 0 || mu > 1) {
-      network.exit_status = 1;
-      snprintf(network.error_msg, sizeof(network.error_msg),
-                "[ERROR] mu (%f) has to be greater than 0 and less than or equal to 1.\n", mu);
-      return network;
+    network.exit_status = 1;
+    snprintf(network.error_msg, sizeof(network.error_msg),
+             "[ERROR] mu (%f) has to be greater than 0 and less than or equal "
+             "to 1.\n",
+             mu);
+    return network;
   }
 
   if (theta < 0 || theta >= mu) {
-      network.exit_status = 1;
-      snprintf(network.error_msg, sizeof(network.error_msg),
-                "[ERROR] theta (%f) has to be between 0 and mu (%f).\n", theta, mu);
-      return network;
+    network.exit_status = 1;
+    snprintf(network.error_msg, sizeof(network.error_msg),
+             "[ERROR] theta (%f) has to be between 0 and mu (%f).\n", theta,
+             mu);
+    return network;
   }
 
   if (units != 1 && units != 60 && units != 3600) {
-      network.exit_status = 1;
-      snprintf(network.error_msg, sizeof(network.error_msg),
-                "[ERROR] Invalid units: %d. Allowed values are 1 (seconds), 60 (minutes), or 3600 (hours).\n", units);
-      return network;
+    network.exit_status = 1;
+    snprintf(network.error_msg, sizeof(network.error_msg),
+             "[ERROR] Invalid units: %d. Allowed values are 1 (seconds), 60 "
+             "(minutes), or 3600 (hours).\n",
+             units);
+    return network;
   }
 
   if (access(path_events, F_OK) != 0) {
-      network.exit_status = 1;
-      snprintf(network.error_msg, sizeof(network.error_msg),
-                "[ERROR] File does not exist: %s.\n", path_events);
-      return network;
+    network.exit_status = 1;
+    snprintf(network.error_msg, sizeof(network.error_msg),
+             "[ERROR] File does not exist: %s.\n", path_events);
+    return network;
   }
 
-  if (!(strcmp(delimiter, ",") == 0 ||
-        strcmp(delimiter, ";") == 0 ||
+  if (!(strcmp(delimiter, ",") == 0 || strcmp(delimiter, ";") == 0 ||
         strcmp(delimiter, "\t") == 0)) {
-      network.exit_status = 1;
-      snprintf(network.error_msg, sizeof(network.error_msg),
-                "[ERROR] Invalid delimiter: %s. Allowed delimiters are ',', ';', or '\\t'.\n", delimiter);
-      return network;
+    network.exit_status = 1;
+    snprintf(network.error_msg, sizeof(network.error_msg),
+             "[ERROR] Invalid delimiter: %s. Allowed delimiters are ',', ';', "
+             "or '\\t'.\n",
+             delimiter);
+    return network;
   }
 
-  // The variable snapshot_interval and edge_lifetime are usually expressed in hours or minutes.
-  // The variable units scales the snapshot_interval and edge_lifetime to seconds.
+  // The variable snapshot_interval and edge_lifetime are usually expressed in
+  // hours or minutes. The variable units scales the snapshot_interval and
+  // edge_lifetime to seconds.
   snapshot_interval = snapshot_interval * units;
   edge_lifetime = edge_lifetime * units;
 
@@ -388,8 +409,9 @@ struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
   if (strncmp(forgetting_type, "exponential", 11) == 0) {
     lambda = (1.0 / edge_lifetime) * log(mu / theta);
   } else if (strncmp(forgetting_type, "power", 5) == 0) {
-    lambda = log(mu / theta) * log(edge_lifetime);;
-  } else { 
+    lambda = log(mu / theta) * log(edge_lifetime);
+    ;
+  } else {
     // linear
     lambda = (1.0 / edge_lifetime) * (mu - theta);
   }
@@ -441,17 +463,20 @@ struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
       int events_node_id_receiver = 0;
       int events_timestamp = 0;
 
-      for (int event_number = 0; event_number < number_of_events; event_number++) {
+      for (int event_number = 0; event_number < number_of_events;
+           event_number++) {
         // read the line
         line = fgets(buffer, sizeof(buffer), file_pointer);
 
         // extract the first element (sender's nodeID)
         strcpy(line_copy, line);
-        events_node_id_sender = return_element_from_csv(line_copy, 0, delimiter);
+        events_node_id_sender =
+            return_element_from_csv(line_copy, 0, delimiter);
 
         // extract the second element (receiver's nodeID)
         strcpy(line_copy, line);
-        events_node_id_receiver = return_element_from_csv(line_copy, 1, delimiter);
+        events_node_id_receiver =
+            return_element_from_csv(line_copy, 1, delimiter);
 
         // extract the second element (event timestamp)
         strcpy(line_copy, line);
@@ -496,9 +521,9 @@ struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
           }
         }
       }
-      network = compute_cogsnet(number_of_nodes, real_node_ids, number_of_events,
-                                events, snapshot_interval, mu, theta, lambda,
-                                forgetting_type, units);
+      network = compute_cogsnet(number_of_nodes, real_node_ids,
+                                number_of_events, events, snapshot_interval, mu,
+                                theta, lambda, forgetting_type, units);
 
       // free the allocated memory
       for (int i = 0; i < number_of_events; i++) {
@@ -510,14 +535,13 @@ struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
       return network;
     } else {
       snprintf(network.error_msg, sizeof(network.error_msg),
-                "[ERROR] Reading events from %s: no events to read\n",
-                path_events);
+               "[ERROR] Reading events from %s: no events to read\n",
+               path_events);
     }
   } else {
-    snprintf(
-        network.error_msg, sizeof(network.error_msg),
-        "[ERROR] Reading events from %s: error reading from filestream\n",
-        path_events);
+    snprintf(network.error_msg, sizeof(network.error_msg),
+             "[ERROR] Reading events from %s: error reading from filestream\n",
+             path_events);
   }
 
   // network.snapshots = snapshots;
@@ -526,6 +550,7 @@ struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
 }
 
 int main() {
-  cogsnet("exponential", 180, 72, 0.3, 0.1, 3600, "network_diffusion/tests/data/cogsnet_data.csv", ";");
+  cogsnet("exponential", 180, 72, 0.3, 0.1, 3600,
+          "network_diffusion/tests/data/cogsnet_data.csv", ";");
   return 0;
 }
