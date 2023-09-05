@@ -26,9 +26,9 @@ import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
+from network_diffusion.tpn.cogsnet_lib import cogsnet
 from network_diffusion.utils import read_tpn
 
-from network_diffusion.tpn.cogsnet_lib import cogsnet
 
 class TemporalNetwork:
     """Container for a temporal network."""
@@ -127,7 +127,7 @@ class TemporalNetwork:
         theta: float,
         units: int,
         path_events: str,
-        delimiter: str
+        delimiter: str,
     ) -> "TemporalNetwork":
         """
         Load a temporal network from a csv file with events and create CogSNet with the given parameters.
@@ -145,5 +145,14 @@ class TemporalNetwork:
         :param str path_events: The path to the CSV file with events.
         :param str delimiter: The delimiter for the CSV file (allowed values are ',', ';', or '\\t').
         """
-        snaps = cogsnet(forgetting_type, snapshot_interval, edge_lifetime, mu, theta, units, path_events, delimiter)
+        snaps = cogsnet(
+            forgetting_type,
+            snapshot_interval,
+            edge_lifetime,
+            mu,
+            theta,
+            units,
+            path_events,
+            delimiter,
+        )
         return cls(snaps)
