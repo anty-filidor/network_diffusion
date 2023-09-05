@@ -7,5 +7,5 @@ struct Cogsnet {
 };
 
 struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
-                       float mu, float theta, float lambda, int units,
+                       int edge_lifetime, float mu, float theta, int units,
                        const char *path_events, const char *delimiter);
