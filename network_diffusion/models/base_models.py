@@ -19,6 +19,7 @@
 """Definition of the base propagation model used in the library."""
 
 from abc import ABC, abstractmethod
+from collections import Counter
 from typing import Any, Dict, List, Tuple
 
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
@@ -71,7 +72,10 @@ class BaseModel(ABC):
 
     @abstractmethod
     def agent_evaluation_step(
-        self, agent: Any, layer_name: str, net: MultilayerNetwork
+        self,
+        agent: Any,
+        layer_name: str,
+        net: MultilayerNetwork,  # TODO: can be as well TemporalNetwork
     ) -> str:
         """
         Try to change state of given node of the network according to model.
@@ -86,7 +90,7 @@ class BaseModel(ABC):
 
     @abstractmethod
     def network_evaluation_step(
-        self, net: MultilayerNetwork
+        self, net: MultilayerNetwork  # can be as well TemporalNetwork
     ) -> List[NetworkUpdateBuffer]:
         """
         Evaluate the network at one time stamp according to the model.
@@ -95,21 +99,6 @@ class BaseModel(ABC):
         :return: list of nodes that changed state after the evaluation
         """
         ...
-
-    @abstractmethod
-    def get_allowed_states(
-        self, net: MultilayerNetwork
-    ) -> Dict[str, Tuple[str, ...]]:
-        """
-        Return dict with allowed states in each layer of net if applied model.
-
-        :param net: a network to determine allowed nodes' states for
-        """
-        ...
-
-
-class BaseMLModel(BaseModel, ABC):
-    """Base abstract multilayer network propagation model."""
 
     @staticmethod
     def update_network(
@@ -130,27 +119,34 @@ class BaseMLModel(BaseModel, ABC):
             out_json.append(active_node.to_json())
         return out_json
 
-
-class BaseTPModel(BaseModel, ABC):
-    """Base abstract temporal network propagation model."""
-
-    @staticmethod
-    def update_network(
-        net: TemporalNetwork,
-        agents: List[NetworkUpdateBuffer],
-        snapshot_id: int,
-    ) -> List[Dict[str, str]]:
+    @abstractmethod
+    def get_allowed_states(
+        self, net: MultilayerNetwork  # can be as well TemporalNetwork
+    ) -> Dict[str, Tuple[str, ...]]:
         """
-        Update the network snapshot state by list of already activated nodes.
+        Return dict with allowed states in each layer of net if applied model.
 
-        :param net: network to update
-        :param agents: agents with changed attributes
-        :param snapshot_id: id of the snapshot to be updated
+        :param net: a network to determine allowed nodes' states for
         """
-        out_json = []
-        for agent in agents:
-            net.snaps[snapshot_id].nodes[agent.node_name][
-                "status"
-            ] = agent.new_state
-            out_json.append(agent.to_json())
-        return out_json
+        ...
+
+    def get_states_num(
+        self, net: MultilayerNetwork
+    ) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
+        """
+        Return states in the network with number of agents that adopted them.
+
+        It is the most basic function which assumes that field "status" in the
+        network is self explaining and there is no need to decode it (e.g.
+        to separate hidden state from public one).
+
+        :return: dictionary with items representing each of layers and with
+            summary of nodes states in values
+        """
+        statistics = {}
+        for name, layer in net.layers.items():
+            tab = []
+            for node in layer.nodes():
+                tab.append(layer.nodes[node]["status"])
+            statistics[name] = tuple(Counter(tab).items())
+        return statistics

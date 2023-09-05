@@ -131,3 +131,16 @@ class TestDSAAModel(unittest.TestCase):
             ("aware.None", "vacc.test"),
             err_str,
         )
+
+    def test_get_states_num(self):
+        """Tests if nodes states are being returned correctly."""
+        exp_result = {
+            "ill": ((None, 77),),
+            "aware": ((None, 77),),
+            "vacc": ((None, 77),),
+        }
+        self.assertEqual(
+            self.model.get_states_num(self.network),
+            exp_result,
+            "Global states in the network according to model are incorrect",
+        )

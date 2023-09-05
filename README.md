@@ -45,3 +45,10 @@ Please cite as:
 Current board with issues and state of the progress torwards implementing new
 functionalities is here:
 https://github.com/users/anty-filidor/projects/6/views/1
+
+assumptions:
+
+- spreading model is static!
+- temporal models are executed synchronousely with the snapshot. If one needs
+  to have one simulation step performed n times in one snapshot then he have to
+  upsample the temporal network

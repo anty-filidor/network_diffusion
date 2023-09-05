@@ -26,14 +26,14 @@ import numpy as np
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.models.base_models import BaseMLModel
+from network_diffusion.models.base_models import BaseModel
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.models.utils.types import NetworkUpdateBuffer as NUBff
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
 
-class MICModel(BaseMLModel):
+class MICModel(BaseModel):
     """This model implements Multilayer Independent Cascade Model."""
 
     INACTIVE_NODE = "0"
@@ -214,7 +214,7 @@ class MICModel(BaseMLModel):
         """
         Evaluate the network at one time stamp with MICModel.
 
-        :param network: a network to evaluate
+        :param net: a network to evaluate
         :return: list of nodes that changed state after the evaluation
         """
         nodes_to_update: List[NUBff] = []

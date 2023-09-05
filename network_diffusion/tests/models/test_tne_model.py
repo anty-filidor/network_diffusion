@@ -7,8 +7,8 @@ import numpy as np
 
 from network_diffusion import TemporalNetwork
 from network_diffusion.models import TemporalNetworkEpistemologyModel
+from network_diffusion.multi_spreading import MultiSpreading
 from network_diffusion.seeding import RandomSeedSelector
-from network_diffusion.temporal_spreading import TemporalSpreading
 
 
 def create_artificial_temporal_data():
@@ -36,7 +36,7 @@ def create_artificial_temporal_data():
     return snapshots
 
 
-class TestDSAAModel(unittest.TestCase):
+class TestTemporalNetworkEpistemologyModel(unittest.TestCase):
     """Test class for MultilayerNetwork class."""
 
     # pylint: disable=W0212, C0206, C0201, R0914, R1721
@@ -62,25 +62,26 @@ class TestDSAAModel(unittest.TestCase):
     def test_experiment_results(self) -> None:
         """Check if the experiment results are as expected."""
         expected_global_stats = [
-            {"TPN": (("A", 5), ("B", 5))},
-            {"TPN": (("A", 7), ("B", 3))},
-            {"TPN": (("A", 6), ("B", 4))},
-            {"TPN": (("A", 4), ("B", 6))},
-            {"TPN": (("A", 3), ("B", 7))},
-            {"TPN": (("A", 3), ("B", 7))},
-            {"TPN": (("B", 8), ("A", 2))},
-            {"TPN": (("B", 9), ("A", 1))},
-            {"TPN": (("B", 9), ("A", 1))},
-            {"TPN": (("B", 10),)},
+            {"layer_0": (("A", 5), ("B", 5))},
+            {"layer_0": (("A", 7), ("B", 3))},
+            {"layer_0": (("A", 6), ("B", 4))},
+            {"layer_0": (("A", 4), ("B", 6))},
+            {"layer_0": (("A", 3), ("B", 7))},
+            {"layer_0": (("A", 3), ("B", 7))},
+            {"layer_0": (("B", 8), ("A", 2))},
+            {"layer_0": (("B", 9), ("A", 1))},
+            {"layer_0": (("B", 9), ("A", 1))},
+            {"layer_0": (("B", 10),)},
         ]
 
-        experiment = TemporalSpreading(self.model, self.network)
+        experiment = MultiSpreading(self.model, self.network)
 
-        logs = experiment.perform_propagation()
+        logs = experiment.perform_propagation(n_epochs=len(self.network) - 1)
 
         # check weather course of the process goes as expected
         self.assertEqual(
             obtained_global_stats := logs._global_stats,
             expected_global_stats,
-            f"Wrong course of the spreading process, expected {expected_global_stats} found {obtained_global_stats}",
+            f"Wrong course of the spreading process, expected \
+            {expected_global_stats} found {obtained_global_stats}",
         )

@@ -18,20 +18,23 @@
 
 """Definition of the temporal network epistemology model."""
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Counter, Dict, List, Tuple
 
 import networkx as nx
 import numpy as np
 
-from network_diffusion.models.base_models import BaseTPModel
+from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
+from network_diffusion.models.base_models import BaseModel
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
-from network_diffusion.models.utils.types import NetworkUpdateBuffer
+from network_diffusion.models.utils.types import NetworkUpdateBuffer as NUBff
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
 
-class TemporalNetworkEpistemologyModel(BaseTPModel):
+# TODO: add warning that this model works on onelayer networks!
+class TemporalNetworkEpistemologyModel(BaseModel):
     """
     This model implements generalized version of Temporal Network Epistemology Model.
     """
@@ -92,7 +95,9 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
         compart_graph.compile()
         return compart_graph
 
-    def set_initial_states(self, net: TemporalNetwork) -> List[Dict[str, str]]:
+    def set_initial_states(
+        self, net: MultilayerNetwork
+    ) -> List[Dict[str, str]]:  # TODO: change that to multilayer network
         """
         Set initial states in the network according to seed selection method.
 
@@ -103,10 +108,10 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
         budget = self._compartmental_graph.get_seeding_budget_for_network(
             net=net, actorwise=True
         )
-        seed_nodes: List[NetworkUpdateBuffer] = []
+        seed_nodes: List[NUBff] = []
 
         for idx, actor in enumerate(self._seed_selector.actorwise(net=net)):
-            node_id, node = actor
+
             # select initial state for given actor according to budget
             if idx < budget[self.PROCESS_NAME][self.B_STATE]:
                 state = self.B_STATE
@@ -118,22 +123,20 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
                 state = self.A_STATE
                 belief = np.random.uniform(0, 0.5)
                 evidence = 0
-
             encoded_state = self.encode_actor_status(state, belief, evidence)
 
             # generate update buffer for the actor
-            seed_nodes.append(
-                NetworkUpdateBuffer(
-                    node_name=node_id,
-                    layer_name="TPN",
-                    new_state=encoded_state,
+            for l_name in actor.layers:
+                seed_nodes.append(
+                    NUBff(
+                        node_name=actor.actor_id,
+                        layer_name=l_name,
+                        new_state=encoded_state,
+                    )
                 )
-            )
 
         # set initial states and return json to save in logs
-        out_json = self.update_network(
-            net=net, agents=seed_nodes, snapshot_id=0
-        )
+        out_json = self.update_network(net=net, activated_nodes=seed_nodes)
         return out_json
 
     @staticmethod
@@ -166,7 +169,7 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
         return state, belief, evidence
 
     def agent_evaluation_step(
-        self, agent: Any, net: TemporalNetwork, snapshot_id: int
+        self, agent: MLNetworkActor, layer_name: str, net: MultilayerNetwork
     ) -> str:
         """
         Try to change state of given actor of the network according to model.
@@ -177,15 +180,15 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
 
         :return: state of the actor to be set in the next snapshot
         """
-        # TODO: consider unification of names - agents or actors?
-        snapshot: nx.Graph = net.snaps[snapshot_id]
-        node_id, node = agent
+        l_graph: nx.Graph = net[layer_name]
 
         # Gather evidence on action B performance
-        state, belief, evidence = self.decode_actor_status(node["status"])
+        state, belief, evidence = self.decode_actor_status(
+            agent.states[layer_name]
+        )
         neighbours_states = [
-            self.decode_actor_status(snapshot.nodes[n]["status"])
-            for n in snapshot.neighbors(node_id)
+            self.decode_actor_status(l_graph.nodes[n]["status"])
+            for n in l_graph.neighbors(agent.actor_id)
         ]
         b_neighbours_states = [
             state for state in neighbours_states if state[0] == self.B_STATE
@@ -218,35 +221,32 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
         )
         return encoded_state
 
-    def network_evaluation_step(
-        self, net: TemporalNetwork, snapshot_id: int
-    ) -> List[NetworkUpdateBuffer]:
+    def network_evaluation_step(self, net: MultilayerNetwork) -> List[NUBff]:
         """
-        Evaluate the network at one time stamp with MLTModel.
+        Evaluate the given snapshot of the network.
 
         :param net: a network to evaluate
-        :param snapshot_id: currently processed snapshot
-
         :return: list of nodes that changed state after the evaluation
         """
-        nodes_to_update: List[NetworkUpdateBuffer] = []
-
-        for node_id, node in net.get_actors_from_snap(snapshot_id):
-            actor = node_id, node
+        nodes_to_update: List[NUBff] = []
+        for actor in net.get_actors():
             new_state_encoded = self.agent_evaluation_step(
-                actor, net, snapshot_id
+                actor, actor.layers[0], net
             )
-            nodes_to_update.append(
-                NetworkUpdateBuffer(
-                    node_name=node_id,
-                    layer_name="TPN",
-                    new_state=new_state_encoded,
-                )
+            nodes_to_update.extend(
+                [
+                    NUBff(
+                        node_name=actor.actor_id,
+                        layer_name=layer_name,
+                        new_state=new_state_encoded,
+                    )
+                    for layer_name in actor.layers
+                ]
             )
         return nodes_to_update
 
     def get_allowed_states(
-        self, net: TemporalNetwork
+        self, net: MultilayerNetwork
     ) -> Dict[str, Tuple[str, ...]]:
         """
         Return dict with allowed states of net if applied model.
@@ -254,4 +254,25 @@ class TemporalNetworkEpistemologyModel(BaseTPModel):
         :param net: a network to determine allowed nodes' states for
         """
         cmprt = self._compartmental_graph.get_compartments()[self.PROCESS_NAME]
-        return {"TPN": cmprt}
+        return {l_name: cmprt for l_name in net.layers}
+
+    def get_states_num(
+        self, net: MultilayerNetwork
+    ) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
+        """
+        Return states in the network with number of agents that adopted them.
+
+        Vector of state for each agent is following:
+            <state of an actor><agent's belief><evidence>
+        And we are interested only in the state attribute.
+
+        :return: dictionary with items representing each of layers and with
+            summary of nodes states in values
+        """
+        statistics = {}
+        for name, layer in net.layers.items():
+            tab = []
+            for node in layer.nodes():
+                tab.append(layer.nodes[node]["status"].split("_")[0])
+            statistics[name] = tuple(Counter(tab).items())
+        return statistics

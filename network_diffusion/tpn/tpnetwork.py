@@ -6,10 +6,12 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 
 import networkx as nx
 
+from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.utils import read_tpn
 
 
+# TODO: relax assumption that snaps are ordinary numbers
 class TemporalNetwork:
     """Container for a temporal network."""
 
@@ -19,7 +21,11 @@ class TemporalNetwork:
 
         :param snaps: snapshots of the temporal network.
         """
-        self.snaps = snaps
+        self.snaps = snaps  # TODO: change it to list!
+
+    def __getitem__(self, key: int) -> nx.Graph:
+        """Get 'key' snapshot of the network."""
+        return self.snaps[key]
 
     @classmethod
     def from_txt(
@@ -70,7 +76,7 @@ class TemporalNetwork:
         """Return length of the network, i.e. num of actors."""
         return len(self.snaps)
 
-    def get_actors(self, shuffle: bool = False) -> List[Dict[int, Dict]]:
+    def get_actors(self, shuffle: bool = False) -> List[MLNetworkActor]:
         """
         Get actors that from the first snapshot of network and their states.
 
@@ -81,7 +87,7 @@ class TemporalNetwork:
 
     def get_actors_from_snap(
         self, snapshot_id: int, shuffle: bool = False
-    ) -> List[Dict[int, Dict]]:
+    ) -> List[MLNetworkActor]:
         """
         Get actors that exist in the network at given snapshotand read their states.
 
@@ -91,12 +97,13 @@ class TemporalNetwork:
         """
         return list(self.snaps[snapshot_id].get_actors(shuffle))
 
-    # def get_actors_num(self) -> int:
-    #     """Get number of actors that live in the network."""
-    #     actors_set: Set[Any] = set(self.snaps[list(self.snaps.keys())[0]].nodes)
-    #     return len(actors_set)
+    def get_actors_num(self) -> int:
+        """Get number of actors that live in the network."""
+        return len(self.get_actors_from_snap(0))
 
-    # def get_states_num(self, snapshot_id: str) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
+    # def get_states_num(
+    #     self, snapshot_id: str
+    # ) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
     #     """
     #     Return number of agents with all possible states in each layer.
 
@@ -104,10 +111,10 @@ class TemporalNetwork:
     #     """
     #     statistics = {}
     #     tab = []
-    #     graph = self.snaps[snapshot_id]
+    #     graph = self.snaps[snapshot_id]["layer_0"]
     #     for node in graph.nodes():
     #         # TODO: problem with visualization when encoding all agent features under the status field, it makes each status unique because of the belief and evidence values - we'd like to operate on actors'/nodes' states, not statuses
-    #         #tab.append(graph.nodes[node]["status"])
-    #         tab.append(graph.nodes[node]["status"].split('_')[0])
-    #     statistics["TPN"] = tuple(Counter(tab).items())
+    #         # tab.append(graph.nodes[node]["status"])
+    #         tab.append(graph.nodes[node]["status"].split("_")[0])
+    #     statistics["layer_0"] = tuple(Counter(tab).items())
     #     return statistics
