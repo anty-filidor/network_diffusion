@@ -22,7 +22,7 @@ from typing import Callable, List, Optional, Tuple, Union
 
 from tqdm import tqdm
 
-from network_diffusion.experiment_logger import ExperimentLogger
+from network_diffusion.logger import Logger
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.models.base_model import BaseModel
 from network_diffusion.models.utils.types import NetworkUpdateBuffer
@@ -85,11 +85,11 @@ class Simulator:
         self,
         n_epochs: int,
         patience: Optional[int] = None,
-    ) -> ExperimentLogger:
+    ) -> Logger:
         """
         Perform experiment on given network and given model.
 
-        It saves logs in ExperimentLogger object which can be used for further
+        It saves logs in Logger object which can be used for further
         analysis.
 
         :param n_epochs: number of epochs to do experiment
@@ -100,7 +100,7 @@ class Simulator:
         if patience is not None and patience <= 0:
             raise ValueError("Patience must be None or integer > 0!")
         snap_iterator, n_epochs = self._create_iterator(n_epochs)
-        logger = ExperimentLogger(str(self._model), str(self._network))
+        logger = Logger(str(self._model), str(self._network))
 
         # set and add logs from initialising states, i.e. epoch 0
         initial_state = self._model.set_initial_states(snap_iterator(0))

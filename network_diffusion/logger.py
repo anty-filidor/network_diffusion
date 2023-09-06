@@ -29,7 +29,7 @@ import pandas as pd
 from network_diffusion.utils import create_directory
 
 
-class ExperimentLogger:
+class Logger:
     """Store and processes logs acquired during performing Simulator."""
 
     def __init__(

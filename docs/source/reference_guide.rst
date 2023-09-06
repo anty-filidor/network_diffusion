@@ -72,7 +72,7 @@ Performing experiments
 See dedicated `multi spreading guide <simulator_example.html>`_ for these
 functions.
 
-.. automodule:: network_diffusion.experiment_logger
+.. automodule:: network_diffusion.logger
    :members:
    :undoc-members:
 
