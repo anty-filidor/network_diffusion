@@ -36,6 +36,23 @@ Implemented in ``network_diffusion.mln.functions``.
 
 
 
+Operations on temporal networks
+=================================
+
+In the library TemporalNetwork is an ordered sequence of MultilayerNetworks.
+In base scenario one can obtain classic temporal network by having a chain
+of one-layered MultilayerNetworks.
+
+Class ``TemporalNetwork``
+++++++++++++++++++++++++
+
+Implemented in ``network_diffusion.tpn.tpnetwork``.
+
+.. autoclass:: network_diffusion.tpn.tpnetwork.TemporalNetwork
+   :members:
+
+
+
 Propagation models
 ==================
 
@@ -64,12 +81,20 @@ Import from ``network_diffusion.models``.
     :members:
     :show-inheritance:
 
+.. autoclass:: network_diffusion.models.mic_model.MICModel
+    :members:
+    :show-inheritance:
+
+.. autoclass:: network_diffusion.models.tne_model.TemporalNetworkEpistemologyModel
+    :members:
+    :show-inheritance:
+
 
 
 Performing experiments
 ======================
 
-See dedicated `multi spreading guide <simulator_example.html>`_ for these
+See dedicated `simulator guide <simulator_example.html>`_ for these
 functions.
 
 .. automodule:: network_diffusion.logger
