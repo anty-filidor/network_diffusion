@@ -548,9 +548,3 @@ struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
   network.exit_status = 1;
   return network;
 }
-
-int main() {
-  cogsnet("exponential", 180, 72, 0.3, 0.1, 3600,
-          "network_diffusion/tests/data/cogsnet_data.csv", ";");
-  return 0;
-}

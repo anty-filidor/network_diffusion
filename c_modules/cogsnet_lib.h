@@ -1,10 +1,10 @@
 #include <Python.h>
 
-static PyObject *method_cogsnet(PyObject *self, PyObject *args);
+static PyObject *method__cogsnet(PyObject *self, PyObject *args);
 static PyObject *CogsnetException;
 
 static PyMethodDef CogsnetLibMethods[] = {
-    {"cogsnet", method_cogsnet, METH_VARARGS,
+    {"_cogsnet", method__cogsnet, METH_VARARGS,
      "Process a file and return a list of lists."},
     {NULL, NULL, 0, NULL}  // Sentinel
 };

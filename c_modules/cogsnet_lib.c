@@ -4,7 +4,7 @@
 
 #include "cogsnet_compute.h"
 
-static PyObject* method_cogsnet(PyObject* self, PyObject* args) {
+static PyObject* method__cogsnet(PyObject* self, PyObject* args) {
   const char* forgetting_type;
   int snapshot_interval;
   int edge_lifetime;
@@ -79,8 +79,7 @@ static PyObject* method_cogsnet(PyObject* self, PyObject* args) {
       free(network.snapshots);
     }
 
-    PyObject* exception =
-        PyErr_Format(CogsnetException, "%s", network.error_msg);
+    PyErr_Format(CogsnetException, "%s", network.error_msg);
     return NULL;
   }
 
