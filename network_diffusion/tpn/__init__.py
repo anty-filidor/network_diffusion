@@ -22,6 +22,4 @@
 
 # flake8: noqa
 
-
-from network_diffusion.tpn.cogsnet_lib import cogsnet
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
