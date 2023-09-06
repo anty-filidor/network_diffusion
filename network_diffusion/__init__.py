@@ -28,4 +28,4 @@ from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.simulator import Simulator
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
 
-__version__ = "0.10.1"
+__version__ = "0.11.0"
