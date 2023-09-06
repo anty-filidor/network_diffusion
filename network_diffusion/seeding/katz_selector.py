@@ -18,7 +18,9 @@
 
 """A definition of the seed selector based on Katz centrality."""
 
-from typing import List
+from typing import Any, List
+
+import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.functions import katz
@@ -35,6 +37,13 @@ class KatzSelector(BaseSeedSelector):
         return (
             f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
             f"\tkatz centrality choice\n{BOLD_UNDERLINE}\n"
+        )
+
+    @staticmethod
+    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+        """Create nodewise ranking."""
+        raise NotImplementedError(
+            "Nodewise ranking list cannot be computed for this class!"
         )
 
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
