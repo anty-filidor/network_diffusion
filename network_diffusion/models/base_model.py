@@ -26,7 +26,6 @@ from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.models.utils.types import NetworkUpdateBuffer
 from network_diffusion.seeding.base_selector import BaseSeedSelector
-from network_diffusion.tpn.tpnetwork import TemporalNetwork
 
 
 class BaseModel(ABC):
@@ -130,8 +129,9 @@ class BaseModel(ABC):
         """
         ...
 
+    @staticmethod
     def get_states_num(
-        self, net: MultilayerNetwork
+        net: MultilayerNetwork,
     ) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
         """
         Return states in the network with number of agents that adopted them.

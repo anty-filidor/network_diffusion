@@ -26,7 +26,7 @@ import numpy as np
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.models.base_models import BaseModel
+from network_diffusion.models.base_model import BaseModel
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.models.utils.types import NetworkUpdateBuffer as NUBff
 from network_diffusion.seeding.base_selector import BaseSeedSelector
@@ -169,7 +169,7 @@ class MICModel(BaseModel):
             for l_name in actor.layers:
                 seed_nodes.append(
                     NUBff(
-                        node_name=actor.agent_id,
+                        node_name=actor.actor_id,
                         layer_name=l_name,
                         new_state=a_state,
                     )

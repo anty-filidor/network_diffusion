@@ -25,19 +25,16 @@ import numpy as np
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.models.base_models import BaseModel
+from network_diffusion.models.base_model import BaseModel
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.models.utils.types import NetworkUpdateBuffer as NUBff
 from network_diffusion.seeding.base_selector import BaseSeedSelector
-from network_diffusion.tpn.tpnetwork import TemporalNetwork
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
 
 # TODO: add warning that this model works on onelayer networks!
 class TemporalNetworkEpistemologyModel(BaseModel):
-    """
-    This model implements generalized version of Temporal Network Epistemology Model.
-    """
+    """Generalized version of Temporal Network Epistemology Model."""
 
     PROCESS_NAME = "TNEM"
     A_STATE = "A"
@@ -53,11 +50,12 @@ class TemporalNetworkEpistemologyModel(BaseModel):
         """
         Create the object.
 
-        :param seeding_budget: a proportion of INACTIVE and ACTIVE nodes in each layer
+        :param seeding_budget: a proportion of INACTIVE and ACTIVE agents
         :param seed_selector: class that selects initial seeds for simulation
-        :param trials_nr: number of trials an agent performs when experimenting with environment by drawing a sample
-            from the binomial distribution
-        :param epsilon: the difference between expected value of B action, and A action equal to 0.5
+        :param trials_nr: number of trials an agent performs when experimenting
+            with environment by drawing a sample from the binomial distribution
+        :param epsilon: the difference between expected value of B action, and
+            A action equal to 0.5
         """
         compart_graph = self._create_compartments(seeding_budget)
         super().__init__(compart_graph, seed_selector)
@@ -142,11 +140,12 @@ class TemporalNetworkEpistemologyModel(BaseModel):
     @staticmethod
     def encode_actor_status(state: str, belief: float, evidence: int) -> str:
         """
-        Encodes agent features to str form.
+        Encode agent features to str form.
 
         :param state: state of an actor
         :param belief: level of agent's belief
-        :param evidence: nr of successes drawn from binomial distribution in an experiment
+        :param evidence: nr of successes drawn from binomial distribution in
+            an experiment
 
         :return: a string representation of agent status
         """
@@ -156,7 +155,7 @@ class TemporalNetworkEpistemologyModel(BaseModel):
     @staticmethod
     def decode_actor_status(encoded_status: str) -> Tuple[str, float, int]:
         """
-        Decodes agent features from str form.
+        Decode agent features from str form.
 
         :param encoded_status: a string representation of agent status
 
@@ -168,7 +167,7 @@ class TemporalNetworkEpistemologyModel(BaseModel):
         evidence: int = int(encoded_status.split("_")[2])
         return state, belief, evidence
 
-    def agent_evaluation_step(
+    def agent_evaluation_step(  # pylint: disable=R0914
         self, agent: MLNetworkActor, layer_name: str, net: MultilayerNetwork
     ) -> str:
         """
@@ -256,8 +255,9 @@ class TemporalNetworkEpistemologyModel(BaseModel):
         cmprt = self._compartmental_graph.get_compartments()[self.PROCESS_NAME]
         return {l_name: cmprt for l_name in net.layers}
 
+    @staticmethod
     def get_states_num(
-        self, net: MultilayerNetwork
+        net: MultilayerNetwork,
     ) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
         """
         Return states in the network with number of agents that adopted them.

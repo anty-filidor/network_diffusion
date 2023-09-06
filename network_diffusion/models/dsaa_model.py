@@ -23,7 +23,7 @@ import networkx as nx
 import numpy as np
 
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.models.base_models import BaseModel, NetworkUpdateBuffer
+from network_diffusion.models.base_model import BaseModel, NetworkUpdateBuffer
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.seeding.random_selector import RandomSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE

@@ -1,8 +1,6 @@
 """A script where a temporal network is defined."""
 
-import random
-from collections import Counter
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional
 
 import networkx as nx
 
@@ -23,9 +21,13 @@ class TemporalNetwork:
         """
         self.snaps = snaps  # TODO: change it to list!
 
-    def __getitem__(self, key: int) -> nx.Graph:
+    def __getitem__(self, key: int) -> MultilayerNetwork:
         """Get 'key' snapshot of the network."""
         return self.snaps[key]
+
+    def __len__(self) -> int:
+        """Return length of the network, i.e. num of actors."""
+        return len(self.snaps)
 
     @classmethod
     def from_txt(
@@ -72,16 +74,11 @@ class TemporalNetwork:
                 snaps.update({snap_id: MultilayerNetwork({"layer_0": snap})})
         return cls(snaps)
 
-    def __len__(self) -> int:
-        """Return length of the network, i.e. num of actors."""
-        return len(self.snaps)
-
     def get_actors(self, shuffle: bool = False) -> List[MLNetworkActor]:
         """
-        Get actors that from the first snapshot of network and their states.
+        Get actors that from the first snapshot of network.
 
         :param shuffle: a flag that determines whether to shuffle actor list
-        :return: a list with actors that live in the network
         """
         return self.get_actors_from_snap(0, shuffle)
 
@@ -89,32 +86,13 @@ class TemporalNetwork:
         self, snapshot_id: int, shuffle: bool = False
     ) -> List[MLNetworkActor]:
         """
-        Get actors that exist in the network at given snapshotand read their states.
+        Get actors that exist in the network at given snapshot.
 
         :param snapshot_id: snapshot for which to take actors
         :param shuffle: a flag that determines whether to shuffle actor list
-        :return: a list with actors that live in the network
         """
         return list(self.snaps[snapshot_id].get_actors(shuffle))
 
     def get_actors_num(self) -> int:
         """Get number of actors that live in the network."""
         return len(self.get_actors_from_snap(0))
-
-    # def get_states_num(
-    #     self, snapshot_id: str
-    # ) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
-    #     """
-    #     Return number of agents with all possible states in each layer.
-
-    #     :return: dictionary with items representing summary of nodes states in values
-    #     """
-    #     statistics = {}
-    #     tab = []
-    #     graph = self.snaps[snapshot_id]["layer_0"]
-    #     for node in graph.nodes():
-    #         # TODO: problem with visualization when encoding all agent features under the status field, it makes each status unique because of the belief and evidence values - we'd like to operate on actors'/nodes' states, not statuses
-    #         # tab.append(graph.nodes[node]["status"])
-    #         tab.append(graph.nodes[node]["status"].split("_")[0])
-    #     statistics["layer_0"] = tuple(Counter(tab).items())
-    #     return statistics

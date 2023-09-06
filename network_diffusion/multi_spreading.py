@@ -24,7 +24,7 @@ from tqdm import tqdm
 
 from network_diffusion.experiment_logger import ExperimentLogger
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.models.base_models import BaseModel
+from network_diffusion.models.base_model import BaseModel
 from network_diffusion.models.utils.types import NetworkUpdateBuffer
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
 
@@ -65,19 +65,22 @@ class MultiSpreading:
         if isinstance(self._network, MultilayerNetwork):
             return lambda x: self._network, n_epochs
         elif isinstance(self._network, TemporalNetwork):
-            optimal_epochs_nb = len(self._network) - 1
-            if n_epochs > optimal_epochs_nb:
+            optim_epochs_nb = len(self._network) - 1
+            if n_epochs > optim_epochs_nb:
                 warnings.warn(
                     f"Number of simulation epochs is higher than number of \
                     network's snaps - 1! Simulation will last for \
-                    {optimal_epochs_nb} epochs"
+                    {optim_epochs_nb} epochs",
+                    stacklevel=1,
                 )
-            elif n_epochs < optimal_epochs_nb:
+            elif n_epochs < optim_epochs_nb:
                 warnings.warn(
                     "Number of simulation epochs is lesser than number of \
-                    network's snaps - 1! Simulation will not cover entire net"
+                    network's snaps - 1! Simulation will not cover entire net",
+                    stacklevel=1,
                 )
-            return lambda x: self._network[x], optimal_epochs_nb
+            return lambda x: self._network[x], optim_epochs_nb  # type: ignore
+        raise AttributeError("Incorrect type of network!")
 
     def perform_propagation(
         self,

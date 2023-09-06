@@ -19,7 +19,6 @@
 """A script where a multilayer network is defined."""
 
 import random
-from collections import Counter
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
 
