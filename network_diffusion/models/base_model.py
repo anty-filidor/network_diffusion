@@ -74,7 +74,7 @@ class BaseModel(ABC):
         self,
         agent: Any,
         layer_name: str,
-        net: MultilayerNetwork,  # TODO: can be as well TemporalNetwork
+        net: MultilayerNetwork,
     ) -> str:
         """
         Try to change state of given node of the network according to model.
@@ -89,7 +89,7 @@ class BaseModel(ABC):
 
     @abstractmethod
     def network_evaluation_step(
-        self, net: MultilayerNetwork  # can be as well TemporalNetwork
+        self, net: MultilayerNetwork
     ) -> List[NetworkUpdateBuffer]:
         """
         Evaluate the network at one time stamp according to the model.
@@ -120,7 +120,7 @@ class BaseModel(ABC):
 
     @abstractmethod
     def get_allowed_states(
-        self, net: MultilayerNetwork  # can be as well TemporalNetwork
+        self, net: MultilayerNetwork
     ) -> Dict[str, Tuple[str, ...]]:
         """
         Return dict with allowed states in each layer of net if applied model.

@@ -3,10 +3,10 @@ Module  ``simulator``
 ==============================
 
 
-What is multilayer spreading?
+How the simulator works?
 ______________________________
-Multilayer Spreading is a module that allows to perform previously designed
-experiment. To run it we need a network of Multilayer class (note that it
+Simulator is a class that allows to perform previously designed
+experiment. To run it we need a network (multilayer or temporal) (note that it
 can as well have one layer) and corresponding model. After the experiment
 is completed, user is able to see results in form of report and visualisation
 of global states of the nodes.

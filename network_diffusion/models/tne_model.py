@@ -32,7 +32,6 @@ from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
 
-# TODO: add warning that this model works on onelayer networks!
 class TemporalNetworkEpistemologyModel(BaseModel):
     """Generalized version of Temporal Network Epistemology Model."""
 
@@ -95,7 +94,7 @@ class TemporalNetworkEpistemologyModel(BaseModel):
 
     def set_initial_states(
         self, net: MultilayerNetwork
-    ) -> List[Dict[str, str]]:  # TODO: change that to multilayer network
+    ) -> List[Dict[str, str]]:
         """
         Set initial states in the network according to seed selection method.
 
