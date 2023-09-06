@@ -11,9 +11,9 @@ from tempfile import TemporaryDirectory
 import networkx as nx
 import pandas as pd
 
-from network_diffusion import MultilayerNetwork, MultiSpreading
+from network_diffusion import MultilayerNetwork, Simulator
 from network_diffusion.models import DSAAModel
-from network_diffusion.multi_spreading import ExperimentLogger
+from network_diffusion.simulator import ExperimentLogger
 from network_diffusion.tests.models.test_dsaa_model import prepare_compartments
 
 
@@ -96,7 +96,7 @@ class TestExperimentLogger(unittest.TestCase):
         }
         self.model.set_initial_states(net=self.network)
 
-        experiment = MultiSpreading(self.model, self.network)
+        experiment = Simulator(self.model, self.network)
         self.logs = experiment.perform_propagation(70)
 
     def test_plot(self):

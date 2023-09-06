@@ -7,8 +7,8 @@ import numpy as np
 
 from network_diffusion import TemporalNetwork
 from network_diffusion.models import TemporalNetworkEpistemologyModel
-from network_diffusion.multi_spreading import MultiSpreading
 from network_diffusion.seeding import RandomSeedSelector
+from network_diffusion.simulator import Simulator
 
 
 def create_artificial_temporal_data():
@@ -74,7 +74,7 @@ class TestTemporalNetworkEpistemologyModel(unittest.TestCase):
             {"layer_0": (("B", 10),)},
         ]
 
-        experiment = MultiSpreading(self.model, self.network)
+        experiment = Simulator(self.model, self.network)
 
         logs = experiment.perform_propagation(n_epochs=len(self.network) - 1)
 

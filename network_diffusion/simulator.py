@@ -29,8 +29,7 @@ from network_diffusion.models.utils.types import NetworkUpdateBuffer
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
 
 
-# TODO: change the class name to Simulator/Experiment/...
-class MultiSpreading:
+class Simulator:
     """Perform experiment defined by PropagationModel on MultiLayerNetwork."""
 
     def __init__(

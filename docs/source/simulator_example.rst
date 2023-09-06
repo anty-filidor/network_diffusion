@@ -1,5 +1,5 @@
 
-Module  ``multi_spreading``
+Module  ``simulator``
 ==============================
 
 
@@ -58,7 +58,7 @@ how many nodes has which local state (in alphabetic order)::
 defined (here 200). After the experiment, Logger object is returned where logs
 are being stored::
 
-    experiment = MultiSpreading(model, network)
+    experiment = Simulator(model, network)
     experiment.set_initial_states(phenomenas)
     logs = experiment.perform_propagation(200)
 
@@ -74,5 +74,5 @@ the console::
         - visualisation of propagation
 
 
-.. figure:: images/multi_spreading.png
+.. figure:: images/simulator.png
     :width: 600

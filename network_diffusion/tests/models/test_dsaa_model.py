@@ -1,4 +1,4 @@
-"""Tests for the network_diffusion.multi_spreading."""
+"""Tests for the network_diffusion.simulator."""
 import unittest
 from typing import Dict, Tuple
 

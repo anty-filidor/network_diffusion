@@ -7,8 +7,8 @@ import numpy as np
 
 from network_diffusion import MultilayerNetwork
 from network_diffusion.models import MLTModel
-from network_diffusion.multi_spreading import MultiSpreading
 from network_diffusion.seeding.mocky_selector import MockyActorSelector
+from network_diffusion.simulator import Simulator
 
 SPREADING_PARAMETERS = [
     {
@@ -164,9 +164,7 @@ class TestMLTModel(unittest.TestCase):
                     mi_value=mi_value,
                 )
 
-                experiment = MultiSpreading(
-                    model=mltm, network=self.network.copy()
-                )
+                experiment = Simulator(model=mltm, network=self.network.copy())
                 logs = experiment.perform_propagation(n_epochs=10, patience=1)
 
                 self.assertEqual(

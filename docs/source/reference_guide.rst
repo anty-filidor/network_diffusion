@@ -69,14 +69,14 @@ Import from ``network_diffusion.models``.
 Performing experiments
 ======================
 
-See dedicated `multi spreading guide <multi_spreading_example.html>`_ for these
+See dedicated `multi spreading guide <simulator_example.html>`_ for these
 functions.
 
 .. automodule:: network_diffusion.experiment_logger
    :members:
    :undoc-members:
 
-.. automodule:: network_diffusion.multi_spreading
+.. automodule:: network_diffusion.simulator
    :members:
    :undoc-members:
 
