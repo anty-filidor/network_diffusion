@@ -15,7 +15,7 @@ static PyObject* method__cogsnet(PyObject* self, PyObject* args) {
   const char* delimiter;
 
   // Parse arguments
-  if (!PyArg_ParseTuple(args, "sifffiss", &forgetting_type, &snapshot_interval,
+  if (!PyArg_ParseTuple(args, "siiffiss", &forgetting_type, &snapshot_interval,
                         &edge_lifetime, &mu, &theta, &units, &path_events,
                         &delimiter)) {
     return NULL;
