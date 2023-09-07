@@ -62,7 +62,7 @@ class Simulator:
     ) -> Tuple[Callable[[int], MultilayerNetwork], int]:
         """Create iterator through snapshots of the network."""
         if isinstance(self._network, MultilayerNetwork):
-            return lambda x: self._network, n_epochs
+            return lambda x: self._network, n_epochs  # type: ignore
         elif isinstance(self._network, TemporalNetwork):
             optim_epochs_nb = len(self._network) - 1
             if n_epochs > optim_epochs_nb:
