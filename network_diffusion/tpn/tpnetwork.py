@@ -27,7 +27,7 @@ import pandas as pd
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.tpn.cogsnet_lib import _cogsnet
+from network_diffusion.tpn.cogsnet_lib import _cogsnet  # pylint: disable=E0611
 from network_diffusion.utils import read_tpn
 
 
@@ -132,7 +132,7 @@ class TemporalNetwork:
     def get_actors_num(self) -> int:
         """Get number of actors that live in the network."""
         return len(self.get_actors_from_snap(0))
-    
+
     @classmethod
     def from_cogsnet(  # pylint: disable=R0913, E1111
         cls,
