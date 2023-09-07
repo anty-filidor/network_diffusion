@@ -134,7 +134,7 @@ class TemporalNetwork:
         return len(self.get_actors_from_snap(0))
 
     @classmethod
-    def from_cogsnet(  # pylint: disable=R0913, E1111
+    def from_cogsnet(  # pylint: disable=R0913, E1111, E1133
         cls,
         forgetting_type: str,
         snapshot_interval: int,

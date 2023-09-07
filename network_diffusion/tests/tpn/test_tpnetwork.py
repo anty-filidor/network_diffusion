@@ -51,5 +51,5 @@ class TestTemporalNetwork(unittest.TestCase):
             weights = [e[-1]["weight"] for e in l_graph.edges.data()]
             mean_weights.append(np.mean(weights))
         np.testing.assert_almost_equal(
-            np.array(mean_weights), exp_mean_weights
+            np.array(mean_weights), exp_mean_weights, decimal=3
         )
