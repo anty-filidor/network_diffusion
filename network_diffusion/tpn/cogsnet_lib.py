@@ -41,6 +41,6 @@ def _cogsnet(
     units: int,
     path_events: str,
     delimiter: str,
-) -> List[List[float]]:
-    """Call cogsnet function in C."""
+) -> List[List[List[float]]]:
+    """Call cogsnet function in C and get snapshots of weighted edgelists."""
     ...
