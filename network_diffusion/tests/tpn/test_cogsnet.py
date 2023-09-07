@@ -1,13 +1,7 @@
-#!/usr/bin/env python3
-# pylint: disable-all
-# type: ignore
-# flake8: noqa
-
 """Tests for the network_diffusion.tpn.cogsnet_lib."""
-
 import unittest
 
-from network_diffusion.tpn import TemporalNetwork
+from network_diffusion.tpn.cogsnet_lib import _cogsnet
 
 
 class TestCogsnet(unittest.TestCase):
@@ -15,7 +9,7 @@ class TestCogsnet(unittest.TestCase):
 
     def test_returned_number_of_snapshots(self):
         snapshot_interval = 0
-        tn = TemporalNetwork.from_cogsnet(
+        tn = _cogsnet(
             "exponential",
             snapshot_interval,
             72,
@@ -25,10 +19,10 @@ class TestCogsnet(unittest.TestCase):
             "network_diffusion/tests/data/cogsnet_data.csv",
             ";",
         )
-        self.assertEqual(len(tn.snaps), 8)
+        self.assertEqual(len(tn), 8)
 
         snapshot_interval = 10
-        tn = TemporalNetwork.from_cogsnet(
+        tn = _cogsnet(
             "exponential",
             snapshot_interval,
             72,
@@ -38,12 +32,12 @@ class TestCogsnet(unittest.TestCase):
             "network_diffusion/tests/data/cogsnet_data.csv",
             ";",
         )
-        self.assertEqual(len(tn.snaps), 4)
+        self.assertEqual(len(tn), 4)
 
     def test_returned_number_of_edges(self):
         number_of_nodes = 3
         number_of_edges = number_of_nodes**2
-        tn = TemporalNetwork.from_cogsnet(
+        tn = _cogsnet(
             "exponential",
             10,
             72,
@@ -53,5 +47,5 @@ class TestCogsnet(unittest.TestCase):
             "network_diffusion/tests/data/cogsnet_data.csv",
             ";",
         )
-        for i in range(0, len(tn.snaps)):
-            self.assertEqual(len(tn.snaps[i]), number_of_edges)
+        for i in range(0, len(tn)):
+            self.assertEqual(len(tn[i]), number_of_edges)

@@ -23,11 +23,27 @@
 from typing import Any, List, Optional
 
 import networkx as nx
+import pandas as pd
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.tpn.cogsnet_lib import _cogsnet
 from network_diffusion.utils import read_tpn
+
+
+def cogsnet_snap_to_nxgraph(cogsnet_snap: List[List[float]]) -> nx.DiGraph:
+    """
+    Create nx.DiGraph from one snapshot obtained from CogSNet.
+
+    :param cogsnet_snap: a CogSNet snapshot
+    """
+    edges_df = pd.DataFrame(
+        cogsnet_snap, columns=["source", "target", "weight"]
+    )
+    edges_df = edges_df.astype({"source": int, "target": int, "weight": float})
+    return nx.from_pandas_edgelist(
+        edges_df, create_using=nx.DiGraph, edge_attr="weight"
+    )
 
 
 class TemporalNetwork:
@@ -156,7 +172,7 @@ class TemporalNetwork:
         :param str delimiter: The delimiter for the CSV file
             (allowed values are ',', ';', or '\\t').
         """
-        snaps = _cogsnet(
+        cogsnet_snaps = _cogsnet(
             forgetting_type,
             snapshot_interval,
             edge_lifetime,
@@ -166,4 +182,8 @@ class TemporalNetwork:
             path_events,
             delimiter,
         )
-        return cls(snaps)
+        mln_snaps = [
+            MultilayerNetwork({"layer_1": cogsnet_snap_to_nxgraph(snap)})
+            for snap in cogsnet_snaps
+        ]
+        return cls(mln_snaps)  # TODO: add to docs!
