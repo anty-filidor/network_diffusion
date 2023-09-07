@@ -19,6 +19,7 @@
 """Definition of the base propagation model used in the library."""
 
 from abc import ABC, abstractmethod
+from collections import Counter
 from typing import Any, Dict, List, Tuple
 
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
@@ -70,7 +71,10 @@ class BaseModel(ABC):
 
     @abstractmethod
     def agent_evaluation_step(
-        self, agent: Any, layer_name: str, net: MultilayerNetwork
+        self,
+        agent: Any,
+        layer_name: str,
+        net: MultilayerNetwork,
     ) -> str:
         """
         Try to change state of given node of the network according to model.
@@ -103,15 +107,15 @@ class BaseModel(ABC):
         """
         Update the network global state by list of already activated nodes.
 
-        :param network: network to update
+        :param net: network to update
         :param activated_nodes: already activated nodes
         """
         out_json = []
-        for activ_node in activated_nodes:
-            net.layers[activ_node.layer_name].nodes[activ_node.node_name][
+        for active_node in activated_nodes:
+            net.layers[active_node.layer_name].nodes[active_node.node_name][
                 "status"
-            ] = activ_node.new_state
-            out_json.append(activ_node.to_json())
+            ] = active_node.new_state
+            out_json.append(active_node.to_json())
         return out_json
 
     @abstractmethod
@@ -124,3 +128,25 @@ class BaseModel(ABC):
         :param net: a network to determine allowed nodes' states for
         """
         ...
+
+    @staticmethod
+    def get_states_num(
+        net: MultilayerNetwork,
+    ) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
+        """
+        Return states in the network with number of agents that adopted them.
+
+        It is the most basic function which assumes that field "status" in the
+        network is self explaining and there is no need to decode it (e.g.
+        to separate hidden state from public one).
+
+        :return: dictionary with items representing each of layers and with
+            summary of nodes states in values
+        """
+        statistics = {}
+        for name, layer in net.layers.items():
+            tab = []
+            for node in layer.nodes():
+                tab.append(layer.nodes[node]["status"])
+            statistics[name] = tuple(Counter(tab).items())
+        return statistics

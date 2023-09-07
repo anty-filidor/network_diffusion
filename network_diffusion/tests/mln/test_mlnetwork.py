@@ -98,15 +98,6 @@ class TestMultilayerNetwork(unittest.TestCase):
             "Node should have None in status attr",
         )
 
-    def test_get_states_num(self):
-        """Tests if nodes states are being returned correctly."""
-        exp_result = {"marriage": ((None, 15),), "business": ((None, 11),)}
-        self.assertEqual(
-            self.network.get_states_num(),
-            exp_result,
-            "Network states are not same as expected.",
-        )
-
     def test_get_layer_names(self):
         """Tests if layer names are read correctly."""
         self.assertEqual(

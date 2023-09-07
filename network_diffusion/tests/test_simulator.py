@@ -2,19 +2,19 @@
 # pylint: disable-all
 # type: ignore
 
-"""Tests for the network_diffusion.multi_spreading."""
+"""Tests for the network_diffusion.simulator."""
 
 import unittest
 
 import networkx as nx
 import numpy as np
 
-from network_diffusion import MultilayerNetwork, MultiSpreading
+from network_diffusion import MultilayerNetwork, Simulator
 from network_diffusion.models import DSAAModel
 from network_diffusion.tests.models.test_dsaa_model import prepare_compartments
 
 
-class TestMultiSpreading(unittest.TestCase):
+class TestSimulator(unittest.TestCase):
     """Test class for MultilayerNetwork class."""
 
     def setUp(self):
@@ -39,7 +39,7 @@ class TestMultiSpreading(unittest.TestCase):
 
     def test_perform_propagation(self):
         """Check if perform_propagation returns correct values."""
-        experiment = MultiSpreading(self.model, self.network)
+        experiment = Simulator(self.model, self.network)
         initial_states = (
             self.model._compartmental_graph.get_seeding_budget_for_network(
                 self.network

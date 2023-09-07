@@ -2,7 +2,7 @@
 # pylint: disable-all
 # type: ignore
 
-"""Tests for the network_diffusion.experiment_logger."""
+"""Tests for the network_diffusion.logger."""
 
 import os
 import unittest
@@ -11,14 +11,14 @@ from tempfile import TemporaryDirectory
 import networkx as nx
 import pandas as pd
 
-from network_diffusion import MultilayerNetwork, MultiSpreading
+from network_diffusion import MultilayerNetwork, Simulator
 from network_diffusion.models import DSAAModel
-from network_diffusion.multi_spreading import ExperimentLogger
+from network_diffusion.simulator import Logger
 from network_diffusion.tests.models.test_dsaa_model import prepare_compartments
 
 
 def prepare_logs():
-    """Prepare logs for tests of ExperimentLogger class."""
+    """Prepare logs for tests of Logger class."""
     return (
         {
             "ill": (("S", 47), ("I", 30)),
@@ -73,7 +73,7 @@ def prepare_logs():
     )
 
 
-class TestExperimentLogger(unittest.TestCase):
+class TestLogger(unittest.TestCase):
     """Test class for MultilayerNetwork class."""
 
     def setUp(self):
@@ -96,7 +96,7 @@ class TestExperimentLogger(unittest.TestCase):
         }
         self.model.set_initial_states(net=self.network)
 
-        experiment = MultiSpreading(self.model, self.network)
+        experiment = Simulator(self.model, self.network)
         self.logs = experiment.perform_propagation(70)
 
     def test_plot(self):
@@ -242,7 +242,7 @@ class TestExperimentLogger(unittest.TestCase):
             "vacc": exp_vacc,
         }
 
-        logger = ExperimentLogger("model", "network")
+        logger = Logger("model", "network")
         for i in raw_logs:
             logger.add_global_stat(i)
 
@@ -261,7 +261,7 @@ class TestExperimentLogger(unittest.TestCase):
     def test__add_log(self):
         """Check if logs are being colledded proprely during simulation."""
         raw_logs = prepare_logs()
-        logger = ExperimentLogger("model", "network")
+        logger = Logger("model", "network")
 
         lengths__raw_stats = [len(logger._global_stats)]
         for log in raw_logs:

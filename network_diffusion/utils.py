@@ -102,16 +102,17 @@ def get_snapshot(
     return graph.time_slice(t_from=win_begin, t_to=win_end)
 
 
+# TODO (YQ): convert snaps to nx.Graph
 def read_tpn(
     file_path: str, time_window: int, directed: bool = True
-) -> Dict[int, Any]:
+) -> List[Union[dn.DynGraph, dn.DynDiGraph]]:
     """
     Read temporal network from a text file for the TemporalNetwork class.
 
     :param file_path: path to file
     :return: a dictionary with network to create class
     """
-    net_dict = {}
+    snaps = []
 
     graph = dn.read_snapshots(
         file_path, directed=directed, nodetype=int, timestamptype=int
@@ -121,14 +122,11 @@ def read_tpn(
     num_of_snaps = math.ceil((max_timestamp - min_timestamp) / time_window)
 
     for snap_id in range(num_of_snaps):
-        net_dict[snap_id] = get_snapshot(
-            graph, snap_id, min_timestamp, time_window
-        )
+        snaps.append(get_snapshot(graph, snap_id, min_timestamp, time_window))
 
-    return net_dict
+    return snaps
 
 
-# TODO(MCz): replace with pathlib
 def create_directory(dest_path: str) -> None:
     """
     Check out if given directory exists and if doesn't it creates it.
@@ -139,7 +137,6 @@ def create_directory(dest_path: str) -> None:
         os.mkdir(dest_path)
 
 
-# TODO(MCz): replace with pathlib
 def get_absolute_path() -> str:
     """Get absolute path of library."""
     return str(pathlib.Path(__file__).parent)

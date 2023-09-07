@@ -29,8 +29,8 @@ import pandas as pd
 from network_diffusion.utils import create_directory
 
 
-class ExperimentLogger:
-    """Store and processes logs acquired during performing MultiSpreading."""
+class Logger:
+    """Store and processes logs acquired during performing Simulator."""
 
     def __init__(
         self, model_description: str, network_description: str

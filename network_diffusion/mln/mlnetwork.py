@@ -19,7 +19,6 @@
 """A script where a multilayer network is defined."""
 
 import random
-from collections import Counter
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -39,7 +38,8 @@ class MultilayerNetwork:
 
         :param layers: a layers of the multilayer networks as graphs.
         """
-        self.layers = layers
+        prepared_layers = self._prepare_nodes_attribute(layers)
+        self.layers = prepared_layers
 
     @classmethod
     def from_mpx(cls, file_path: str) -> "MultilayerNetwork":
@@ -78,8 +78,7 @@ class MultilayerNetwork:
                 if len(edge) >= 3 and edge[2] in layers:
                     layers[edge[2]].add_edge(edge[0], edge[1])
 
-        prepared_layers = cls._prepare_nodes_attribute(layers)
-        return cls(prepared_layers)
+        return cls(layers)
 
     @classmethod
     def from_nx_layers(
@@ -106,8 +105,7 @@ class MultilayerNetwork:
                 name = f"layer_{i}"
                 layers.update({name: layer})
 
-        prepared_layers = cls._prepare_nodes_attribute(layers)
-        return cls(prepared_layers)
+        return cls(layers)
 
     @classmethod
     def from_nx_layer(
@@ -125,8 +123,7 @@ class MultilayerNetwork:
         for name in layer_names:
             layers.update({name: deepcopy(network_layer)})
 
-        prepared_layers = cls._prepare_nodes_attribute(layers)
-        return cls(prepared_layers)
+        return cls(layers)
 
     @staticmethod
     def _prepare_nodes_attribute(
@@ -138,16 +135,17 @@ class MultilayerNetwork:
             nx.set_node_attributes(layer, status_dict, "status")
         return layers
 
-    def __str__(self) -> str:
-        """Print out quickly parameters of the network."""
-        return self._get_description_str()
+    def __getitem__(self, key: str) -> nx.Graph:
+        """Get 'key' layer of the network."""
+        return self.layers[key]
 
     def __len__(self) -> int:
         """Return length of the network, i.e. num of actors."""
         return self.get_actors_num()
 
-    #  TODO(MCz): implement __getitem__ and its siblings to short experssions
-    # like net.layers["l1"] to net["l1"]
+    def __str__(self) -> str:
+        """Print out quickly parameters of the network."""
+        return self._get_description_str()
 
     def _get_description_str(self) -> str:
         """
@@ -280,22 +278,6 @@ class MultilayerNetwork:
         for layer_name, layer_graph in self.layers.items():
             nodes_num[layer_name] = len(layer_graph.nodes)
         return nodes_num
-
-    def get_states_num(self) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
-        """
-        Return number of agents with all possible states in each layer.
-
-        :return: dictionary with items representing each of layers and with
-            summary of nodes states in values
-        """
-        assert len(self.layers) > 0, "Import network to the object first!"
-        statistics = {}
-        for name, layer in self.layers.items():
-            tab = []
-            for node in layer.nodes():
-                tab.append(layer.nodes[node]["status"])
-            statistics[name] = tuple(Counter(tab).items())
-        return statistics
 
     def get_links(
         self, actor_id: Optional[Any] = None

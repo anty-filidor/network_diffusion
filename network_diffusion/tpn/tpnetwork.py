@@ -1,22 +1,32 @@
 """A script where a temporal network is defined."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 
 import networkx as nx
 
+from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.utils import read_tpn
 
 
 class TemporalNetwork:
     """Container for a temporal network."""
 
-    def __init__(self, snaps: Dict[int, nx.Graph]) -> None:
+    def __init__(self, snaps: List[MultilayerNetwork]) -> None:
         """
         Create a temporal network object.
 
         :param snaps: snapshots of the temporal network.
         """
         self.snaps = snaps
+
+    def __getitem__(self, key: int) -> MultilayerNetwork:
+        """Get 'key' snapshot of the network."""
+        return self.snaps[key]
+
+    def __len__(self) -> int:
+        """Return length of the network, i.e. num of actors."""
+        return len(self.snaps)
 
     @classmethod
     def from_txt(
@@ -34,29 +44,54 @@ class TemporalNetwork:
         :param directed: indicate if the graph is directed
         """
         snaps = read_tpn(file_path, time_window, directed)
-        return cls(snaps)
+        mln_snaps = [MultilayerNetwork({"layer_1": net}) for net in snaps]
+        return cls(mln_snaps)
 
     @classmethod
     def from_nx_layers(
-        cls,
-        network_list: List[nx.Graph],
-        snap_ids: Optional[List[Any]] = None,
+        cls, network_list: List[nx.Graph], snap_ids: Optional[List[Any]] = None
     ) -> "TemporalNetwork":
         """
         Load a temporal network from a list of networks and their snapshot ids.
 
         :param network_list: a list of nx networks
-        :param snap_ids:  list of snapshot ids. It can be none, then ids
-            are set automatically
+        :param snap_ids: list of snapshot ids. It can be none, then ids
+            are set automatically, if not, then snapshots will be sorted
+            according to snap_ids list
         """
-        snaps = {}
         if snap_ids is not None:
             assert len(network_list) == len(
                 snap_ids
             ), "Length of network list and metadata list is not equal"
-            for snap, snap_id in zip(network_list, snap_ids):
-                snaps.update({snap_id: snap})
+            snaps = [
+                MultilayerNetwork({"layer_0": snap})
+                for _, snap in sorted(zip(snap_ids, network_list))
+            ]
         else:
-            for snap_id, snap in enumerate(network_list, start=0):
-                snaps.update({snap_id: snap})
+            snaps = [
+                MultilayerNetwork({"layer_0": snap}) for snap in network_list
+            ]
         return cls(snaps)
+
+    def get_actors(self, shuffle: bool = False) -> List[MLNetworkActor]:
+        """
+        Get actors that from the first snapshot of network.
+
+        :param shuffle: a flag that determines whether to shuffle actor list
+        """
+        return self.get_actors_from_snap(0, shuffle)
+
+    def get_actors_from_snap(
+        self, snapshot_id: int, shuffle: bool = False
+    ) -> List[MLNetworkActor]:
+        """
+        Get actors that exist in the network at given snapshot.
+
+        :param snapshot_id: snapshot for which to take actors, starts from 0
+        :param shuffle: a flag that determines whether to shuffle actor list
+        """
+        return list(self.snaps[snapshot_id].get_actors(shuffle))
+
+    def get_actors_num(self) -> int:
+        """Get number of actors that live in the network."""
+        return len(self.get_actors_from_snap(0))

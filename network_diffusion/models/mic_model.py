@@ -214,7 +214,7 @@ class MICModel(BaseModel):
         """
         Evaluate the network at one time stamp with MICModel.
 
-        :param network: a network to evaluate
+        :param net: a network to evaluate
         :return: list of nodes that changed state after the evaluation
         """
         nodes_to_update: List[NUBff] = []
