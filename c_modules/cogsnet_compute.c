@@ -185,6 +185,7 @@ struct Cogsnet compute_cogsnet(int number_of_nodes, int *real_node_ids,
   for (int i = 0; i < number_of_nodes; i++) {
     for (int j = 0; j < number_of_nodes; j++) {
       recent_events[i][j] = 0;
+      current_weights[i][j] = 0;
     }
   }
 
