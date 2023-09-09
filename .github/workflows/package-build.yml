@@ -8,8 +8,7 @@ env:
   PYTHON_VERSION: "3.10"
 
 jobs:
-
-  # build wheel and prepare tarball with sources. since sources are OS-agnostic 
+  # build wheel and prepare tarball with sources. since sources are OS-agnostic
   # it's ok to owerwrite sdists prepared by each of OS
   # currently we don't support windows
   Build-Multiplatform-Package:
@@ -31,6 +30,8 @@ jobs:
           pip install -r requirements/develop.txt
       - name: Build Wheel Package
         run: python setup.py sdist bdist_wheel
+      - name: Checki if package can be uploaded to PyPI
+        run: python -m twine check dist/*
       - name: Save artifacts
         uses: actions/upload-artifact@master
         with:

@@ -22,7 +22,6 @@
 
 from typing import List
 
-from pypandoc import convert_file
 from setuptools import Extension, find_packages, setup
 
 from network_diffusion import __version__
@@ -37,11 +36,8 @@ def parse_requirements() -> List[str]:
 
 def parse_readme() -> str:
     """Convert README to rst standard."""
-    try:
-        long_description = convert_file("README.md", "rst")
-    except (IOError, ImportError):
-        with open("README.md", encoding="utf-8") as file:
-            long_description = file.read()
+    with open("README.md", encoding="utf-8") as file:
+        long_description = file.read()
     return long_description
 
 
@@ -75,6 +71,7 @@ setup(
     ],
     description="Package to design and run diffusion phenomena in networks.",
     long_description=parse_readme(),
+    long_description_content_type="text/markdown",
     author="Michał Czuba, Piotr Bródka",
     author_email="michal.czuba@pwr.edu.pl, piotr.brodka@pwr.edu.pl",
     install_requires=parse_requirements(),
