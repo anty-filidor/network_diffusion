@@ -65,7 +65,7 @@ setup(
         "temporal networks",
     ],
     description="Package to design and run diffusion phenomena in networks.",
-    long_description="Network Diffusion",
+    long_description="Network Diffusion",  # TODO: fix the issue long_description_content_type` missing. defaulting
     author="Michał Czuba, Piotr Bródka",
     author_email="michal.czuba@pwr.edu.pl, piotr.brodka@pwr.edu.pl",
     install_requires=parse_requirements(),
