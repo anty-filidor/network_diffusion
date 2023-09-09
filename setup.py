@@ -22,6 +22,7 @@
 
 from typing import List
 
+from pypandoc import convert_file
 from setuptools import Extension, find_packages, setup
 
 from network_diffusion import __version__
@@ -29,11 +30,19 @@ from network_diffusion import __version__
 
 def parse_requirements() -> List[str]:
     """Parse requirements from the txt file."""
-    with open(
-        file="requirements/production.txt", encoding="utf-8", mode="r"
-    ) as file:
+    with open(file="requirements/production.txt", encoding="utf-8") as file:
         requirements = file.readlines()
     return requirements
+
+
+def parse_readme() -> str:
+    """Convert README to rst standard."""
+    try:
+        long_description = convert_file("README.md", "rst")
+    except (IOError, ImportError):
+        with open("README.md", encoding="utf-8") as file:
+            long_description = file.read()
+    return long_description
 
 
 setup(
@@ -65,7 +74,7 @@ setup(
         "temporal networks",
     ],
     description="Package to design and run diffusion phenomena in networks.",
-    long_description="Network Diffusion",  # TODO: fix the issue long_description_content_type` missing. defaulting
+    long_description=parse_readme(),
     author="Michał Czuba, Piotr Bródka",
     author_email="michal.czuba@pwr.edu.pl, piotr.brodka@pwr.edu.pl",
     install_requires=parse_requirements(),
