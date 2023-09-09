@@ -15,7 +15,7 @@ This Python library provides a versatile toolkit for simulating diffusion
 processes in complex networks. It offers support for various types of models,
 including temporal models, multilayer models, and combinations of both.
 
-<center> <b>Documentation</b> is available <a href="https://network-diffusion.readthedocs.io/en/latest/">here</a>! </center>
+<p align="center"> <b>Documentation</b> is available <a href="https://network-diffusion.readthedocs.io/en/latest/">here</a>! </p>
 
 ## Key Features
 
@@ -78,11 +78,11 @@ If you like the package, please cite us as:
 
 A board with issues and state of the progress torwards implementing new
 functionalities can be found
-[here](https://github.com/users/anty-filidor/projects/6/views/1)
+[here](https://github.com/users/anty-filidor/projects/6/views/1).
 
 ## About us
 
 This library is developed and maintained by Network Science Lab at
 [WUST](https://networks.pwr.edu.pl/) and external partners. For more
-information and updates, please visit our website:
-[https://networks.pwr.edu.pl/](https://networks.pwr.edu.pl/).
+information and updates, please visit our :
+[website](https://networks.pwr.edu.pl/).
