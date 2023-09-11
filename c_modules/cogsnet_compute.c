@@ -17,7 +17,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <unistd.h>  // TODO (MN): this is Unix-specific library!
+#ifdef _WIN32
+// Windows-specific code
+#include <windows.h>
+#else
+// Unix-like system code
+#include <unistd.h>
+#endif
 
 // linear forgetting
 float compute_weight_linear(int new_event, float weight_last_event,
@@ -388,12 +394,23 @@ struct Cogsnet cogsnet(const char *forgetting_type, int snapshot_interval,
     return network;
   }
 
+#ifdef _WIN32
+  // Windows-specific code
+  if (GetFileAttributes(path_events) == INVALID_FILE_ATTRIBUTES) {
+    network.exit_status = 1;
+    snprintf(network.error_msg, sizeof(network.error_msg),
+             "[ERROR] File does not exist: %s.\n", path_events);
+    return network;
+  }
+#else
+  // Unix-like system code
   if (access(path_events, F_OK) != 0) {
     network.exit_status = 1;
     snprintf(network.error_msg, sizeof(network.error_msg),
              "[ERROR] File does not exist: %s.\n", path_events);
     return network;
   }
+#endif
 
   if (!(strcmp(delimiter, ",") == 0 || strcmp(delimiter, ";") == 0 ||
         strcmp(delimiter, "\t") == 0)) {
