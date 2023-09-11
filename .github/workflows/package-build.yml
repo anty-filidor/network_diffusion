@@ -2,7 +2,7 @@ name: package builds
 
 on:
   push:
-    branches: [fix--cicid-for-c-ports]
+    branches: [master]
 
 env:
   PYTHON_VERSION: "3.10"
