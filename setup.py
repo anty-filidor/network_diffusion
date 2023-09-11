@@ -77,7 +77,7 @@ setup(
     install_requires=parse_requirements(),
     ext_modules=[
         Extension(
-            "network_diffusion.tpn.cogsnet_lib",
+            name="network_diffusion.tpn.cogsnet_lib",
             include_dirs=["c_modules"],
             sources=["c_modules/cogsnet_compute.c", "c_modules/cogsnet_lib.c"],
         )
