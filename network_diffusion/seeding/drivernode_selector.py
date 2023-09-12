@@ -12,6 +12,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 from network_diffusion.tpn.functions import driver_nodes
 from network_diffusion.seeding.betweenness_selector import BetweennessSelector
 from network_diffusion.seeding.degreecentrality_selector import DegreeCentralitySelector
+from network_diffusion.seeding.closeness_selector import ClosenessSelector
 
 class DriverNodeSelector():
     """Driver Node based seed selector."""
@@ -30,19 +31,19 @@ class DriverNodeSelector():
 
         driver_nodes_list = driver_nodes(snap)
 
-        dummy_mln = MultilayerNetwork.from_nx_layer(snap, ['0']) # for using mln seed selection method
+        # dummy_mln = MultilayerNetwork.from_nx_layer(snap, ['0']) # for using mln seed selection method
         
         match method:
             case "betweenness":
                 selector = BetweennessSelector()
-                result = selector.actorwise(dummy_mln)
+                result = selector.actorwise(snap)
                 result = self.reorder_seeds(driver_nodes_list, result)
             case "degreecentrality":
                 selector = DegreeCentralitySelector()
-                result = selector.actorwise(dummy_mln)
-                result = self.reorder_seeds(driver_nodes_list, result)                                
+                result = selector.actorwise(snap)
+                result = self.reorder_seeds(driver_nodes_list, result)                             
             case _:
-                result = self.reorder_seeds(driver_nodes_list, dummy_mln.get_actors())
+                result = self.reorder_seeds(driver_nodes_list, snap.get_actors())
         return result
         
     #TODO: keeping the rest non-driver-nodes or not?
