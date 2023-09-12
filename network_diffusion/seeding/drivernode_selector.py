@@ -10,9 +10,17 @@ from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 from network_diffusion.tpn.functions import driver_nodes
+from network_diffusion.seeding.random_selector import RandomSeedSelector
 from network_diffusion.seeding.betweenness_selector import BetweennessSelector
 from network_diffusion.seeding.degreecentrality_selector import DegreeCentralitySelector
 from network_diffusion.seeding.closeness_selector import ClosenessSelector
+from network_diffusion.seeding.katz_selector import KatzSelector
+from network_diffusion.seeding.kshell_selector import KShellMLNSeedSelector
+from network_diffusion.seeding.mocky_selector import MockyActorSelector
+from network_diffusion.seeding.neighbourhoodsize_selector import NeighbourhoodSizeSelector
+from network_diffusion.seeding.pagerank_selector import PageRankMLNSeedSelector
+from network_diffusion.seeding.voterank_selector import VoteRankSeedSelector
+from network_diffusion.seeding.cbim import CBIMselector
 
 class DriverNodeSelector():
     """Driver Node based seed selector."""
@@ -30,20 +38,28 @@ class DriverNodeSelector():
         snap = net.snaps[snap_id]
 
         driver_nodes_list = driver_nodes(snap)
-                
+
         match method:
+            case "random":
+                selector = RandomSeedSelector()
+                result = selector.actorwise(snap)
+                result = self.reorder_seeds(driver_nodes_list, result)
+            case "degree":
+                selector = DegreeCentralitySelector()
+                result = selector.actorwise(snap)
+                result = self.reorder_seeds(driver_nodes_list, result)
+            case "closeness":
+                selector = ClosenessSelector()
+                result = selector.actorwise(snap)    
+                result = self.reorder_seeds(driver_nodes_list, result)            
             case "betweenness":
                 selector = BetweennessSelector()
                 result = selector.actorwise(snap)
                 result = self.reorder_seeds(driver_nodes_list, result)
-            case "degreecentrality":
-                selector = DegreeCentralitySelector()
+            case "katz":
+                selector = KatzSelector()
                 result = selector.actorwise(snap)
-                result = self.reorder_seeds(driver_nodes_list, result)   
-            case "closeness":
-                selector = ClosenessSelector()
-                result = selector.actorwise(snap)    
-                result = self.reorder_seeds(driver_nodes_list, result)                         
+                result = self.reorder_seeds(driver_nodes_list, result)
             case _:
                 result = self.reorder_seeds(driver_nodes_list, snap.get_actors())
         return result
