@@ -32,6 +32,7 @@ class DriverNodeSelector():
             f"\tdriver node\n{BOLD_UNDERLINE}\n"
         )
     
+    #TODO: other methods and parameters?
     def snap_select(self, net: TemporalNetwork, snap_id: int, method: str) -> List[int]:
         """Return list of driver node"""
 
@@ -42,26 +43,25 @@ class DriverNodeSelector():
         match method:
             case "random":
                 selector = RandomSeedSelector()
-                result = selector.actorwise(snap)
-                result = self.reorder_seeds(driver_nodes_list, result)
             case "degree":
                 selector = DegreeCentralitySelector()
-                result = selector.actorwise(snap)
-                result = self.reorder_seeds(driver_nodes_list, result)
             case "closeness":
-                selector = ClosenessSelector()
-                result = selector.actorwise(snap)    
-                result = self.reorder_seeds(driver_nodes_list, result)            
+                selector = ClosenessSelector()         
             case "betweenness":
                 selector = BetweennessSelector()
-                result = selector.actorwise(snap)
-                result = self.reorder_seeds(driver_nodes_list, result)
             case "katz":
                 selector = KatzSelector()
-                result = selector.actorwise(snap)
-                result = self.reorder_seeds(driver_nodes_list, result)
+            case "kshell":
+                selector = KShellMLNSeedSelector()
+            case "pagerank":
+                selector = PageRankMLNSeedSelector()
+            case "voterank":
+                selector = VoteRankSeedSelector()
             case _:
-                result = self.reorder_seeds(driver_nodes_list, snap.get_actors())
+                return self.reorder_seeds(driver_nodes_list, snap.get_actors())
+
+        result = selector.actorwise(snap)
+        result = self.reorder_seeds(driver_nodes_list, result)
         return result
         
     #TODO: keeping the rest non-driver-nodes or not?
