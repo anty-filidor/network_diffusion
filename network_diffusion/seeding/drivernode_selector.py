@@ -30,9 +30,7 @@ class DriverNodeSelector():
         snap = net.snaps[snap_id]
 
         driver_nodes_list = driver_nodes(snap)
-
-        # dummy_mln = MultilayerNetwork.from_nx_layer(snap, ['0']) # for using mln seed selection method
-        
+                
         match method:
             case "betweenness":
                 selector = BetweennessSelector()
@@ -41,7 +39,11 @@ class DriverNodeSelector():
             case "degreecentrality":
                 selector = DegreeCentralitySelector()
                 result = selector.actorwise(snap)
-                result = self.reorder_seeds(driver_nodes_list, result)                             
+                result = self.reorder_seeds(driver_nodes_list, result)   
+            case "closeness":
+                selector = ClosenessSelector()
+                result = selector.actorwise(snap)    
+                result = self.reorder_seeds(driver_nodes_list, result)                         
             case _:
                 result = self.reorder_seeds(driver_nodes_list, snap.get_actors())
         return result
