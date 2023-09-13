@@ -54,7 +54,7 @@ including temporal models, multilayer models, and combinations of both.
 ## Installation
 
 **To install package run this command: `pip install network_diffusion`**.
-Please note, that currently we support Linux and MacOS only.
+Please note, that currently we support Linux, MacOS, and Windows only.
 
 If you like the package, please cite us as:
 
