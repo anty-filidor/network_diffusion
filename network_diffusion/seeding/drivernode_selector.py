@@ -75,7 +75,7 @@ class DriverNodeSelector():
                 result.append(item)
                 all_nodes.remove(item)
 
-        # result.extend(all_nodes)
+        result.extend(all_nodes)
         return result
 
 
