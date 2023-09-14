@@ -1,8 +1,9 @@
 """A definition of the seed selector based on driver nodes."""
 
-from typing import List
+from typing import Any, List
 
-# from network_diffusion.seeding.base_selector import BaseSeedSelector
+import networkx as nx
+
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.mln.actor import MLNetworkActor
@@ -10,6 +11,7 @@ from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 from network_diffusion.tpn.functions import driver_nodes
+from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.seeding.random_selector import RandomSeedSelector
 from network_diffusion.seeding.betweenness_selector import BetweennessSelector
 from network_diffusion.seeding.degreecentrality_selector import DegreeCentralitySelector
@@ -22,8 +24,32 @@ from network_diffusion.seeding.pagerank_selector import PageRankMLNSeedSelector
 from network_diffusion.seeding.voterank_selector import VoteRankSeedSelector
 from network_diffusion.seeding.cbim import CBIMselector
 
-class DriverNodeSelector():
+class DriverNodeSelector(BaseSeedSelector):
     """Driver Node based seed selector."""
+
+    def __init__(self, method: str) -> None:
+        """Initialise object."""
+        match method:
+            case "random":
+                self.selector = RandomSeedSelector()
+            case "degree":
+                self.selector = DegreeCentralitySelector()
+            case "closeness":
+                self.selector = ClosenessSelector()         
+            case "betweenness":
+                self.selector = BetweennessSelector()
+            case "katz":
+                self.selector = KatzSelector()
+            case "kshell":
+                self.selector = KShellMLNSeedSelector()
+            case "pagerank":
+                self.selector = PageRankMLNSeedSelector()
+            case "voterank":
+                self.selector = VoteRankSeedSelector()
+            case _:
+                self.selector = None
+        super().__init__()
+
 
     def __str__(self) -> str:
         """Return seed method's description."""
@@ -32,51 +58,44 @@ class DriverNodeSelector():
             f"\tdriver node\n{BOLD_UNDERLINE}\n"
         )
     
+    @staticmethod
+    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+        """Create nodewise ranking."""
+        raise NotImplementedError(
+            "Nodewise ranking list cannot be computed for this class!"
+        )
+    
     #TODO: other methods and parameters?
-    def snap_select(self, net: TemporalNetwork, snap_id: int, method: str) -> List[int]:
+    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Return list of driver node"""
 
-        snap = net.snaps[snap_id]
+        driver_nodes_list = driver_nodes(net)
 
-        driver_nodes_list = driver_nodes(snap)
-
-        match method:
-            case "random":
-                selector = RandomSeedSelector()
-            case "degree":
-                selector = DegreeCentralitySelector()
-            case "closeness":
-                selector = ClosenessSelector()         
-            case "betweenness":
-                selector = BetweennessSelector()
-            case "katz":
-                selector = KatzSelector()
-            case "kshell":
-                selector = KShellMLNSeedSelector()
-            case "pagerank":
-                selector = PageRankMLNSeedSelector()
-            case "voterank":
-                selector = VoteRankSeedSelector()
-            case _:
-                return self.reorder_seeds(driver_nodes_list, snap.get_actors())
-
-        result = selector.actorwise(snap)
-        result = self.reorder_seeds(driver_nodes_list, result)
-        return result
+        if self.selector is None:
+            return self._reorder_seeds(driver_nodes_list, net.get_actors())
         
-    #TODO: keeping the rest non-driver-nodes or not?
-    def reorder_seeds(self, driver_nodes: List[int], all_nodes: List[MLNetworkActor]):
+        result = self.selector.actorwise(net)
+        result = self._reorder_seeds(driver_nodes_list, result)
+        return result
+
+    def snap_select(self, net: TemporalNetwork, snap_id: int) -> List[int]:
+        snap = net.snaps[snap_id]
+        return self.actorwise(snap)
+        
+    def _reorder_seeds(self, driver_nodes: List[MLNetworkActor], all_actors: List[MLNetworkActor]):
         """Return a list of node ids, where driver nodes in the first"""
         result = []
-        all_nodes = [x.actor_id for x in all_nodes]
 
-        for item in all_nodes[:]:
-            if item in driver_nodes:
+        driver_ac_set = set(driver_nodes)
+
+        for item in all_actors:
+            if item in driver_ac_set:
                 result.append(item)
-                all_nodes.remove(item)
+                all_actors.remove(item)
 
-        result.extend(all_nodes)
+        result.extend(all_actors)
         return result
+
 
 
 
