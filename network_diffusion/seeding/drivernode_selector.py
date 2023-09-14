@@ -78,7 +78,7 @@ class DriverNodeSelector(BaseSeedSelector):
         result = self._reorder_seeds(driver_nodes_list, result)
         return result
 
-    def snap_select(self, net: TemporalNetwork, snap_id: int) -> List[int]:
+    def snap_select(self, net: TemporalNetwork, snap_id: int) -> List[MLNetworkActor]:
         snap = net.snaps[snap_id]
         return self.actorwise(snap)
         
