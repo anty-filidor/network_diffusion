@@ -81,7 +81,9 @@ class TemporalNetwork:
         :param directed: indicate if the graph is directed
         """
         snaps = read_tpn(file_path, time_window, directed)
-        mln_snaps = [MultilayerNetwork({"layer_1": net}) for net in snaps.values()]
+        mln_snaps = [
+            MultilayerNetwork({"layer_1": net}) for net in snaps.values()
+        ]
         return cls(mln_snaps)
 
     @classmethod

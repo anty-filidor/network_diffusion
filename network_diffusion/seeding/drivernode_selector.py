@@ -1,22 +1,12 @@
 """A definition of the seed selector based on driver nodes."""
 
-from typing import Any, List
+from typing import Any, List, Optional
 
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
-from network_diffusion.seeding.betweenness_selector import BetweennessSelector
-from network_diffusion.seeding.closeness_selector import ClosenessSelector
-from network_diffusion.seeding.degreecentrality_selector import (
-    DegreeCentralitySelector,
-)
-from network_diffusion.seeding.katz_selector import KatzSelector
-from network_diffusion.seeding.kshell_selector import KShellMLNSeedSelector
-from network_diffusion.seeding.pagerank_selector import PageRankMLNSeedSelector
-from network_diffusion.seeding.random_selector import RandomSeedSelector
-from network_diffusion.seeding.voterank_selector import VoteRankSeedSelector
 from network_diffusion.tpn.functions import compute_driver_nodes
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
@@ -25,34 +15,26 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 class DriverNodeSelector(BaseSeedSelector):
     """Driver Node based seed selector."""
 
-    def __init__(self, method: str) -> None:
-        """Initialise object."""
-        match method:
-            case "random":
-                self.selector = RandomSeedSelector()
-            case "degree":
-                self.selector = DegreeCentralitySelector()
-            case "closeness":
-                self.selector = ClosenessSelector()
-            case "betweenness":
-                self.selector = BetweennessSelector()
-            case "katz":
-                self.selector = KatzSelector()
-            case "kshell":
-                self.selector = KShellMLNSeedSelector()
-            case "pagerank":
-                self.selector = PageRankMLNSeedSelector()
-            case "voterank":
-                self.selector = VoteRankSeedSelector()
-            case _:
-                self.selector = None
+    def __init__(self, method: Optional[BaseSeedSelector]) -> None:
+        """
+        Initialise object.
+
+        :param method: a method to sort driver actors.
+        """
         super().__init__()
+        if isinstance(method, DriverNodeSelector):
+            raise AttributeError(
+                f"Argument 'method' cannot be {self.__class__.__name__}!"
+            )
+        self.selector = method
 
     def __str__(self) -> str:
         """Return seed method's description."""
+        selector = self.selector
+        s_str = "" if selector is None else f" + {selector.__class__.__name__}"
         return (
             f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
-            f"\tdriver node\n{BOLD_UNDERLINE}\n"
+            f"\tdriver actor{s_str}\n{BOLD_UNDERLINE}\n"
         )
 
     @staticmethod
@@ -85,7 +67,7 @@ class DriverNodeSelector(BaseSeedSelector):
     def _reorder_seeds(
         driver_nodes: List[MLNetworkActor],
         all_actors: List[MLNetworkActor],
-    ):
+    ) -> List[MLNetworkActor]:
         """Return a list of node ids, where driver nodes in the first."""
         result = []
 

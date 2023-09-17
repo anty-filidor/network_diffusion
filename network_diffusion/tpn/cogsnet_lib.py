@@ -26,7 +26,8 @@ can build it with `python setup.py build`.
 """
 
 # pylint: disable=W0613  # it's a stub for C functions
-# pylint: disable=R0913  # it's a scientific function, so ignore nb of args
+# pylint: disable=R0913, C0103  # it's a scientific function, so ignore SOLID
+# mypy: disable-error-code=empty-body
 
 
 from typing import List
@@ -36,7 +37,7 @@ def _cogsnet(
     forgetting_type: str,
     snapshot_interval: int,
     edge_lifetime: int,
-    mu: float,  # pylint: disable=C0103
+    mu: float,
     theta: float,
     units: int,
     path_events: str,
