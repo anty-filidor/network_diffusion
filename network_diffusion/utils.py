@@ -25,8 +25,8 @@ import pathlib
 import string
 from typing import Any, Dict, List, Union
 
-import networkx as nx
 import dynetx as dn
+import networkx as nx
 import numpy as np
 
 BOLD_UNDERLINE = "============================================"
@@ -82,7 +82,8 @@ def read_mpx(file_path: str) -> Dict[str, List[Any]]:
 
     return net_dict
 
-#TODO: old dynetx snapshots
+
+# TODO: old dynetx snapshots
 def get_snapshot(
     graph: Union[dn.DynGraph, dn.DynDiGraph],
     snap_id: int,
@@ -101,6 +102,7 @@ def get_snapshot(
     win_begin = snap_id * time_window + min_timestamp
     win_end = (snap_id + 1) * time_window + min_timestamp
     return graph.time_slice(t_from=win_begin, t_to=win_end)
+
 
 def get_nx_snapshot(
     graph: Union[dn.DynGraph, dn.DynDiGraph],

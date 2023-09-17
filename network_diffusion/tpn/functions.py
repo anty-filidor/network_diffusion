@@ -1,20 +1,14 @@
 """Script with functions for driver node selections."""
 
-from typing import List, Set
+from typing import Any, List, Set
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
-# import networkx as nx
-# from networkx.algorithms.approximation.dominating_set import (
-#     min_weighted_dominating_set,
-# )
-# from networkx.algorithms.dominating import dominating_set
-
 
 def compute_driver_nodes(net: MultilayerNetwork) -> List[MLNetworkActor]:
     """Return driver nodes for a given network."""
-    min_dominating_set = set()
+    min_dominating_set: Set[Any] = set()
     for layer in net.layers:
         min_dominating_set = minimum_dominating_set_with_initial(
             net, layer, min_dominating_set
@@ -24,7 +18,7 @@ def compute_driver_nodes(net: MultilayerNetwork) -> List[MLNetworkActor]:
 
 
 def minimum_dominating_set_with_initial(
-    net: MultilayerNetwork, layer: str, initial_set: Set[int]
+    net: MultilayerNetwork, layer: str, initial_set: Set[Any]
 ) -> Set[int]:
     """
     Return a dominating set that includes the initial set.

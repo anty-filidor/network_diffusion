@@ -4,13 +4,25 @@
 
 """Tests for the network_diffusion.mln.mlnetwork."""
 
+import copy
 import os
 import unittest
 
 import networkx as nx
+import numpy as np
 
 from network_diffusion import utils
 from network_diffusion.mln import MultilayerNetwork
+
+
+def copy_helper(original_network, copied_network):
+    assert id(copied_network) != id(original_network)
+    assert len(copied_network) == len(original_network)
+    for layer_name in original_network.get_layer_names():
+        copied_layer = copied_network[layer_name]
+        orig_layer = original_network[layer_name]
+        assert id(copied_layer) != id(orig_layer)
+        assert nx.utils.graphs_equal(copied_layer, orig_layer) is True
 
 
 class TestMultilayerNetwork(unittest.TestCase):
@@ -106,6 +118,15 @@ class TestMultilayerNetwork(unittest.TestCase):
             ["marriage", "business"],
             "Incorrect layer names",
         )
+
+    def test_copy(self):
+        return copy_helper(self.network, self.network.copy())
+
+    def test___copy__(self):
+        return copy_helper(self.network, copy.copy(self.network))
+
+    def test___deepcopy__(self):
+        return copy_helper(self.network, copy.deepcopy(self.network))
 
 
 if __name__ == "__main__":
