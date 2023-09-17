@@ -83,33 +83,12 @@ def read_mpx(file_path: str) -> Dict[str, List[Any]]:
     return net_dict
 
 
-# TODO: old dynetx snapshots
-def get_snapshot(
-    graph: Union[dn.DynGraph, dn.DynDiGraph],
-    snap_id: int,
-    min_timestamp: int,
-    time_window: int,
-) -> Union[dn.DynGraph, dn.DynDiGraph]:
-    """
-    Get a snapshot for the given snapshot id.
-
-    :param graph: the dynamic graph
-    :param snap_id: the snapshot id
-    :param min_timestamp: the minimum timestamp in the graph
-    :param time_window: the size of the time window
-    :return: a snapshot graph of the given id
-    """
-    win_begin = snap_id * time_window + min_timestamp
-    win_end = (snap_id + 1) * time_window + min_timestamp
-    return graph.time_slice(t_from=win_begin, t_to=win_end)
-
-
 def get_nx_snapshot(
     graph: Union[dn.DynGraph, dn.DynDiGraph],
     snap_id: int,
     min_timestamp: int,
     time_window: int,
-) -> Union[dn.DynGraph, dn.DynDiGraph]:
+) -> Union[nx.Graph, nx.DiGraph]:
     """
     Get an nxGraph typed snapshot for the given snapshot id.
 
@@ -121,21 +100,28 @@ def get_nx_snapshot(
     """
     win_begin = snap_id * time_window + min_timestamp
     win_end = (snap_id + 1) * time_window + min_timestamp
-    return nx.Graph(graph.time_slice(t_from=win_begin, t_to=win_end).edges)
+    if isinstance(graph, dn.DynGraph):
+        return nx.Graph(graph.time_slice(t_from=win_begin, t_to=win_end).edges)
+    elif isinstance(graph, dn.DynDiGraph):
+        return nx.DiGraph(
+            graph.time_slice(t_from=win_begin, t_to=win_end).edges
+        )
+    else:
+        raise ValueError("Incorrect class of graph!")
 
 
 def read_tpn(
     file_path: str, time_window: int, directed: bool = True
-) -> Dict[int, Any]:
+) -> Dict[int, Union[nx.Graph, nx.DiGraph]]:
     """
     Read temporal network from a text file for the TemporalNetwork class.
 
     :param file_path: path to file
-    :return: a dictionary with network to create class
+    :return: a dictionary keyed by snapshot ID and valued by NetworkX Graph
     """
     net_dict = {}
 
-    graph = dn.read_snapshots(
+    graph: Union[dn.DynGraph, dn.DynDiGraph] = dn.read_snapshots(
         file_path, directed=directed, nodetype=int, timestamptype=int
     )
     min_timestamp = min(graph.temporal_snapshots_ids())
