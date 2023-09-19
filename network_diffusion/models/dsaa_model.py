@@ -58,6 +58,9 @@ class DSAAModel(BaseModel):
 
         :return: a list of state of the network after initialisation
         """
+        if not net.is_multiplex():
+            raise ValueError("This model works only with multiplex networks!")
+
         budget = self._compartmental_graph.get_seeding_budget_for_network(net)
         seed_nodes: List[NetworkUpdateBuffer] = []
 

@@ -222,7 +222,7 @@ class CompartmentalGraph:
             # prepare names in current layer
             cl_names = [str(layer_name) + "." + str(v) for v in layer_type]
             if track_changes:
-                print("crtlr", cl_names)
+                print(f"Variables in current layer: {cl_names}")
 
             # copy layers description and delete current layer to prepare
             # constants for current layer
@@ -240,7 +240,7 @@ class CompartmentalGraph:
             # prepare constants
             product = [*itertools.product(*ol_names)]
             if track_changes:
-                print("const", product)
+                print(f"Constants in current layer: {product}")
 
             # crate transitions graph from product and names of states in
             # current layer
