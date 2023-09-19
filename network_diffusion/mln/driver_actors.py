@@ -39,6 +39,10 @@ def minimum_dominating_set_with_initial(
     dominating_set = dominating_set | isolated
     dominated = deepcopy(dominating_set)
 
+    for node_u in dominating_set:
+        if node_u in net_layer.nodes:
+            dominated.update(net_layer[node_u])
+
     while len(dominated) < len(net):
         # Choose a node which dominates the maximum number of undominated nodes
         node_u = max(
