@@ -1,5 +1,6 @@
 """Script with functions for driver node selections."""
 
+from copy import deepcopy
 from typing import Any, List, Set
 
 from network_diffusion.mln.actor import MLNetworkActor
@@ -36,7 +37,7 @@ def minimum_dominating_set_with_initial(
     net_layer = net.layers[layer]
     isolated = set(actor_ids) - set(net_layer.nodes())
     dominating_set = dominating_set | isolated
-    dominated = dominating_set
+    dominated = deepcopy(dominating_set)
 
     while len(dominated) < len(net):
         # Choose a node which dominates the maximum number of undominated nodes
