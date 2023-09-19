@@ -8,6 +8,7 @@ from network_diffusion.seeding.closeness_selector import ClosenessSelector
 from network_diffusion.seeding.degreecentrality_selector import (
     DegreeCentralitySelector,
 )
+from network_diffusion.seeding.driveractor_selector import DriverActorSelector
 from network_diffusion.seeding.katz_selector import KatzSelector
 from network_diffusion.seeding.kshell_selector import (
     KShellMLNSeedSelector,
