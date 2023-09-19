@@ -5,9 +5,9 @@ from typing import Any, List, Optional
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.driver_actors import compute_driver_actors
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
-from network_diffusion.tpn.functions import compute_driver_actors
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
