@@ -73,7 +73,7 @@ class DriverNodeSelector(BaseSeedSelector):
 
         driver_ac_set = set(driver_nodes)
 
-        for item in all_actors:
+        for item in all_actors[:]:
             if item in driver_ac_set:
                 result.append(item)
                 all_actors.remove(item)
