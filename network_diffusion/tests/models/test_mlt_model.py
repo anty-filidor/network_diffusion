@@ -5,7 +5,7 @@ import unittest
 import networkx as nx
 import numpy as np
 
-from network_diffusion import MultilayerNetwork
+from network_diffusion.mln.functions import get_toy_network
 from network_diffusion.models import MLTModel
 from network_diffusion.seeding.mocky_selector import MockyActorSelector
 from network_diffusion.simulator import Simulator
@@ -74,56 +74,6 @@ SPREADING_PARAMETERS = [
 ]
 
 
-def prepare_network() -> MultilayerNetwork:
-    layer_1 = nx.Graph(
-        (
-            [1, 4],
-            [2, 4],
-            [2, 3],
-            [3, 4],
-            [3, 5],
-            [3, 6],
-            [4, 5],
-            [7, 9],
-            [8, 9],
-            [8, 10],
-        )
-    )
-    layer_2 = nx.Graph(
-        (
-            [1, 2],
-            [2, 7],
-            [2, 11],
-            [4, 5],
-            [4, 6],
-            [5, 11],
-            [6, 10],
-            [7, 9],
-            [8, 9],
-            [8, 10],
-            [10, 11],
-        )
-    )
-    layer_3 = nx.Graph(
-        (
-            [1, 4],
-            [2, 6],
-            [2, 9],
-            [3, 4],
-            [3, 5],
-            [4, 5],
-            [5, 6],
-            [5, 11],
-            [6, 9],
-            [7, 9],
-            [10, 11],
-        )
-    )
-    return MultilayerNetwork.from_nx_layers(
-        [layer_1, layer_2, layer_3], ["l1", "l2", "l3"]
-    )
-
-
 class TestMLTModel(unittest.TestCase):
     """Test class for Multilayer Linear Threshold Model class."""
 
@@ -132,7 +82,7 @@ class TestMLTModel(unittest.TestCase):
         random.seed(42)
         np.random.seed(42)
 
-        self.network = prepare_network()
+        self.network = get_toy_network()
 
         # initial seeds for the process choosen arbitrarly and create a ranking
         # that has actors 8 and 1 at the beginning and then the rest of actors

@@ -7,10 +7,8 @@
 
 import unittest
 
+from network_diffusion.mln.functions import get_toy_network
 from network_diffusion.seeding import NeighbourhoodSizeSelector
-from network_diffusion.tests.seeding.test_degreecentrality_selector import (
-    create_toy_net,
-)
 
 
 class TestNeighbourhoodSizeSelector(unittest.TestCase):
@@ -18,7 +16,7 @@ class TestNeighbourhoodSizeSelector(unittest.TestCase):
 
     def test_actorwise(self):
         selector = NeighbourhoodSizeSelector()
-        obtained_result = selector.actorwise(net=create_toy_net())
+        obtained_result = selector.actorwise(net=get_toy_network())
         self.assertEqual(
             [obtained_actor.actor_id for obtained_actor in obtained_result],
             [2, 6, 4, 3, 5, 9, 10, 11, 1, 7, 8],
@@ -27,7 +25,7 @@ class TestNeighbourhoodSizeSelector(unittest.TestCase):
     def test_nodewise(self):
         selector = NeighbourhoodSizeSelector()
         with self.assertRaises(NotImplementedError):
-            selector.nodewise(net=create_toy_net())
+            selector.nodewise(net=get_toy_network())
 
 
 if __name__ == "__main__":
