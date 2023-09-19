@@ -1,4 +1,4 @@
-"""Script with functions for driver node selections."""
+"""Script with functions for driver actor selections."""
 
 from copy import deepcopy
 from typing import Any, List, Set
@@ -7,8 +7,8 @@ from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
-def compute_driver_nodes(net: MultilayerNetwork) -> List[MLNetworkActor]:
-    """Return driver nodes for a given network."""
+def compute_driver_actors(net: MultilayerNetwork) -> List[MLNetworkActor]:
+    """Return driver actors for a given network."""
     min_dominating_set: Set[Any] = set()
     for layer in net.layers:
         min_dominating_set = minimum_dominating_set_with_initial(
