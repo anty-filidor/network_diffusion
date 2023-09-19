@@ -1,4 +1,4 @@
-"""A definition of the seed selector based on driver nodes."""
+"""A definition of the seed selector based on driver actors."""
 
 from typing import Any, List, Optional
 
@@ -7,13 +7,13 @@ import networkx as nx
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
-from network_diffusion.tpn.functions import compute_driver_nodes
+from network_diffusion.tpn.functions import compute_driver_actors
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 
-class DriverNodeSelector(BaseSeedSelector):
-    """Driver Node based seed selector."""
+class DriverActorSelector(BaseSeedSelector):
+    """Driver Actor based seed selector."""
 
     def __init__(self, method: Optional[BaseSeedSelector]) -> None:
         """
@@ -22,7 +22,7 @@ class DriverNodeSelector(BaseSeedSelector):
         :param method: a method to sort driver actors.
         """
         super().__init__()
-        if isinstance(method, DriverNodeSelector):
+        if isinstance(method, DriverActorSelector):
             raise AttributeError(
                 f"Argument 'method' cannot be {self.__class__.__name__}!"
             )
@@ -47,13 +47,13 @@ class DriverNodeSelector(BaseSeedSelector):
     # TODO: other methods and parameters?
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Return a list of driver actors for a multilayer network."""
-        driver_nodes_list = compute_driver_nodes(net)
+        driver_actors_list = compute_driver_actors(net)
 
         if self.selector is None:
-            return self._reorder_seeds(driver_nodes_list, net.get_actors())
+            return self._reorder_seeds(driver_actors_list, net.get_actors())
 
         result = self.selector.actorwise(net)
-        result = self._reorder_seeds(driver_nodes_list, result)
+        result = self._reorder_seeds(driver_actors_list, result)
         return result
 
     def snap_select(
@@ -65,13 +65,13 @@ class DriverNodeSelector(BaseSeedSelector):
 
     @staticmethod
     def _reorder_seeds(
-        driver_nodes: List[MLNetworkActor],
+        driver_actors: List[MLNetworkActor],
         all_actors: List[MLNetworkActor],
     ) -> List[MLNetworkActor]:
-        """Return a list of node ids, where driver nodes in the first."""
+        """Return a list of actor ids, where driver actors in the first."""
         result = []
 
-        driver_ac_set = set(driver_nodes)
+        driver_ac_set = set(driver_actors)
 
         for item in all_actors[:]:
             if item in driver_ac_set:
