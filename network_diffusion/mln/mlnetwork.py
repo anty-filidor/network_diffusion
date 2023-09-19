@@ -19,6 +19,7 @@
 """A script where a multilayer network is defined."""
 
 import random
+import warnings
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -235,6 +236,29 @@ class MultilayerNetwork:
             sub_layers[l_name] = l_subgraph
 
         return MultilayerNetwork(sub_layers)
+
+    def is_multiplex(self) -> bool:
+        """Check if network is multiplex."""
+        actors = {a.actor_id for a in self.get_actors()}
+        for layer in self.layers:
+            if len(actors.difference(self[layer])) > 0:
+                return False
+        return True
+
+    def to_multiplex(self) -> "MultilayerNetwork":
+        """Convert network to multiplex one by adding missing nodes."""
+        if self.is_multiplex():
+            warnings.warn("Network is already multiplex!", stacklevel=1)
+            return self.copy()
+
+        actors = {a.actor_id for a in self.get_actors()}
+        multiplexed_layers = {}
+        for layer in self.layers:
+            missing_nodes = actors.difference(self[layer])
+            updated_layer = self[layer].copy(as_view=False)
+            updated_layer.add_nodes_from(missing_nodes)
+            multiplexed_layers[layer] = updated_layer
+        return MultilayerNetwork(multiplexed_layers)
 
     def get_actors(self, shuffle: bool = False) -> List[MLNetworkActor]:
         """

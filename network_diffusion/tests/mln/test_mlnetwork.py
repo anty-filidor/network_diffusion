@@ -128,6 +128,23 @@ class TestMultilayerNetwork(unittest.TestCase):
     def test___deepcopy__(self):
         return copy_helper(self.network, copy.deepcopy(self.network))
 
+    def test_is_multiplex_negative(self):
+        assert self.network.is_multiplex() is False
+
+    def test_is_multiplex_positive(self):
+        assert (
+            MultilayerNetwork.from_nx_layer(
+                nx.les_miserables_graph(), [1, 2, 3]
+            ).is_multiplex()
+            is True
+        )
+
+    def test_to_multiplex(self):
+        multiplexed_net = self.network.to_multiplex()
+        all_actors_ids = {a.actor_id for a in multiplexed_net.get_actors()}
+        for layer in multiplexed_net.layers:
+            assert set(multiplexed_net[layer].nodes) == all_actors_ids
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
