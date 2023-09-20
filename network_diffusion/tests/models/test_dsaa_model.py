@@ -70,7 +70,8 @@ class TestDSAAModel(unittest.TestCase):
             )
         )
 
-        self.model.set_initial_states(net=self.network)
+        initial_states = self.model.determine_initial_states(net=self.network)
+        self.model.update_network(self.network, initial_states)
 
         # obtain info about numbers of nodes
         real_nodes_states = {}

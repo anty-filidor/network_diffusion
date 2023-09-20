@@ -49,10 +49,12 @@ class Simulator:
         self.stopping_counter = 0
 
     def _update_counter(
-        self, updated_nodes: List[NetworkUpdateBuffer]
+        self,
+        new_states: List[NetworkUpdateBuffer],
+        old_states: List[NetworkUpdateBuffer],
     ) -> None:
         """Update a counter of dead epochs."""
-        if len(updated_nodes) == 0:
+        if set(new_states) == set(old_states):
             self.stopping_counter += 1
         else:
             self.stopping_counter = 0
@@ -67,19 +69,29 @@ class Simulator:
             optim_epochs_nb = len(self._network) - 1
             if n_epochs > optim_epochs_nb:
                 warnings.warn(
-                    f"Number of simulation epochs is higher than number of \
-                    network's snaps - 1! Simulation will last for \
-                    {optim_epochs_nb} epochs",
+                    f"Number of simulation epochs is higher than number of "
+                    f"snaps - 1! Simulation will last for "
+                    f"{optim_epochs_nb} epochs",
                     stacklevel=1,
                 )
             elif n_epochs < optim_epochs_nb:
                 warnings.warn(
-                    "Number of simulation epochs is lesser than number of \
-                    network's snaps - 1! Simulation will not cover entire net",
+                    "Number of simulation epochs is lesser than number of "
+                    "snaps - 1! Simulation will not cover entire net",
                     stacklevel=1,
                 )
+                optim_epochs_nb = n_epochs
             return lambda x: self._network[x], optim_epochs_nb  # type: ignore
         raise AttributeError("Incorrect type of network!")
+
+    @staticmethod
+    def _verify_network(net: TemporalNetwork, n_epochs: int) -> None:
+        """Verify if in each snapshot there is the same actor set."""
+        actors_0 = {a.actor_id for a in net[0].get_actors()}
+        for epoch in range(1, n_epochs + 1):
+            actors_epoch = {a.actor_id for a in net[epoch].get_actors()}
+            if len(actors_epoch.symmetric_difference(actors_0)):
+                raise ValueError("Net should have one actors set in snaps!")
 
     def perform_propagation(
         self,
@@ -102,13 +114,23 @@ class Simulator:
         snap_iterator, n_epochs = self._create_iterator(n_epochs)
         logger = Logger(str(self._model), str(self._network))
 
-        # set and add logs from initialising states, i.e. epoch 0
-        initial_state = self._model.set_initial_states(snap_iterator(0))
+        # determine initial states, in epoch 0
+        initial_states = self._model.determine_initial_states(snap_iterator(0))
+        initial_json = self._model.update_network(
+            snap_iterator(0), initial_states
+        )
+
+        # log inintial state of the network
         logger.add_global_stat(self._model.get_states_num(snap_iterator(0)))
-        logger.add_local_stat(0, initial_state)
+        logger.add_local_stat(0, initial_json)
+
+        # if network is temporal verify its consistence
+        if isinstance(self._network, TemporalNetwork):
+            self._verify_network(self._network, n_epochs)
 
         # main simulation loop
         p_bar = tqdm(range(n_epochs), "experiment", leave=False, colour="blue")
+        old_states = initial_states
         for epoch in p_bar:
             p_bar.set_description_str(f"Processing epoch {epoch}")
 
@@ -117,8 +139,8 @@ class Simulator:
             next_snap = snap_iterator(epoch + 1)
 
             # do a forward step and update network
-            nodes_to_update = self._model.network_evaluation_step(curr_snap)
-            epoch_json = self._model.update_network(next_snap, nodes_to_update)
+            new_states = self._model.network_evaluation_step(curr_snap)
+            epoch_json = self._model.update_network(next_snap, new_states)
 
             # add logs from current epoch
             logger.add_global_stat(self._model.get_states_num(next_snap))
@@ -126,13 +148,14 @@ class Simulator:
 
             # check if there is no progress and therefore stop simulation
             if patience:
-                self._update_counter(nodes_to_update)
+                self._update_counter(new_states, old_states)
                 if self.stopping_counter >= patience:
                     p_bar.set_description_str(
                         f"Experiment stopped - no progress in last "
                         f"{patience} epochs!"
                     )
                     break
+                old_states = new_states
 
         # convert logs to dataframe
         logger.convert_logs(self._model.get_allowed_states(snap_iterator(0)))

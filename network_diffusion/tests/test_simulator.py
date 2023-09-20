@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-# pylint: disable-all
-# type: ignore
-
-"""Tests for the network_diffusion.simulator."""
-
 import unittest
 
 import networkx as nx
@@ -35,7 +29,6 @@ class TestSimulator(unittest.TestCase):
             "aware": (77, 23),
             "vacc": (90, 10),
         }
-        self.model.set_initial_states(net=self.network)
 
     def test_perform_propagation(self):
         """Check if perform_propagation returns correct values."""

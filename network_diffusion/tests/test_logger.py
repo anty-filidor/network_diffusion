@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-# pylint: disable-all
-# type: ignore
-
-"""Tests for the network_diffusion.logger."""
-
 import os
 import unittest
 from tempfile import TemporaryDirectory
@@ -94,7 +88,6 @@ class TestLogger(unittest.TestCase):
             "aware": (39, 61),
             "vacc": (13, 87),
         }
-        self.model.set_initial_states(net=self.network)
 
         experiment = Simulator(self.model, self.network)
         self.logs = experiment.perform_propagation(70)

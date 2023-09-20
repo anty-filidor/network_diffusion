@@ -142,9 +142,7 @@ class MICModel(BaseModel):
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.all())
 
-    def set_initial_states(
-        self, net: MultilayerNetwork
-    ) -> List[Dict[str, str]]:
+    def determine_initial_states(self, net: MultilayerNetwork) -> List[NUBff]:
         """
         Set initial states in the network according to seed selection method.
 
@@ -176,8 +174,7 @@ class MICModel(BaseModel):
                 )
 
         # set initial states and return json to save in logs
-        out_json = self.update_network(net=net, activated_nodes=seed_nodes)
-        return out_json
+        return seed_nodes
 
     def agent_evaluation_step(
         self, agent: MLNetworkActor, layer_name: str, net: MultilayerNetwork
@@ -205,7 +202,7 @@ class MICModel(BaseModel):
             if l_graph.nodes[neighbour]["status"] == self.ACTIVE_NODE:
 
                 # if a tossed number from unif. distr. > threshold, activ. node
-                if random.random() < self.probability:
+                if random.random() >= self.probability:
                     return self.ACTIVE_NODE
 
         return current_state
@@ -221,28 +218,27 @@ class MICModel(BaseModel):
 
         for actor in net.get_actors():
 
+            # if actor is already actovated skip its validation
             if list(set(actor.states.values())) == [self.ACTIVATED_NODE]:
-                continue
-
-            # evaluate actor in each layer where it exist
-            layer_inputs = {
-                l_name: self.agent_evaluation_step(actor, l_name, net)
-                for l_name in actor.layers
-            }
-
-            # determine final state of the actor basing on impulses from layers
-            unique_inputs = set(layer_inputs.values())
-            if (
-                len(unique_inputs) == 1
-                and unique_inputs.pop() == self.ACTIVATED_NODE
-            ):
                 new_state = self.ACTIVATED_NODE
-            elif self.protocol(layer_inputs):
-                new_state = self.ACTIVE_NODE
-            else:
-                continue
 
-            # if actor changes state append it to a list
+            # otherwise evaluate it on each layer and determine new state
+            else:
+                inputs = {
+                    l_name: self.agent_evaluation_step(actor, l_name, net)
+                    for l_name in actor.layers
+                }
+                if (
+                    len(_ := set(inputs.values())) == 1
+                    and _.pop() == self.ACTIVATED_NODE
+                ):
+                    new_state = self.ACTIVATED_NODE
+                elif self.protocol(inputs):
+                    new_state = self.ACTIVE_NODE
+                else:
+                    new_state = self.INACTIVE_NODE
+
+            # append calculated state of actor in upcomming epoch to the list
             nodes_to_update.extend(
                 [
                     NUBff(

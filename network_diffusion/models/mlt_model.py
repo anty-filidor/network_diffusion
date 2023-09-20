@@ -136,18 +136,18 @@ class MLTModel(BaseModel):
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.all())
 
-    def set_initial_states(self, net: MLNetwork) -> List[Dict[str, str]]:
+    def determine_initial_states(self, net: MLNetwork) -> List[NUBuff]:
         """
-        Set initial states in the network according to seed selection method.
+        Determine initial states in the net according to seed selection method.
 
         :param net: network to initialise seeds for
 
-        :return: a list of state of the network after initialisation
+        :return: a list of nodes with their initial states
         """
         budget = self._compartmental_graph.get_seeding_budget_for_network(
             net=net, actorwise=True
         )
-        seed_nodes: List[NUBuff] = []
+        initial_states: List[NUBuff] = []
 
         for idx, actor in enumerate(self._seed_selector.actorwise(net=net)):
 
@@ -159,7 +159,7 @@ class MLTModel(BaseModel):
 
             # generate update buffer for the actor
             for l_name in actor.layers:
-                seed_nodes.append(
+                initial_states.append(
                     NUBuff(
                         node_name=actor.actor_id,
                         layer_name=l_name,
@@ -167,9 +167,8 @@ class MLTModel(BaseModel):
                     )
                 )
 
-        # set initial states and return json to save in logs
-        out_json = self.update_network(net=net, activated_nodes=seed_nodes)
-        return out_json
+        # return initial states to set in the network
+        return initial_states
 
     def agent_evaluation_step(
         self,
@@ -226,26 +225,29 @@ class MLTModel(BaseModel):
 
             # check if node is already activated, if so don't update it
             if set(actor.states.values()) == set(self.ACTIVE_STATE):
-                continue
+                new_state = self.ACTIVE_STATE
 
-            # try to activate actor in each layer where it exist
-            for layer_name in actor.layers:
-                layer_inputs[layer_name] = self.agent_evaluation_step(
-                    actor, layer_name, net
-                )
+            # try to activate actor in each layer where it exists
+            else:
+                layer_inputs = {
+                    layer: self.agent_evaluation_step(actor, layer, net)
+                    for layer in actor.layers
+                }
+                if self.protocol(layer_inputs):
+                    new_state = self.ACTIVE_STATE
+                else:
+                    new_state = self.INACTIVE_STATE
 
-            # apply protocol to determine wether acivate actor or not
-            if self.protocol(layer_inputs):
-                activated_nodes.extend(
-                    [
-                        NUBuff(
-                            node_name=actor.actor_id,
-                            layer_name=layer_name,
-                            new_state=self.ACTIVE_STATE,
-                        )
-                        for layer_name in layer_inputs
-                    ]
-                )
+            activated_nodes.extend(
+                [
+                    NUBuff(
+                        node_name=actor.actor_id,
+                        layer_name=layer_name,
+                        new_state=new_state,
+                    )
+                    for layer_name in actor.layers
+                ]
+            )
 
         return activated_nodes
 
