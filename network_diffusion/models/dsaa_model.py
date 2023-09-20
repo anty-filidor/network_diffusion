@@ -48,9 +48,9 @@ class DSAAModel(BaseModel):
         descr += f"\n{BOLD_UNDERLINE}"
         return descr
 
-    def set_initial_states(
+    def determine_initial_states(
         self, net: MultilayerNetwork
-    ) -> List[Dict[str, str]]:
+    ) -> List[NetworkUpdateBuffer]:
         """
         Set initial states in the network according to seed selection method.
 
@@ -91,7 +91,7 @@ class DSAAModel(BaseModel):
                     )
 
         # set initial states and return json to save in logs
-        return self.update_network(net=net, activated_nodes=seed_nodes)
+        return seed_nodes
 
     @staticmethod
     def _find_compartment_state_for_node(

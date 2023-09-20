@@ -69,7 +69,7 @@ SPREADING_PARAMETERS = [
             },
         ],
         "protocol": "AND",
-        "mi_value": 0.9,
+        "mi_value": 0.6,
     },
 ]
 
@@ -118,8 +118,9 @@ class TestMLTModel(unittest.TestCase):
                 logs = experiment.perform_propagation(n_epochs=10, patience=1)
 
                 self.assertEqual(
-                    obtained_global_stats := logs._global_stats,
+                    logs._global_stats,
                     exp_result,
-                    f"Wrong course of the spreading process, expected \
-                    {exp_result} found {obtained_global_stats}",
+                    f"Wrong course of the spreading process, expected "
+                    f"{exp_result} found {logs._global_stats} "
+                    f"params: ({protocol}, {mi_value})",
                 )

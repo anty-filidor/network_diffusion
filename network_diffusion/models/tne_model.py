@@ -92,9 +92,7 @@ class TemporalNetworkEpistemologyModel(BaseModel):
         compart_graph.compile()
         return compart_graph
 
-    def set_initial_states(
-        self, net: MultilayerNetwork
-    ) -> List[Dict[str, str]]:
+    def determine_initial_states(self, net: MultilayerNetwork) -> List[NUBff]:
         """
         Set initial states in the network according to seed selection method.
 
@@ -132,9 +130,8 @@ class TemporalNetworkEpistemologyModel(BaseModel):
                     )
                 )
 
-        # set initial states and return json to save in logs
-        out_json = self.update_network(net=net, activated_nodes=seed_nodes)
-        return out_json
+        # return determined states of nodes in the initial epoch in the network
+        return seed_nodes
 
     @staticmethod
     def encode_actor_status(state: str, belief: float, evidence: int) -> str:

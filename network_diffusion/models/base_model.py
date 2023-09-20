@@ -58,14 +58,14 @@ class BaseModel(ABC):
         return self._compartmental_graph
 
     @abstractmethod
-    def set_initial_states(
+    def determine_initial_states(
         self, net: MultilayerNetwork
-    ) -> List[Dict[str, str]]:
+    ) -> List[NetworkUpdateBuffer]:
         """
-        Set initial states in the network according to seed selection method.
+        Determine initial states in the network according to seed selector.
 
         :param net: network to initialise seeds for
-        :return: list of nodes that are selected and initialised as seeds
+        :return: list of nodes with their states
         """
         ...
 
