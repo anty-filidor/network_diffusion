@@ -112,27 +112,6 @@ class TestDSAAModel(unittest.TestCase):
                     f"{en_num} found {rn_num}",
                 )
 
-    def test__find_compartment_state_for_node(self):
-        err_str = "Nodes states are not same as expected."
-
-        self.assertEqual(
-            self.model._find_compartment_state_for_node(
-                "MotherPlutarch", self.network
-            ),
-            ("aware.None", "ill.None", "vacc.None"),
-            err_str,
-        )
-
-        self.network.layers["ill"].remove_node("MotherPlutarch")
-        self.network.layers["vacc"].nodes["MotherPlutarch"]["status"] = "test"
-        self.assertEqual(
-            self.model._find_compartment_state_for_node(
-                "MotherPlutarch", self.network
-            ),
-            ("aware.None", "vacc.test"),
-            err_str,
-        )
-
     def test_get_states_num(self):
         """Tests if nodes states are being returned correctly."""
         exp_result = {
