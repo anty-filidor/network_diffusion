@@ -12,7 +12,7 @@ import networkx as nx
 import numpy as np
 
 from network_diffusion import utils
-from network_diffusion.mln import MultilayerNetwork, MLNetworkActor
+from network_diffusion.mln import MLNetworkActor, MultilayerNetwork
 
 
 def copy_helper(original_network, copied_network):
@@ -118,11 +118,11 @@ class TestMultilayerNetwork(unittest.TestCase):
             ["marriage", "business"],
             "Incorrect layer names",
         )
-    
+
     def test_get_actor(self):
         self.assertEqual(
-            self.network.get_actor("Ridolfi"), 
-            MLNetworkActor("Ridolfi", {'marriage': None})
+            self.network.get_actor("Ridolfi"),
+            MLNetworkActor("Ridolfi", {"marriage": None}),
         )
 
     def test_copy(self):
