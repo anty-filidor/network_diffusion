@@ -72,7 +72,7 @@ class DSAAModel(BaseModel):
             l_budget = budget[l_name]
             l_nodes_num = len(l_graph.nodes())
 
-            # set ranges - idk what is it
+            # set ranges
             _rngs = [
                 sum(list(l_budget.values())[:x]) for x in range(len(l_budget))
             ] + [l_nodes_num]
@@ -93,25 +93,6 @@ class DSAAModel(BaseModel):
         # set initial states and return json to save in logs
         return seed_nodes
 
-    @staticmethod
-    def _find_compartment_state_for_node(
-        node: Any, net: MultilayerNetwork
-    ) -> Tuple[str, ...]:
-        """
-        Find proper state in the compartmntal graph for given node.
-
-        :param node: node to find state for
-        :param net: a network where node belongs
-
-        :return: a tuple in form on ('process_name.state_name', ...), e.g.
-            ('awareness.UA', 'illness.I', 'vaccination.V')
-        """
-        actor = net.get_actor(node)
-        stats = [
-            f"{l_name}.{l_state}" for l_name, l_state in actor.states.items()
-        ]
-        return tuple(sorted(stats))
-
     def agent_evaluation_step(
         self, agent: Any, layer_name: str, net: MultilayerNetwork
     ) -> str:
@@ -129,7 +110,7 @@ class DSAAModel(BaseModel):
 
         # import possible transitions for state of the node
         av_trans = self._compartmental_graph.get_possible_transitions(
-            self._find_compartment_state_for_node(agent, net), layer_name
+            net.get_actor(agent).states_as_compartmental_graph(), layer_name
         )
 
         # if there is no possible transition don't do anything
@@ -172,12 +153,8 @@ class DSAAModel(BaseModel):
 
         for layer_name, layer_graph in net.layers.items():
             for node in layer_graph.nodes():
-
-                old_state = layer_graph.nodes[node]["status"]
                 new_state = self.agent_evaluation_step(node, layer_name, net)
-
-                if old_state != new_state:
-                    layer_graph.nodes[node]["status"] = new_state
+                layer_graph.nodes[node]["status"] = new_state
 
         return activated_nodes
 
