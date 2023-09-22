@@ -6,8 +6,6 @@ from network_diffusion.mln import MultilayerNetwork
 
 
 class TestMLNetworkActor(unittest.TestCase):
-
-
     def setUp(self) -> None:
         self.phenomena = {
             "ill": ["S", "I", "R"],
