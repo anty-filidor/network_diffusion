@@ -103,12 +103,12 @@ class TemporalNetwork:
                 snap_ids
             ), "Length of network list and metadata list is not equal"
             snaps = [
-                MultilayerNetwork({"layer_0": snap})
+                MultilayerNetwork({"layer_1": snap})
                 for _, snap in sorted(zip(snap_ids, network_list))
             ]
         else:
             snaps = [
-                MultilayerNetwork({"layer_0": snap}) for snap in network_list
+                MultilayerNetwork({"layer_1": snap}) for snap in network_list
             ]
         return cls(snaps)
 
