@@ -19,6 +19,7 @@
 """A script where a multilayer network is defined."""
 
 import random
+import warnings
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -139,6 +140,19 @@ class MultilayerNetwork:
         """Get 'key' layer of the network."""
         return self.layers[key]
 
+    def __copy__(self) -> "MultilayerNetwork":
+        """Create a copy of the network."""
+        return self.copy()
+
+    def __deepcopy__(self, memo: Dict[int, Any]) -> "MultilayerNetwork":
+        """Create a deep copy of the network."""
+        cls = self.__class__
+        result = cls.__new__(cls)
+        memo[id(self)] = result
+        for key, val in self.__dict__.items():
+            setattr(result, key, deepcopy(val, memo))
+        return result
+
     def __len__(self) -> int:
         """Return length of the network, i.e. num of actors."""
         return self.get_actors_num()
@@ -197,8 +211,7 @@ class MultilayerNetwork:
 
     def copy(self) -> "MultilayerNetwork":
         """Create a deep copy of the network."""
-        copied_instance = self.__new__(self.__class__)
-        copied_instance.__init__(
+        copied_instance = MultilayerNetwork(
             {name: deepcopy(graph) for name, graph in self.layers.items()}
         )
         return copied_instance
@@ -222,10 +235,30 @@ class MultilayerNetwork:
             l_subgraph = self.layers[l_name].subgraph(kept_nodes).copy()
             sub_layers[l_name] = l_subgraph
 
-        subgraph_instance = self.__new__(self.__class__)
-        subgraph_instance.__init__(sub_layers)
+        return MultilayerNetwork(sub_layers)
 
-        return subgraph_instance
+    def is_multiplex(self) -> bool:
+        """Check if network is multiplex."""
+        actors = {a.actor_id for a in self.get_actors()}
+        for layer in self.layers:
+            if len(actors.difference(self[layer])) > 0:
+                return False
+        return True
+
+    def to_multiplex(self) -> "MultilayerNetwork":
+        """Convert network to multiplex one by adding missing nodes."""
+        if self.is_multiplex():
+            warnings.warn("Network is already multiplex!", stacklevel=1)
+            return self.copy()
+
+        actors = {a.actor_id for a in self.get_actors()}
+        multiplexed_layers = {}
+        for layer in self.layers:
+            missing_nodes = actors.difference(self[layer])
+            updated_layer = self[layer].copy(as_view=False)
+            updated_layer.add_nodes_from(missing_nodes)
+            multiplexed_layers[layer] = updated_layer
+        return MultilayerNetwork(multiplexed_layers)
 
     def get_actors(self, shuffle: bool = False) -> List[MLNetworkActor]:
         """
@@ -252,7 +285,7 @@ class MultilayerNetwork:
 
         return actor_list
 
-    def get_actor(self, actor_id: str) -> MLNetworkActor:
+    def get_actor(self, actor_id: Any) -> MLNetworkActor:
         """Get actor data basing on its name."""
         layers_states = {}
         for layer_name, layer_graph in self.layers.items():

@@ -28,7 +28,7 @@ class MLNetworkActor:
         """
         Initialise the object.
 
-        :param actor_id: if of the actor
+        :param actor_id: id of the actor
         :param layers_states: a dictionary keyed by layer names where the actor
             exists and valued by its state in the given layer
         """
@@ -77,3 +77,15 @@ class MLNetworkActor:
         for layer_name, new_state in updated_states.items():
             assert layer_name in self._layers_states
             self._layers_states[layer_name] = new_state
+
+    def states_as_compartmental_graph(self) -> Tuple[str, ...]:
+        """
+        Return actor states in form accepted by CompartmentalGraph.
+
+        :return: a tuple in form on ('process_name.state_name', ...), e.g.
+            ('awareness.UA', 'illness.I', 'vaccination.V')
+        """
+        compartment_strings = [
+            f"{process}.{state}" for process, state in self.states.items()
+        ]
+        return tuple(sorted(compartment_strings))

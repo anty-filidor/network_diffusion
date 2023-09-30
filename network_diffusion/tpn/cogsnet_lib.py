@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2022 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright 2023 by Mateusz Nurek. All Rights Reserved.
 #
 # This file is part of Network Diffusion.
 #
@@ -18,16 +18,30 @@
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
-"""Network Diffusion is package for simulating spreading phenomenas."""
+"""
+Interface for C ports for CogSNet functions.
 
-# flake8: noqa
+This file needs to have a .so lib installed in the scope of parent module. You
+can build it with `python setup.py build`.
+"""
+
+# pylint: disable=W0613  # it's a stub for C functions
+# pylint: disable=R0913, C0103  # it's a scientific function, so ignore SOLID
+# mypy: disable-error-code=empty-body
 
 
-from network_diffusion import models, seeding
-from network_diffusion.logger import Logger
-from network_diffusion.mln.actor import MLNetworkActor
-from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.simulator import Simulator
-from network_diffusion.tpn.tpnetwork import TemporalNetwork
+from typing import List
 
-__version__ = "0.13.0"
+
+def _cogsnet(
+    forgetting_type: str,
+    snapshot_interval: int,
+    edge_lifetime: int,
+    mu: float,
+    theta: float,
+    units: int,
+    path_events: str,
+    delimiter: str,
+) -> List[List[List[float]]]:
+    """Call cogsnet function in C and get snapshots of weighted edgelists."""
+    ...

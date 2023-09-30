@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2022 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright 2023 by Mateusz Nurek. All Rights Reserved.
 #
 # This file is part of Network Diffusion.
 #
@@ -18,16 +18,8 @@
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
-"""Network Diffusion is package for simulating spreading phenomenas."""
+"""Contains modules to handle operations on temporal networks."""
 
 # flake8: noqa
 
-
-from network_diffusion import models, seeding
-from network_diffusion.logger import Logger
-from network_diffusion.mln.actor import MLNetworkActor
-from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.simulator import Simulator
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
-
-__version__ = "0.13.0"

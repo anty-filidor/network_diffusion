@@ -22,18 +22,23 @@
 
 from typing import List
 
-from setuptools import find_packages, setup
+from setuptools import Extension, find_packages, setup
 
 from network_diffusion import __version__
 
 
 def parse_requirements() -> List[str]:
     """Parse requirements from the txt file."""
-    with open(
-        file="requirements/production.txt", encoding="utf-8", mode="r"
-    ) as file:
+    with open(file="requirements/production.txt", encoding="utf-8") as file:
         requirements = file.readlines()
     return requirements
+
+
+def parse_readme() -> str:
+    """Convert README to rst standard."""
+    with open("README.md", encoding="utf-8") as file:
+        long_description = file.read()
+    return long_description
 
 
 setup(
@@ -54,20 +59,29 @@ setup(
         "Programming Language :: Python :: 3.10",
     ],
     keywords=[
-        "disease",
-        "simulation",
-        "processes influence",
-        "network science",
+        "influence maximisation",
         "multilayer networks",
         "networkx",
+        "network science",
+        "phenomena spreading",
+        "simulation",
+        "social influence",
         "spreading",
-        "phenomena",
+        "temporal networks",
     ],
     description="Package to design and run diffusion phenomena in networks.",
-    long_description="Network Diffusion",
+    long_description=parse_readme(),
+    long_description_content_type="text/markdown",
     author="Michał Czuba, Piotr Bródka",
     author_email="michal.czuba@pwr.edu.pl, piotr.brodka@pwr.edu.pl",
-    packages=find_packages(exclude=["*tests*"]),
     install_requires=parse_requirements(),
-    python_requires=">=3.7",
+    ext_modules=[
+        Extension(
+            name="network_diffusion.tpn.cogsnet_lib",
+            include_dirs=["c_modules"],
+            sources=["c_modules/cogsnet_compute.c", "c_modules/cogsnet_lib.c"],
+        )
+    ],
+    packages=find_packages(exclude=["*tests*"]),
+    python_requires=">=3.10",
 )

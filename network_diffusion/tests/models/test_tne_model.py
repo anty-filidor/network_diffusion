@@ -62,16 +62,16 @@ class TestTemporalNetworkEpistemologyModel(unittest.TestCase):
     def test_experiment_results(self) -> None:
         """Check if the experiment results are as expected."""
         expected_global_stats = [
-            {"layer_0": (("A", 5), ("B", 5))},
-            {"layer_0": (("A", 7), ("B", 3))},
-            {"layer_0": (("A", 6), ("B", 4))},
-            {"layer_0": (("A", 4), ("B", 6))},
-            {"layer_0": (("A", 3), ("B", 7))},
-            {"layer_0": (("A", 3), ("B", 7))},
-            {"layer_0": (("B", 8), ("A", 2))},
-            {"layer_0": (("B", 9), ("A", 1))},
-            {"layer_0": (("B", 9), ("A", 1))},
-            {"layer_0": (("B", 10),)},
+            {"layer_1": (("A", 5), ("B", 5))},
+            {"layer_1": (("A", 7), ("B", 3))},
+            {"layer_1": (("A", 6), ("B", 4))},
+            {"layer_1": (("A", 4), ("B", 6))},
+            {"layer_1": (("A", 3), ("B", 7))},
+            {"layer_1": (("A", 3), ("B", 7))},
+            {"layer_1": (("B", 8), ("A", 2))},
+            {"layer_1": (("B", 9), ("A", 1))},
+            {"layer_1": (("B", 9), ("A", 1))},
+            {"layer_1": (("B", 10),)},
         ]
 
         experiment = Simulator(self.model, self.network)

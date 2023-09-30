@@ -4,7 +4,7 @@ from typing import Dict, Tuple
 
 import networkx as nx
 
-from network_diffusion import MultilayerNetwork
+from network_diffusion.mln import MultilayerNetwork
 from network_diffusion.models import DSAAModel
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 
@@ -70,7 +70,8 @@ class TestDSAAModel(unittest.TestCase):
             )
         )
 
-        self.model.set_initial_states(net=self.network)
+        initial_states = self.model.determine_initial_states(net=self.network)
+        self.model.update_network(self.network, initial_states)
 
         # obtain info about numbers of nodes
         real_nodes_states = {}
@@ -110,27 +111,6 @@ class TestDSAAModel(unittest.TestCase):
                     f"Wrong number of nodes in state {state} expected "
                     f"{en_num} found {rn_num}",
                 )
-
-    def test__find_compartment_state_for_node(self):
-        err_str = "Nodes states are not same as expected."
-
-        self.assertEqual(
-            self.model._find_compartment_state_for_node(
-                "MotherPlutarch", self.network
-            ),
-            ("aware.None", "ill.None", "vacc.None"),
-            err_str,
-        )
-
-        self.network.layers["ill"].remove_node("MotherPlutarch")
-        self.network.layers["vacc"].nodes["MotherPlutarch"]["status"] = "test"
-        self.assertEqual(
-            self.model._find_compartment_state_for_node(
-                "MotherPlutarch", self.network
-            ),
-            ("aware.None", "vacc.test"),
-            err_str,
-        )
 
     def test_get_states_num(self):
         """Tests if nodes states are being returned correctly."""

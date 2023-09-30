@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from typing import Dict
 
 
-@dataclass
+@dataclass(frozen=True, eq=True)
 class NetworkUpdateBuffer:
     """Auxiliary class to keep info about nodes that needs to be updated."""
 
