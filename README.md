@@ -1,7 +1,7 @@
 # Network Diffusion - spreading models in complex networks
 
 [![License: GPL](https://img.shields.io/github/license/anty-filidor/network_diffusion)](https://www.gnu.org/licenses/gpl-3.0.html)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4592269.svg)](https://doi.org/10.5281/zenodo.4592269)
+[![DOI](https://img.shields.io/badge/DOI-10.1109%2FDSAA54385.2022.10032425-blue)](https://doi.org/10.1109/DSAA54385.2022.10032425)
 
 [![PyPI version](https://badge.fury.io/py/network-diffusion.svg)](https://badge.fury.io/py/network-diffusion)
 
