@@ -157,12 +157,12 @@ class CBIMselector(BaseSeedSelector):
 
         :return: dict with information about layer, community and actor.
         """
-        community: Dict[
-            str, Dict[str, List[MLNetworkActor]]
-        ] = {}  # crating group: name_layer, group, actor
-        com_list: List[
-            MLNetworkActor
-        ] = []  # a list with each node which is in some community
+        community: Dict[str, Dict[str, List[MLNetworkActor]]] = (
+            {}
+        )  # crating group: name_layer, group, actor
+        com_list: List[MLNetworkActor] = (
+            []
+        )  # a list with each node which is in some community
         degre = list(DegreeCentralitySelector().actorwise(net))
 
         for l_name in net.layers:
@@ -325,9 +325,9 @@ class CBIMselector(BaseSeedSelector):
 
                     while len(new_community.index.to_list()) == 0:
 
-                        data.at[
-                            f"C{len(data.index)}", f"{l_name}"
-                        ] = 0  # adding value and creating new index
+                        data.at[f"C{len(data.index)}", f"{l_name}"] = (
+                            0  # adding value and creating new index
+                        )
 
                         new_community = (
                             data.loc[  # a new which can be new place to save
@@ -427,9 +427,7 @@ class CBIMselector(BaseSeedSelector):
                 self.adj_matrix_calculate(data, graph)
 
                 if len(ListsEws.sort_list) != 0:
-                    cbim.at[
-                        col, f"Sorted{l_name}"
-                    ] = (
+                    cbim.at[col, f"Sorted{l_name}"] = (
                         ListsEws.sort_list.copy()
                     )  # saving sorted actors in Sorted label
 
@@ -608,18 +606,16 @@ class CBIMselector(BaseSeedSelector):
                 community_info[2], f"{community_info[1]}"
             ]  # merging communities
         )
-        data.at[
-            community_candydat, f"Merge{community_info[1]}"
-        ] = self.merge_index(
-            net, data, community_candydat, community_info[1]
+        data.at[community_candydat, f"Merge{community_info[1]}"] = (
+            self.merge_index(net, data, community_candydat, community_info[1])
         )  # calculate merge index for new community
-        data.at[
-            community_info[0], f"{community_info[1]}"
-        ] = np.nan  # clear value and create empty place for new community
+        data.at[community_info[0], f"{community_info[1]}"] = (
+            np.nan
+        )  # clear value and create empty place for new community
         data.at[community_info[0], f"Merge{community_info[1]}"] = 0
-        data.at[
-            community_info[2], f"{community_info[1]}"
-        ] = np.nan  # clear value and create empty place for new community
+        data.at[community_info[2], f"{community_info[1]}"] = (
+            np.nan
+        )  # clear value and create empty place for new community
         data.at[community_info[2], f"Merge{community_info[1]}"] = 0
         minimal = data[f"Merge{community_info[1]}"].loc[lambda x: x != 0].min()
         minimum = data.loc[

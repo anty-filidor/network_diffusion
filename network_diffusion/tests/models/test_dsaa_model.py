@@ -1,4 +1,5 @@
 """Tests for the network_diffusion.simulator."""
+
 import unittest
 from typing import Dict, Tuple
 

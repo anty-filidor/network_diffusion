@@ -34,16 +34,16 @@ class MLNetworkActor:
         """
         self.actor_id = actor_id
         self._layers_states = layers_states
-    
+
     @classmethod
-    def from_dict(cls, dict: Dict[str, Any]) -> "MLNetworkActor":
+    def from_dict(cls, base_dict: Dict[str, Any]) -> "MLNetworkActor":
         """
         Create an object from serialised dicitonary.
 
         :param dict: a dictionary with serialised attributes
         """
-        new_obj = cls(None, None)
-        new_obj.__dict__ = dict
+        new_obj = cls(None, None)  # type: ignore
+        new_obj.__dict__ = base_dict  # type: ignore
         return new_obj
 
     def __str__(self) -> str:

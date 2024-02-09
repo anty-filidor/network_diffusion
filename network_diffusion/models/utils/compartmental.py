@@ -135,7 +135,7 @@ class CompartmentalGraph:
         """
         assert len(states) == len(set(states)), "Names must be unique!"
         assert process_name not in self.reserved_names, "Invalid name"
-        self.__setattr__(process_name, states)
+        self.__setattr__(process_name, states)  # pylint: disable=C2801
 
     def describe(self) -> str:
         """
@@ -233,7 +233,7 @@ class CompartmentalGraph:
 
             # prepare names in other layers which are constant to current layer
             ol_names = []
-            for i in self_dict_copy.keys():
+            for i in self_dict_copy.keys():  # pylint: disable=C0201, C0206
                 i_names = [str(i) + "." + str(v) for v in self_dict_copy[i]]
                 ol_names.append(i_names)
 

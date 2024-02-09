@@ -1,4 +1,5 @@
 """Tests for the network_diffusion.models.mlt_model."""
+
 import random
 import unittest
 

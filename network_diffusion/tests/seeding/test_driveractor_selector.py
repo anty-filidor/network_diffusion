@@ -54,7 +54,7 @@ class TestDriverActorSelector(unittest.TestCase):
             selector.nodewise(net=get_toy_network())
 
     def test_actorwise(self):
-        for (subselector, exp_result) in SUBSELECTORS:
+        for subselector, exp_result in SUBSELECTORS:
             with self.subTest(subselector=subselector, exp_result=exp_result):
                 das = DriverActorSelector(method=subselector)
                 ranking = [
