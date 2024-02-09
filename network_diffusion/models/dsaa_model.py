@@ -58,6 +58,7 @@ class DSAAModel(BaseModel):
 
         :return: a list of state of the network after initialisation
         """
+        # pylint: disable=R0914
         if not net.is_multiplex():
             raise ValueError("This model works only with multiplex networks!")
 
@@ -81,7 +82,9 @@ class DSAAModel(BaseModel):
             # generate update buffer
             for i, _ in enumerate(ranges):
                 state = list(l_budget.keys())[i]
-                for index in range(ranges[i][0], ranges[i][1]):
+                low_range = ranges[i][0]  # pylint: disable=R1736
+                high_range = ranges[i][1]  # pylint: disable=R1736
+                for index in range(low_range, high_range):
                     seed_nodes.append(
                         NetworkUpdateBuffer(
                             node_name=ranking[index],

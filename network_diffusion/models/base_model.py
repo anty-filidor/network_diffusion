@@ -50,7 +50,6 @@ class BaseModel(ABC):
     @abstractmethod
     def __str__(self) -> str:
         """Return string representation of the object."""
-        ...
 
     @property
     def compartments(self) -> CompartmentalGraph:
@@ -67,7 +66,6 @@ class BaseModel(ABC):
         :param net: network to initialise seeds for
         :return: list of nodes with their states
         """
-        ...
 
     @abstractmethod
     def agent_evaluation_step(
@@ -85,7 +83,6 @@ class BaseModel(ABC):
 
         :return: state of the model after evaluation
         """
-        ...
 
     @abstractmethod
     def network_evaluation_step(
@@ -97,7 +94,6 @@ class BaseModel(ABC):
         :param network: a network to evaluate
         :return: list of nodes that changed state after the evaluation
         """
-        ...
 
     @staticmethod
     def update_network(
@@ -127,7 +123,6 @@ class BaseModel(ABC):
 
         :param net: a network to determine allowed nodes' states for
         """
-        ...
 
     @staticmethod
     def get_states_num(

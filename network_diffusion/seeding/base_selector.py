@@ -56,7 +56,6 @@ class BaseSeedSelector(ABC):
     @abstractmethod
     def __str__(self) -> str:
         """Return seed method's description."""
-        ...
 
     @staticmethod
     @abstractmethod
@@ -67,12 +66,10 @@ class BaseSeedSelector(ABC):
         :param graph: single layer graph to compute ranking for
         :return: list of node-ids ordered descending by their ranking position
         """
-        ...
 
     @abstractmethod
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Create actorwise ranking."""
-        ...
 
     def nodewise(self, net: MultilayerNetwork) -> Dict[str, List[Any]]:
         """Create nodewise ranking."""
@@ -105,7 +102,7 @@ def node_to_actor_ranking(
 
     def _avg_result(results: Dict[str, int], sizes: Dict[str, int]) -> float:
         """Compute average score in ranking weighted by size of layer."""
-        counter = sum(
+        counter = sum(  # pylint: disable=R1728
             [l_result * sizes[l_name] for l_name, l_result in results.items()]
         )
         denominator = sum(l_sizes.values())

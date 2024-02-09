@@ -44,4 +44,3 @@ def _cogsnet(
     delimiter: str,
 ) -> List[List[List[float]]]:
     """Call cogsnet function in C and get snapshots of weighted edgelists."""
-    ...
