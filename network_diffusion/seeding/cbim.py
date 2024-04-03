@@ -18,7 +18,7 @@
 
 """A definition community based influence maximization selector class."""
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import networkx as nx
 import numpy as np
@@ -94,7 +94,7 @@ class CBIMselector(BaseSeedSelector):
 
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Get ranking using Community Based Influence Maximization."""
-        lis: set[MLNetworkActor] = set()
+        lis: Set[MLNetworkActor] = set()
         actors_l = self.cbim(net)
 
         size_l = ListsEws.seed_size // len(
@@ -122,7 +122,7 @@ class CBIMselector(BaseSeedSelector):
     def cbim(
         self,
         net: MultilayerNetwork,
-    ) -> Dict[str, set[MLNetworkActor]]:
+    ) -> Dict[str, Set[MLNetworkActor]]:
         """
         Calculate cbim.
 
@@ -487,7 +487,7 @@ class CBIMselector(BaseSeedSelector):
         self,
         net: MultilayerNetwork,
         merged_communities: pd.DataFrame,
-    ) -> Dict[str, set[MLNetworkActor]]:
+    ) -> Dict[str, Set[MLNetworkActor]]:
         """
         Calculatee seed_size and :parametr ews.
 
@@ -496,7 +496,7 @@ class CBIMselector(BaseSeedSelector):
 
         :return: actors with ews :parametr
         """
-        actors: Dict[str, set[MLNetworkActor]] = {}
+        actors: Dict[str, Set[MLNetworkActor]] = {}
         for l_name in net.layers:
             if self.seed_default:  # select seed_size again for calculate ews
                 ListsEws.seed_size = len(net.layers[l_name])
@@ -510,10 +510,10 @@ class CBIMselector(BaseSeedSelector):
     @staticmethod
     def ranking_list(
         net: MultilayerNetwork,
-        actors_l: Dict[str, set[MLNetworkActor]],
+        actors_l: Dict[str, Set[MLNetworkActor]],
         size_l: float,
-        lis: set[MLNetworkActor],
-    ) -> set[MLNetworkActor]:
+        lis: Set[MLNetworkActor],
+    ) -> Set[MLNetworkActor]:
         """
         Select actors where actors are taken equal from each layer.
 
@@ -546,9 +546,9 @@ class CBIMselector(BaseSeedSelector):
     def ranking_list_additional(
         net: MultilayerNetwork,
         size_r: float,
-        actors_l: Dict[str, set[MLNetworkActor]],
-        lis: set[MLNetworkActor],
-    ) -> set[MLNetworkActor]:
+        actors_l: Dict[str, Set[MLNetworkActor]],
+        lis: Set[MLNetworkActor],
+    ) -> Set[MLNetworkActor]:
         """
         Select the others node form size_r.
 
