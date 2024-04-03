@@ -1,11 +1,37 @@
+# Copyright 2024 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+#
+# This file is part of Network Diffusion.
+#
+# Network Diffusion is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 3 of the License, or (at your option) any
+# later version.
+#
+# Network Diffusion is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# =============================================================================
+
 """Clique-based influence maximisation algorithm."""
 
 from typing import Any, Dict, List, Set, Tuple
 
 import networkx as nx
 
+from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
+from network_diffusion.seeding.base_selector import (
+    BaseSeedSelector,
+    node_to_actor_ranking,
+)
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
-def cim_maximal_cliques(net: nx.Graph, filter: bool = True) -> List[Set[Any]]:
+
+def _cim_maximal_cliques(net: nx.Graph, filter: bool = True) -> List[Set[Any]]:
     """
     Get maximal cliques for given single-layered graph.
 
@@ -30,14 +56,14 @@ def cim_maximal_cliques(net: nx.Graph, filter: bool = True) -> List[Set[Any]]:
     return cliques_raw
 
 
-def sort_clique_by_degree(
+def _sort_clique_by_degree(
     clique: Set[Any], degrees: Dict[Any, int]
 ) -> List[Any]:
     """Sort nodes in clique by their degrees."""
     return sorted(list(clique), key=lambda x: degrees[x], reverse=True)
 
 
-def update_seed_set(
+def _update_seed_set(
     seed_set: List[Any], clique: List[Any], update_by: int
 ) -> Tuple[List[Any], int]:
     """
@@ -78,22 +104,52 @@ def clique_influence_maximization(
         raise ValueError("Nb of seeds cannot be > than nb of nodes in graph!")
 
     # input data to the algorithm
-    max_cliques = cim_maximal_cliques(net=G, filter=filter)
+    max_cliques = _cim_maximal_cliques(net=G, filter=filter)
     degrees = nx.degree(G)
 
     # output contaier
     seeds: List[Any] = []
 
     # sort all the cliques in descending order based on size
-    _mcs = [sort_clique_by_degree(mc, degrees) for mc in max_cliques]
+    _mcs = [_sort_clique_by_degree(mc, degrees) for mc in max_cliques]
     sorted_mcs = sorted(_mcs, key=lambda x: len(x), reverse=True)
 
     # until budget is spent pick the very fist nodes from all cliques that are
     # not already in the seed set
     while len(seeds) < K:
         for mc in sorted_mcs:
-            seeds, _ = update_seed_set(seed_set=seeds, clique=mc, update_by=1)
+            seeds, _ = _update_seed_set(seed_set=seeds, clique=mc, update_by=1)
             if len(seeds) == K:
                 break
 
     return seeds
+
+
+class CIMSeedSelector(BaseSeedSelector):
+    """Seed selector based on Clique-based influence maximisation algorithm."""
+
+    @staticmethod
+    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+        """
+        Create a ranking of nodes with Clique-based influence maximisation algo.
+
+        :param graph: single layer graph to compute ranking for
+        :return: list of node-ids ordered descending by their ranking position
+        """
+        ranking = clique_influence_maximization(
+            G=graph, K=len(graph.nodes), filter=False
+        )
+        if len(ranking) != len(graph.nodes):  # that's a sanity check
+            raise ValueError
+        return ranking
+
+    def __str__(self) -> str:
+        """Return seed method's description."""
+        return (
+            f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
+            f"\Clique-based Influence Maximisation\n{BOLD_UNDERLINE}\n"
+        )
+
+    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+        """Compute ranking for actors."""
+        return node_to_actor_ranking(super().nodewise(net), net)
