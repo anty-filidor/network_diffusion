@@ -4,6 +4,7 @@
 
 from network_diffusion.seeding.betweenness_selector import BetweennessSelector
 from network_diffusion.seeding.cbim import CBIMselector
+from network_diffusion.seeding.cim import CIMSeedSelector
 from network_diffusion.seeding.closeness_selector import ClosenessSelector
 from network_diffusion.seeding.degreecentrality_selector import (
     DegreeCentralitySelector,
