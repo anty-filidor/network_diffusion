@@ -6,7 +6,7 @@ import unittest
 import networkx as nx
 import numpy as np
 
-from network_diffusion.mln.functions import get_toy_network
+from network_diffusion.mln.functions import get_toy_network_piotr
 from network_diffusion.models import MLTModel
 from network_diffusion.seeding.mocky_selector import MockyActorSelector
 from network_diffusion.simulator import Simulator
@@ -83,7 +83,7 @@ class TestMLTModel(unittest.TestCase):
         random.seed(42)
         np.random.seed(42)
 
-        self.network = get_toy_network()
+        self.network = get_toy_network_piotr()
 
         # initial seeds for the process choosen arbitrarly and create a ranking
         # that has actors 8 and 1 at the beginning and then the rest of actors
