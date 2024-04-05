@@ -4,42 +4,6 @@ from typing import Any, Dict, List
 import networkx as nx
 import pandas as pd
 
-import network_diffusion as nd
-
-
-def get_toy_network_kpp_shell() -> nx.Graph:
-    """
-    Get a toy network that was used by the authors of CIM method.
-
-    The paper is here: https://doi.org/10.1007/s10489-021-02656-0
-    """
-    actors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-
-    layer_1 = nx.Graph(
-        (
-            [1, 2],
-            [1, 3],
-            [1, 4],
-            [1, 5],
-            [1, 7],
-            [2, 7],
-            [3, 4],
-            [3, 7],
-            [4, 7],
-            [5, 7],
-            [5, 6],
-            [5, 11],
-            [6, 8],
-            [6, 9],
-            [6, 10],
-            [9, 12],
-            [10, 12],
-        )
-    )
-    layer_1.add_nodes_from(actors)
-
-    return nd.MultilayerNetwork.from_nx_layers([layer_1], ["l1"])
-
 
 @dataclass
 class KPPSNode:
@@ -93,7 +57,14 @@ def _kppshell_single_community(community_subgraph: nx.Graph) -> List[Dict[str, K
     return [b.to_dict() for b in bucket_list]
 
 
-def kppshell_decomposition(G: nx.Graph):
+def kppshell_decomposition(G: nx.Graph) -> List[List[Dict[str, Any]]]:
+    """
+    Decompose network according to K++ shell routine.
+
+    As a result return list of detected communities where, for each node, there
+    is data regarding its id, shell which it belongs to, and reward points it 
+    gained during decomposition.
+    """
     communities = list(nx.community.label_propagation_communities(G))
     bucket_lists = []
     for community in communities:
@@ -161,16 +132,10 @@ def compute_seed_quotas(
     return [quotas[idx] for idx in comms_indices]
 
 
-def kppshell_seed_selection(G: nx.Graph, num_seeds: int):
-    shells = kppshell_decomposition(G)
-    quotas_in_shells = compute_seed_quotas(
-        G=G,
-        communities=[[node["node_id"] for node in shell] for shell in shells],
-        num_seeds=num_seeds,
-    )
+def _select_seeds(shells: List[List[Dict[str, Any]]], quotas: List[int]) -> List[Any]:
+    """Select seeds according to quota and decomposed network to the shells."""
     seeds_ranked = []
-
-    for quota, decomposed_community in zip(quotas_in_shells, shells):
+    for quota, decomposed_community in zip(quotas, shells):
         df = (
             pd.DataFrame(decomposed_community)
             .sort_values(["shell", "reward_points"], ascending=[False, False])
@@ -180,8 +145,31 @@ def kppshell_seed_selection(G: nx.Graph, num_seeds: int):
         # print(df)
         # print("\n\n\n")
         seeds_ranked.extend(df.iloc[:quota]["node_id"].to_list())
-
     return seeds_ranked
+
+
+def kppshell_seed_selection(G: nx.Graph, num_seeds: int) -> List[Any]:
+    shells = kppshell_decomposition(G)
+    quotas_in_shells = compute_seed_quotas(
+        G=G,
+        communities=[[node["node_id"] for node in shell] for shell in shells],
+        num_seeds=num_seeds,
+    )
+    return _select_seeds(shells=shells, quotas=quotas_in_shells)
+
+
+def kppshell_seed_ranking(G: nx.Graph) -> List[Any]:
+    shells = kppshell_decomposition(G)
+    communities=[[node["node_id"] for node in shell] for shell in shells]
+    ranking = []
+    for i in range(1, len(G.nodes) + 1):
+        quotas_in_shells = compute_seed_quotas(G, communities, i)
+        seeds = _select_seeds(shells, quotas_in_shells)
+        for seed in seeds:
+            if seed not in ranking:
+                ranking.append(seed)
+    return ranking
+
 
 
 # 𝐶1 = {(𝐵1, 11, 0), (𝐵2, 5, 1)(𝐵2, 2, 0)(𝐵3, 1, 2), (𝐵3, 7, 2), (𝐵3, 3, 0), (𝐵3, 4, 0)}
