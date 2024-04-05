@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Any, Dict, List
 
 import networkx as nx
 
@@ -45,16 +45,16 @@ class KPPSNode:
     """K++ Shell aux class for state of node."""
     node_id: any
     reward_points: int
-    degree: int  # TODO rename to shell
+    shell: int
 
     def to_list(self):
-        return [self.degree, self.node_id, self.reward_points]
+        return [self.shell, self.node_id, self.reward_points]
     
     def to_dict(self):
-        return {"node_id": self.node_id, "shell": self.degree, "reward_points": self.reward_points}
+        return {"node_id": self.node_id, "shell": self.shell, "reward_points": self.reward_points}
     
 
-def _kppshell_single_community(community_subgraph: nx.Graph):
+def _kppshell_single_community(community_subgraph: nx.Graph) -> List[Dict[str, KPPSNode]]:
     
     degrees = dict(nx.degree(community_subgraph))
     nodes = {node_id: KPPSNode(node_id, 0, degree) for node_id, degree in degrees.items()}
@@ -62,7 +62,7 @@ def _kppshell_single_community(community_subgraph: nx.Graph):
 
     # iterate until there is still a node to be picked
     while len(nodes) >= 1:
-        minimal_degree = min(nodes.values(), key=lambda x: x.degree).degree
+        minimal_degree = min(nodes.values(), key=lambda x: x.shell).shell
         picked_curr_nodes = []
         for node_id in community_subgraph.nodes:
 
@@ -71,7 +71,7 @@ def _kppshell_single_community(community_subgraph: nx.Graph):
                 continue
             
             # it current degree of the node is minimal add it to BL and remove
-            if nodes[node_id].degree == minimal_degree:
+            if nodes[node_id].shell == minimal_degree:
                 bucket_list.append(nodes[node_id])
                 picked_curr_nodes.append(node_id)
                 del nodes[node_id]
@@ -80,7 +80,7 @@ def _kppshell_single_community(community_subgraph: nx.Graph):
         for node_id in picked_curr_nodes:
             for neighbour_id in community_subgraph.neighbors(node_id):
                 if nodes.get(neighbour_id):
-                    nodes[neighbour_id].degree -= 1
+                    nodes[neighbour_id].shell -= 1
                     nodes[neighbour_id].reward_points += 1
 
     # return bucket list in form of: bucket id, node id and reward points
@@ -96,6 +96,33 @@ def kppshell_decomposition(G: nx.Graph):
     return bucket_lists
 
 
+def compute_seed_quotas(G: nx.Graph, communities: List[Any], num_seeds: int) -> List[int]:
+    """
+    Compute number of seeds to be chosen from communities according to budget.
+
+    There is a condition: communities should be separable, i.e. each node must 
+    to be in only one community.
+    """
+    if num_seeds > len(G.nodes):
+        raise ValueError("Number of seeds cannot be > number of nodes!")
+    quotas = []
+    for communiy in communities:
+        quota = num_seeds * len(communiy) / len(G.nodes)
+        quotas.append(int(quota))
+    # print("raw quotas:", quotas, "com-s:", [len(c) for c in communities])
+    while sum(quotas) < num_seeds:  # quantisation of computed quotas
+        if quotas[quotas.index(min(quotas))] == 0:
+            quotas[quotas.index(min(quotas))] += 1
+        else:
+            quotas[quotas.index(max(quotas))] += 1
+    # print("balanced quotas:", quotas, "com-s:", [len(c) for c in communities])
+    return quotas
+
+
+def kppshell_seed_selection(G: nx.Graph, num_seeds: int):
+    shells = kppshell_decomposition(G)
+    quotas = compute_seed_quotas(G, [[n["node_id"] for n in shell] for shell in shells], num_seeds)
+    ...
 # 𝐶1 = {(𝐵1, 11, 0), (𝐵2, 5, 1)(𝐵2, 2, 0)(𝐵3, 1, 2), (𝐵3, 7, 2), (𝐵3, 3, 0), (𝐵3, 4, 0)}
 # 𝐶2 = {(𝐵1, 8, 0), (𝐵2, 6, 2), (𝐵2, 9, 0), (𝐵2, 10, 0), (𝐵2, 12, 0)}.
 
