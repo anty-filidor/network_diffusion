@@ -117,11 +117,20 @@ def compute_seed_quotas(
         raise ValueError("Number of seeds cannot be > number of nodes!")
     quotas = []
 
+    # sort communities according to their sizes and
+    # remember their indices in the input matrix to return quotas in good order
+    comms_sorted = sorted(communities, key=lambda x: len(x), reverse=True)
+    comms_indices = sorted(
+        range(len(communities)),
+        key=lambda k: [len(c) for c in communities][k],
+        reverse=True,
+    )
+
     # compute fractions of communities to use as seeds
-    for communiy in communities:
+    for communiy in comms_sorted:
         quo = num_seeds * len(communiy) / len(G.nodes)
         quotas.append(int(quo))
-    # print("raw quotas:", quotas, "com-s:", [len(c) for c in communities])
+    # print("raw quotas:", quotas, "com-s:", [len(c) for c in comms_sorted])
 
     # quantisation of computed quotas according to strategy: first increase
     # quotas in communities that were skipped and if there is no such community
@@ -131,7 +140,7 @@ def compute_seed_quotas(
         if quotas[quotas.index(min(quotas))] == 0:
             quotas[quotas.index(min(quotas))] += 1
         else:
-            diffs = [len(com) - quo for quo, com in zip(quotas, communities)]
+            diffs = [len(com) - quo for quo, com in zip(quotas, comms_sorted)]
             _quotas = quotas.copy()
             while True:
                 quota_to_increase = max(_quotas)
@@ -139,16 +148,17 @@ def compute_seed_quotas(
                     break
                 del _quotas[quota_to_increase]
             quotas[quotas.index(quota_to_increase)] += 1
-    # print("balanced quotas:", quotas, "com-s:", [len(c) for c in communities])
+    # print("balanced quotas:", quotas, "com-s:", [len(c) for c in comms_sorted])
 
     # sanity check - the function is still in development mode
     if sum(quotas) != num_seeds:
         raise ArithmeticError("Error in the function!")
-    for quo, com in zip(quotas, communities):
+    for quo, com in zip(quotas, comms_sorted):
         if quo > len(com):
             raise ArithmeticError("Error in the function!")
 
-    return quotas
+    # reorder quotas for communities according to their initial order
+    return [quotas[idx] for idx in comms_indices]
 
 
 def kppshell_seed_selection(G: nx.Graph, num_seeds: int):
