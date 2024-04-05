@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import List
 
 import networkx as nx
 
@@ -40,64 +41,74 @@ def get_toy_network_kpp_shell() -> nx.Graph:
 
 
 @dataclass
-class RewardedNode:
+class KPPSNode:
+    """K++ Shell aux class for state of node."""
     node_id: any
     reward_points: int
-    degree: int
-
-    @classmethod
-    def make_raw(cls, node_id: int) -> "RewardedNode":
-        return cls(node_id=node_id, reward_points=0, degree=0)
-
-    def __hash__(self):
-        return self.node_id
+    degree: int  # TODO rename to shell
 
     def to_list(self):
         return [self.degree, self.node_id, self.reward_points]
+    
+    def to_dict(self):
+        return {"node_id": self.node_id, "shell": self.degree, "reward_points": self.reward_points}
+    
+
+def _kppshell_single_community(community_subgraph: nx.Graph):
+    
+    degrees = dict(nx.degree(community_subgraph))
+    nodes = {node_id: KPPSNode(node_id, 0, degree) for node_id, degree in degrees.items()}
+    bucket_list: List[KPPSNode] = []
+
+    # iterate until there is still a node to be picked
+    while len(nodes) >= 1:
+        minimal_degree = min(nodes.values(), key=lambda x: x.degree).degree
+        picked_curr_nodes = []
+        for node_id in community_subgraph.nodes:
+
+            # if node has been already removed
+            if node_id in [b.node_id for b in bucket_list]:
+                continue
+            
+            # it current degree of the node is minimal add it to BL and remove
+            if nodes[node_id].degree == minimal_degree:
+                bucket_list.append(nodes[node_id])
+                picked_curr_nodes.append(node_id)
+                del nodes[node_id]
+
+        # update state of still not picked neighbours of chosen nodes
+        for node_id in picked_curr_nodes:
+            for neighbour_id in community_subgraph.neighbors(node_id):
+                if nodes.get(neighbour_id):
+                    nodes[neighbour_id].degree -= 1
+                    nodes[neighbour_id].reward_points += 1
+
+    # return bucket list in form of: bucket id, node id and reward points
+    return [b.to_dict() for b in bucket_list]
 
 
-def k_pp_shell(G: nx.Graph):
-
+def kppshell_decomposition(G: nx.Graph):
     communities = list(nx.community.label_propagation_communities(G))
-
-    bbls = []
-
+    bucket_lists = []
     for community in communities:
-
-        GG = G.subgraph(community)
-        degrees = dict(nx.degree(GG))
-        nodes = {
-            node_id: RewardedNode(
-                node_id=node_id, reward_points=0, degree=degree
-            )
-            for node_id, degree in degrees.items()
-        }
-        BL = []
-
-        while len(nodes) >= 1:
-            minimal_degree = min(nodes.values(), key=lambda x: x.degree).degree
-            print(minimal_degree, BL)
-            for node_id in community:
-
-                if node_id in [b.node_id for b in BL]:
-                    continue
-
-                node_obj = nodes[node_id]
-                if node_obj.degree == minimal_degree:
-                    BL.append(node_obj)
-                    del nodes[node_id]
-
-            # update degrees and reward points for neighbours of chosen nodes
-            for node in BL:
-                for neighbour in GG.neighbors(node.node_id):
-                    if nodes.get(neighbour):
-                        nodes[neighbour].degree -= 1
-                        nodes[neighbour].reward_points += 1
-
-        bbls.append([b.to_list() for b in BL])
-
-    return bbls
+        bucket_list = _kppshell_single_community(community_subgraph=G.subgraph(community))
+        bucket_lists.append(bucket_list)
+    return bucket_lists
 
 
 # 𝐶1 = {(𝐵1, 11, 0), (𝐵2, 5, 1)(𝐵2, 2, 0)(𝐵3, 1, 2), (𝐵3, 7, 2), (𝐵3, 3, 0), (𝐵3, 4, 0)}
 # 𝐶2 = {(𝐵1, 8, 0), (𝐵2, 6, 2), (𝐵2, 9, 0), (𝐵2, 10, 0), (𝐵2, 12, 0)}.
+
+# ground truth data for toy network
+# [[{'node_id': 11, 'shell': 1, 'reward_points': 0},
+#   {'node_id': 2, 'shell': 2, 'reward_points': 0},
+#   {'node_id': 5, 'shell': 2, 'reward_points': 1},
+#   {'node_id': 1, 'shell': 3, 'reward_points': 2},
+#   {'node_id': 3, 'shell': 3, 'reward_points': 0},
+#   {'node_id': 4, 'shell': 3, 'reward_points': 0},
+#   {'node_id': 7, 'shell': 3, 'reward_points': 2}],
+#  [{'node_id': 8, 'shell': 1, 'reward_points': 0},
+#   {'node_id': 6, 'shell': 2, 'reward_points': 1},
+#   {'node_id': 9, 'shell': 2, 'reward_points': 0},
+#   {'node_id': 10, 'shell': 2, 'reward_points': 0},
+#   {'node_id': 12, 'shell': 2, 'reward_points': 0}]]
