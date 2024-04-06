@@ -24,7 +24,7 @@ from typing import Any, Dict, List, Set
 import networkx as nx
 import pandas as pd
 
-from network_diffusion import MultilayerNetwork
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
 def get_toy_network_kppshell() -> MultilayerNetwork:
