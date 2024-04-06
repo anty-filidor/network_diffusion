@@ -89,8 +89,8 @@ def clique_influence_maximization(
     Maheswari Jagarapu in CIM: clique-based heuristic for finding influential
     nodes in multilayer networks (https://doi.org/10.1007/s10489-021-02656-0)
     which was published in "Applied Intelligence", 2022, 52:5173-5184.
-    The method was optimised by the author of Network Diffusion and deprived of
-    ambiguities.
+    The method was optimised by the authors of Network Diffusion and deprived
+    of ambiguities.
 
     :param G: a network to compute seeds for
     :param K: target number of the seed set
@@ -131,7 +131,7 @@ class CIMSeedSelector(BaseSeedSelector):
     @staticmethod
     def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
         """
-        Create a ranking of nodes with Clique-based influence maximisation algo.
+        Create a ranking of nodes with Clique-based influence maximisation alg.
 
         :param graph: single layer graph to compute ranking for
         :return: list of node-ids ordered descending by their ranking position
@@ -147,7 +147,7 @@ class CIMSeedSelector(BaseSeedSelector):
         """Return seed method's description."""
         return (
             f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
-            f"\Clique-based Influence Maximisation\n{BOLD_UNDERLINE}\n"
+            f"\tClique-based Influence Maximisation\n{BOLD_UNDERLINE}\n"
         )
 
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
