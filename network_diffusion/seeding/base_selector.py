@@ -117,5 +117,8 @@ def node_to_actor_ranking(
         key=_.get,  # type: ignore
     )
 
-    assert len(actor_ranking) == net.get_actors_num(), "Incorrect ranking!"
+    if (ar := len(actor_ranking)) != (an := net.get_actors_num()):
+        raise ArithmeticError(
+            f"Number of actors: {an} doesn't match length of the ranking: {ar}"
+        )
     return actor_ranking
