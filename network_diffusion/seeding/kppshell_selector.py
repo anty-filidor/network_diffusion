@@ -1,5 +1,25 @@
+# Copyright 2024 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+#
+# This file is part of Network Diffusion.
+#
+# Network Diffusion is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 3 of the License, or (at your option) any
+# later version.
+#
+# Network Diffusion is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# =============================================================================
+
+"""K++ Shell decomposition functions."""
+
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 import networkx as nx
 import pandas as pd
@@ -7,16 +27,14 @@ import pandas as pd
 
 @dataclass
 class KPPSNode:
-    """K++ Shell aux class for state of node."""
+    """K++ Shell auxiliary class for keep state of node."""
 
-    node_id: any
-    reward_points: int
+    node_id: Any
     shell: int
+    reward_points: int
 
-    def to_list(self):
-        return [self.shell, self.node_id, self.reward_points]
-
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialise object into dictionary."""
         return {
             "node_id": self.node_id,
             "shell": self.shell,
@@ -24,17 +42,27 @@ class KPPSNode:
         }
 
 
-def _kppshell_single_community(community_subgraph: nx.Graph) -> List[Dict[str, KPPSNode]]:
+def _kppshell_community(
+    community_graph: nx.Graph,
+) -> List[Dict[str, KPPSNode]]:
+    """
+    K++ Shell decomposition of a single community of the graph.
 
-    degrees = dict(nx.degree(community_subgraph))
-    nodes = {node_id: KPPSNode(node_id, 0, degree) for node_id, degree in degrees.items()}
+    As a result return a list of nodes with shells that they were assigned to
+    and reward points they gained during decomposition.
+    """
+    degrees = dict(nx.degree(community_graph))
+    nodes = {
+        node_id: KPPSNode(node_id, degree, 0)
+        for node_id, degree in degrees.items()
+    }
     bucket_list: List[KPPSNode] = []
 
     # iterate until there is still a node to be picked
     while len(nodes) >= 1:
         minimal_degree = min(nodes.values(), key=lambda x: x.shell).shell
         picked_curr_nodes = []
-        for node_id in community_subgraph.nodes:
+        for node_id in community_graph.nodes:
 
             # if node has been already removed
             if node_id in [b.node_id for b in bucket_list]:
@@ -48,7 +76,7 @@ def _kppshell_single_community(community_subgraph: nx.Graph) -> List[Dict[str, K
 
         # update state of still not picked neighbours of chosen nodes
         for node_id in picked_curr_nodes:
-            for neighbour_id in community_subgraph.neighbors(node_id):
+            for neighbour_id in community_graph.neighbors(node_id):
                 if nodes.get(neighbour_id):
                     nodes[neighbour_id].shell -= 1
                     nodes[neighbour_id].reward_points += 1
@@ -61,15 +89,27 @@ def kppshell_decomposition(G: nx.Graph) -> List[List[Dict[str, Any]]]:
     """
     Decompose network according to K++ shell routine.
 
-    As a result return list of detected communities where, for each node, there
-    is data regarding its id, shell which it belongs to, and reward points it 
-    gained during decomposition.
+    The routine was published by Venkatakrishna Rao, C. Ravindranath Chowdary
+    in "K++ Shell: Influence maximization in multilayer networks using
+    community detection" (https://doi.org/10.1016/j.comnet.2023.109916)
+    which was published in "Computer Networks", 2023, Volume 234. The method
+    was optimised by the authors of Network Diffusion and deprived of
+    ambiguities. We also made an assumption that during communities detection
+    every node can be assigned only to one community. Another assumption was
+    that we accept communities that consist of at least one node. These
+    conditions were not considered in the original paper.
+
+    :param G: a network to be decomposed
+
+    :return: a list of communities detected in the network in which all nodes
+        are represented as dict with thei IDs, shells they are assigned to and
+        reward points their gained during decomposition.
     """
     communities = list(nx.community.label_propagation_communities(G))
     bucket_lists = []
     for community in communities:
-        bucket_list = _kppshell_single_community(
-            community_subgraph=G.subgraph(community)
+        bucket_list = _kppshell_community(
+            community_graph=G.subgraph(community)
         )
         bucket_lists.append(bucket_list)
     return bucket_lists
@@ -81,15 +121,17 @@ def compute_seed_quotas(
     """
     Compute number of seeds to be chosen from communities according to budget.
 
-    There is a condition: communities should be separable, i.e. each node must
-    to be in only one community.
+    We would like to select <num_seeds> from the network <G>. This function
+    will compute how many seeds take from each community basing on their sizes
+    compared to size of the <G>. There is a condition: communities should be
+    separable, i.e. each node must be in only one community.
     """
     if num_seeds > len(G.nodes):
         raise ValueError("Number of seeds cannot be > number of nodes!")
     quotas = []
 
-    # sort communities according to their sizes and
-    # remember their indices in the input matrix to return quotas in good order
+    # sort communities according to their sizes and remember their indices
+    # in the input matrix to return quotas in correct order
     comms_sorted = sorted(communities, key=lambda x: len(x), reverse=True)
     comms_indices = sorted(
         range(len(communities)),
@@ -97,16 +139,16 @@ def compute_seed_quotas(
         reverse=True,
     )
 
-    # compute fractions of communities to use as seeds
+    # compute fractions of communities to be used as seeds
     for communiy in comms_sorted:
         quo = num_seeds * len(communiy) / len(G.nodes)
         quotas.append(int(quo))
-    # print("raw quotas:", quotas, "com-s:", [len(c) for c in comms_sorted])
+    # print("raw quotas", quotas, "com-s", [len(c) for c in comms_sorted])
 
     # quantisation of computed quotas according to strategy: first increase
     # quotas in communities that were skipped and if there is no such community
-    # increase quotas in the larges communities; here we assume that community
-    # is at least 1 node large
+    # increase quotas in the largest communities that have capability to have
+    # quota enlarged; here we assume that community is at least 1 node large
     while sum(quotas) < num_seeds:
         if quotas[quotas.index(min(quotas))] == 0:
             quotas[quotas.index(min(quotas))] += 1
@@ -119,7 +161,7 @@ def compute_seed_quotas(
                     break
                 del _quotas[quota_to_increase]
             quotas[quotas.index(quota_to_increase)] += 1
-    # print("balanced quotas:", quotas, "com-s:", [len(c) for c in comms_sorted])
+    # print("balanced quotas", quotas, "com-s", [len(c) for c in comms_sorted])
 
     # sanity check - the function is still in development mode
     if sum(quotas) != num_seeds:
@@ -132,7 +174,9 @@ def compute_seed_quotas(
     return [quotas[idx] for idx in comms_indices]
 
 
-def _select_seeds(shells: List[List[Dict[str, Any]]], quotas: List[int]) -> List[Any]:
+def _select_seeds_from_kppshells(
+    shells: List[List[Dict[str, Any]]], quotas: List[int]
+) -> Set[Any]:
     """Select seeds according to quota and decomposed network to the shells."""
     seeds_ranked = []
     for quota, decomposed_community in zip(quotas, shells):
@@ -145,31 +189,57 @@ def _select_seeds(shells: List[List[Dict[str, Any]]], quotas: List[int]) -> List
         # print(df)
         # print("\n\n\n")
         seeds_ranked.extend(df.iloc[:quota]["node_id"].to_list())
-    return seeds_ranked
+    return set(seeds_ranked)
 
 
-def kppshell_seed_selection(G: nx.Graph, num_seeds: int) -> List[Any]:
+def kppshell_seed_selection(G: nx.Graph, num_seeds: int) -> Set[Any]:
+    """
+    Select <num_seeds> from <G> according to K++ Shell decomposition.
+
+    The routine was published by Venkatakrishna Rao, C. Ravindranath Chowdary
+    in "K++ Shell: Influence maximization in multilayer networks using
+    community detection" (https://doi.org/10.1016/j.comnet.2023.109916)
+    which was published in "Computer Networks", 2023, Volume 234. The method
+    was optimised by the authors of Network Diffusion and deprived of
+    ambiguities.
+
+    :param G: a network to pick seeds from
+    :param num_seeds: number of seeds to pick, in form of number of nodes
+
+    :return: a set of nodes picked
+    """
     shells = kppshell_decomposition(G)
     quotas_in_shells = compute_seed_quotas(
         G=G,
         communities=[[node["node_id"] for node in shell] for shell in shells],
         num_seeds=num_seeds,
     )
-    return _select_seeds(shells=shells, quotas=quotas_in_shells)
+    return _select_seeds_from_kppshells(shells=shells, quotas=quotas_in_shells)
 
 
 def kppshell_seed_ranking(G: nx.Graph) -> List[Any]:
+    """
+    Rank all nodes from <G> according to K++ Shell decomposition.
+
+    The routine was is a modification of function kppshell_seed_selection so
+    that not given fraction of most influential nodes is returned, but all of
+    them.
+
+    :param G: a network to create ranking of all nodes from
+
+    :return: an ordered ranking of nodes (most influential are at the beggining
+        of the list)
+    """
     shells = kppshell_decomposition(G)
-    communities=[[node["node_id"] for node in shell] for shell in shells]
+    communities = [[node["node_id"] for node in shell] for shell in shells]
     ranking = []
     for i in range(1, len(G.nodes) + 1):
         quotas_in_shells = compute_seed_quotas(G, communities, i)
-        seeds = _select_seeds(shells, quotas_in_shells)
+        seeds = _select_seeds_from_kppshells(shells, quotas_in_shells)
         for seed in seeds:
             if seed not in ranking:
                 ranking.append(seed)
     return ranking
-
 
 
 # 𝐶1 = {(𝐵1, 11, 0), (𝐵2, 5, 1)(𝐵2, 2, 0)(𝐵3, 1, 2), (𝐵3, 7, 2), (𝐵3, 3, 0), (𝐵3, 4, 0)}
