@@ -24,6 +24,42 @@ from typing import Any, Dict, List, Set
 import networkx as nx
 import pandas as pd
 
+from network_diffusion import MultilayerNetwork
+
+
+def get_toy_network_kppshell() -> MultilayerNetwork:
+    """
+    Get a toy network that was used by the authors of K++ Shell method.
+
+    The paper is here: https://doi.org/10.1016/j.comnet.2023.109916
+    """
+    actors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+    layer_1 = nx.Graph(
+        (
+            [1, 2],
+            [1, 3],
+            [1, 4],
+            [1, 5],
+            [1, 7],
+            [2, 7],
+            [3, 4],
+            [3, 7],
+            [4, 7],
+            [5, 7],
+            [5, 6],
+            [5, 11],
+            [6, 8],
+            [6, 9],
+            [6, 10],
+            [9, 12],
+            [10, 12],
+        )
+    )
+    layer_1.add_nodes_from(actors)
+
+    return MultilayerNetwork.from_nx_layers([layer_1], ["l1"])
+
 
 @dataclass
 class KPPSNode:
@@ -240,21 +276,3 @@ def kppshell_seed_ranking(G: nx.Graph) -> List[Any]:
             if seed not in ranking:
                 ranking.append(seed)
     return ranking
-
-
-# 𝐶1 = {(𝐵1, 11, 0), (𝐵2, 5, 1)(𝐵2, 2, 0)(𝐵3, 1, 2), (𝐵3, 7, 2), (𝐵3, 3, 0), (𝐵3, 4, 0)}
-# 𝐶2 = {(𝐵1, 8, 0), (𝐵2, 6, 2), (𝐵2, 9, 0), (𝐵2, 10, 0), (𝐵2, 12, 0)}.
-
-# ground truth data for toy network
-# [[{'node_id': 11, 'shell': 1, 'reward_points': 0},
-#   {'node_id': 2, 'shell': 2, 'reward_points': 0},
-#   {'node_id': 5, 'shell': 2, 'reward_points': 1},
-#   {'node_id': 1, 'shell': 3, 'reward_points': 2},
-#   {'node_id': 3, 'shell': 3, 'reward_points': 0},
-#   {'node_id': 4, 'shell': 3, 'reward_points': 0},
-#   {'node_id': 7, 'shell': 3, 'reward_points': 2}],
-#  [{'node_id': 8, 'shell': 1, 'reward_points': 0},
-#   {'node_id': 6, 'shell': 2, 'reward_points': 1},
-#   {'node_id': 9, 'shell': 2, 'reward_points': 0},
-#   {'node_id': 10, 'shell': 2, 'reward_points': 0},
-#   {'node_id': 12, 'shell': 2, 'reward_points': 0}]]
