@@ -118,6 +118,7 @@ def _kppshell_community(
                     nodes[neighbour_id].reward_points += 1
 
     # return bucket list in form of: bucket id, node id and reward points
+    assert len(bucket_list) == len(community_graph.nodes)
     return [b.to_dict() for b in bucket_list]
 
 
@@ -142,6 +143,7 @@ def kppshell_decomposition(G: nx.Graph) -> List[List[Dict[str, Any]]]:
         reward points their gained during decomposition.
     """
     communities = list(nx.community.label_propagation_communities(G))
+    assert sum([len(c) for c in communities]) == len(G.nodes)
     bucket_lists = []
     for community in communities:
         bucket_list = _kppshell_community(
@@ -168,12 +170,12 @@ def compute_seed_quotas(
 
     # sort communities according to their sizes and remember their indices
     # in the input matrix to return quotas in correct order
-    comms_sorted = sorted(communities, key=lambda x: len(x), reverse=True)
-    comms_indices = sorted(
+    comms_sorting_order = sorted(
         range(len(communities)),
         key=lambda k: [len(c) for c in communities][k],
         reverse=True,
     )
+    comms_sorted = [communities[comm_idx] for comm_idx in comms_sorting_order]
 
     # compute fractions of communities to be used as seeds
     for communiy in comms_sorted:
@@ -195,9 +197,14 @@ def compute_seed_quotas(
                 quota_to_increase = max(_quotas)
                 if diffs[quotas.index(quota_to_increase)] > 0:
                     break
-                del _quotas[quota_to_increase]
+                del _quotas[_quotas.index(quota_to_increase)]
             quotas[quotas.index(quota_to_increase)] += 1
     # print("balanced quotas", quotas, "com-s", [len(c) for c in comms_sorted])
+
+    # reorder quotas for communities according to their initial order
+    quotas_desorted = [0] * len(communities)
+    for idx_sorted, idx_original in enumerate(comms_sorting_order):
+        quotas_desorted[idx_original] = quotas[idx_sorted]
 
     # sanity check - the function is still in development mode
     if sum(quotas) != num_seeds:
@@ -205,9 +212,11 @@ def compute_seed_quotas(
     for quo, com in zip(quotas, comms_sorted):
         if quo > len(com):
             raise ArithmeticError("Error in the function!")
+    for quo, com in zip(quotas_desorted, communities):
+        if quo > len(com):
+            raise ArithmeticError("Error in the function!")
 
-    # reorder quotas for communities according to their initial order
-    return [quotas[idx] for idx in comms_indices]
+    return quotas_desorted
 
 
 def _select_seeds_from_kppshells(
