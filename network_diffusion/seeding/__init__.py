@@ -11,6 +11,7 @@ from network_diffusion.seeding.degreecentrality_selector import (
 )
 from network_diffusion.seeding.driveractor_selector import DriverActorSelector
 from network_diffusion.seeding.katz_selector import KatzSelector
+from network_diffusion.seeding.kppshell_selector import KPPShellSeedSelector
 from network_diffusion.seeding.kshell_selector import (
     KShellMLNSeedSelector,
     KShellSeedSelector,
