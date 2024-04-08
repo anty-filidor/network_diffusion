@@ -7,6 +7,7 @@ from network_diffusion.seeding.cbim import CBIMselector
 from network_diffusion.seeding.cim import CIMSeedSelector
 from network_diffusion.seeding.closeness_selector import ClosenessSelector
 from network_diffusion.seeding.degreecentrality_selector import (
+    DegreeCentralityDiscountSelector,
     DegreeCentralitySelector,
 )
 from network_diffusion.seeding.driveractor_selector import DriverActorSelector
@@ -18,6 +19,7 @@ from network_diffusion.seeding.kshell_selector import (
 )
 from network_diffusion.seeding.mocky_selector import MockyActorSelector
 from network_diffusion.seeding.neighbourhoodsize_selector import (
+    NeighbourhoodSizeDiscountSelector,
     NeighbourhoodSizeSelector,
 )
 from network_diffusion.seeding.pagerank_selector import (

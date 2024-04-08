@@ -23,6 +23,10 @@ from typing import Any, Dict, List
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.centrality_discount import (
+    degree_discount,
+    degree_discount_networkx,
+)
 from network_diffusion.mln.functions import degree
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
@@ -60,3 +64,23 @@ class DegreeCentralitySelector(BaseSeedSelector):
             ranking_list.extend(degree_centrality_values[dc_val])
 
         return ranking_list
+
+
+class DegreeCentralityDiscountSelector(BaseSeedSelector):
+    """Degree Centrality Discount seed selector."""
+
+    def __str__(self) -> str:
+        """Return seed method's description."""
+        return (
+            f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
+            f"\tDegree Centrality Discount\n{BOLD_UNDERLINE}\n"
+        )
+
+    @staticmethod
+    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+        """Create nodewise ranking."""
+        return degree_discount_networkx(net=graph, k=len(graph.nodes))
+
+    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+        """Get ranking for actors using Degree Centrality Discount algo."""
+        return degree_discount(net=net, k=len(net))
