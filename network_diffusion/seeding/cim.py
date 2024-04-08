@@ -93,7 +93,7 @@ def clique_influence_maximization(
     of ambiguities.
 
     :param G: a network to compute seeds for
-    :param K: target number of the seed set
+    :param K: target size of the seed set
     :param filter: a flag wether to filter out cliques according to authors of
         the method; if true all cliques of size 1 and some cliques of size 2
         will be discarded (even if they autonomous connected components)
