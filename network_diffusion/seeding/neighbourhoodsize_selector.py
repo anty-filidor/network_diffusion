@@ -23,6 +23,9 @@ from typing import Any, Dict, List
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.centrality_discount import (
+    neighbourhood_size_discount,
+)
 from network_diffusion.mln.functions import neighbourhood_size
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
@@ -66,3 +69,23 @@ class NeighbourhoodSizeSelector(BaseSeedSelector):
             ranking_list.extend(neighbourhood_size_values[ns_val])
 
         return ranking_list
+
+
+class NeighbourhoodSizeDiscountSelector(BaseSeedSelector):
+    """Neighbourhood Size Discount seed selector."""
+
+    def __str__(self) -> str:
+        """Return seed method's description."""
+        return (
+            f"{BOLD_UNDERLINE}\nseed selection method\n{THIN_UNDERLINE}\n"
+            f"\tNeighbourhood Size Discount\n{BOLD_UNDERLINE}\n"
+        )
+
+    @staticmethod
+    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+        """Create nodewise ranking."""
+        raise NotImplementedError("Nodewise ranking list cannot be computed!")
+
+    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+        """Get ranking for actors using Degree Centrality Discount algo."""
+        return neighbourhood_size_discount(net=net, k=len(net))
