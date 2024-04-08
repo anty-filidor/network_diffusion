@@ -43,7 +43,7 @@ class DegreeCentralitySelector(BaseSeedSelector):
     def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
-            "Nodewise ranking list cannot be computed for this class!"
+            "Nodewise ranking list is not implemented for this class!"
         )
 
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
