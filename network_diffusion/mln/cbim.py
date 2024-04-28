@@ -19,7 +19,8 @@
 """Community based influence maximization algorithm."""
 
 import random
-from typing import Any
+from numbers import Number
+from typing import Any, Optional
 
 import networkx as nx
 import numpy as np
@@ -35,7 +36,59 @@ def dsc(G: nx.graph, u: Any, v: Any) -> float:
     )
 
 
-def init_communities(G: nx.Graph) -> list[list[Any]]:
+def _gamma(nb_edges_out: int, nb_edges_in: int) -> float:
+    """Calculate conductance (γi)."""
+    return nb_edges_out / (2 * nb_edges_in + nb_edges_out)
+
+
+def _theta(nb_nodes_comm: int, nb_nodes_graph: int) -> float:
+    """Calculate scale (θi)"""
+    return nb_nodes_comm / nb_nodes_graph
+
+
+def _psi(gamma: float, theta: float) -> float:
+    """Calculate the merging index (ψi)."""
+    return gamma * theta
+
+
+def printd(statement: str, debug: bool = False) -> None:
+    """Hepler function to print statements in the debug mode."""
+    if debug:
+        print(statement)
+
+
+def get_merging_index(
+    G: nx.Graph,
+    community: list[Any],
+    weight_attr: Optional[str] = None,
+) -> float:
+    """Calculate merging index for the given community of the graph."""
+    visited_nodes = []
+    edges_out = 0
+    edges_in = 0
+
+    if weight_attr is None:
+        get_edge_weight = lambda u, v: 1
+    else:
+        get_edge_weight = lambda u, v: G[u][v][weight_attr]
+
+    for node in community:
+        visited_nodes.append(node)
+        for neighbour in list(G.neighbors(node)):
+            if visited_nodes.count(neighbour) == 0:
+                if community.count(neighbour) == 0:
+                    edges_out += get_edge_weight(node, neighbour)
+                else:
+                    edges_in += get_edge_weight(node, neighbour)
+
+    scale = _theta(nb_nodes_comm=len(community), nb_nodes_graph=len(list(G.nodes)))
+    conductance = _gamma(nb_edges_out=edges_out, nb_edges_in=edges_in)
+    merging_index = _psi(gamma=conductance, theta=scale)
+
+    return merging_index
+
+
+def detect_communities(G: nx.Graph) -> list[list[Any]]:
     """Phase 1 - Initial communities detection."""
 
     # 1. Initialize the variables 'NS' and 'CSinit'
@@ -57,9 +110,9 @@ def init_communities(G: nx.Graph) -> list[list[Any]]:
                 highestDegreeNodes.append(node)
 
         # 3. Randomly select a node 'v' from 'Dv'
-        print("The highest degree nodes are: " + str(highestDegreeNodes))
+        # print("The highest degree nodes are: " + str(highestDegreeNodes))
         v, _ = random.choice(highestDegreeNodes)
-        print("The chosen highest degree (v) node is: " + str(v))
+        # print("The chosen highest degree (v) node is: " + str(v))
 
         # 4. Get the most similar neighbours of 'v' using Dice neighbour similarity
         highestDSC = 0.0
@@ -74,9 +127,9 @@ def init_communities(G: nx.Graph) -> list[list[Any]]:
                 highestDSCNodes.append(u)
 
         # 5. Randomly select a neighbour 'sn' from the most similar neighbours list
-        print("The most similar neighbour nodes are: " + str(highestDSCNodes))
+        # print("The most similar neighbour nodes are: " + str(highestDSCNodes))
         sn = random.choice(highestDSCNodes)
-        print("The chosen neighbour node (sn) is: " + str(sn))
+        # print("The chosen neighbour node (sn) is: " + str(sn))
 
         # 6. IF 'sn' is not in any community THEN
         nodeIsPresent = False
@@ -84,8 +137,8 @@ def init_communities(G: nx.Graph) -> list[list[Any]]:
 
             # 10. ELSE
             # 11. Find the community to which 'sn' belongs to and denote it as 'C'
-            print(C)
-            print(C.count(sn))
+            # print(C)
+            # print(C.count(sn))
             if C.count(sn) > 0:
                 # 12. Insert node 'v' into 'C' and remove node 'v' from 'NS'
                 C.append(v)
@@ -107,136 +160,99 @@ def init_communities(G: nx.Graph) -> list[list[Any]]:
     return CSinit
 
 
+def _get_extreme_val(val_arr: list[Number], extreme_func: callable) -> tuple[int, Number]:
+    """Helper function to get the community with the lowest psi."""
+    extreme_idx = extreme_func(val_arr)
+    if isinstance(extreme_idx, np.ndarray):
+        extreme_idx = extreme_idx[0]
+    return extreme_idx, val_arr[extreme_idx]
+
+
 def consolide_communities(
-    CSinit: list[list[Any]], G: nx.Graph, mergingIndexThreshold: float
+    initial_communities: list[list[Any]],
+    G: nx.Graph,
+    delta: float,
+    debug: bool,
+    weight_attr: Optional[str] = None,
 ) -> list[list[Any]]:
-    """Phase 2 - Community consolidation."""
-    assert 0 <= mergingIndexThreshold <= 1
+    """
+    Phase 2 - Community consolidation.
 
-    # 14. Initialize Final Communities (FC)
-    FC = CSinit.copy()
+    :param initial_communities: initial divison of nodes into communities
+    :param G: input graph
+    :param delta: merging threshold
+    :param weight_attr: edge attribute to take weight from, defaults to None
 
-    # 15. Calculate community conductance (γi) and community scale (θi) for each community 'C' in CSinit
-    EoutList = np.zeros(len(CSinit))
-    EinList = np.zeros(len(CSinit))
-    conductanceList = np.zeros(len(CSinit))
-    scaleList = np.zeros(len(CSinit))
-    i = 0
-    for C in CSinit:
-        visitedNodes = []
-        for node in C:
-            visitedNodes.append(node)
-            for neighbor in list(G.neighbors(node)):
-                if visitedNodes.count(neighbor) == 0:
-                    if C.count(neighbor) == 0:
-                        EoutList[i] += G[node][neighbor]["weight"]
-                    else:
-                        EinList[i] += G[node][neighbor]["weight"]
-        conductanceList[i] = EoutList[i] / (2 * EinList[i] + EoutList[i])
-        scaleList[i] = len(C) / len(list(G.nodes))
-        i += 1
-    print("Community conductances: " + str(conductanceList))
-    print("Community scales: " + str(scaleList))
+    :return: final divison of nodes into communities
+    """
+    assert 0 <= delta <= 1
 
-    # 16. Calculate the merging index (ψi) for each community in CSinit.
-    mergingIndexList = np.zeros(len(CSinit))
-    i = 0
-    for index in mergingIndexList:
-        mergingIndexList[i] = conductanceList[i] * scaleList[i]
-        i += 1
-    print("Community merging indexes: " + str(mergingIndexList))
+    # 12. Initialise Final Communities
+    final_communities = initial_communities.copy()
 
-    # 17. Select the community with lowest merging index (Cx)
-    lowestMergingIndex = (0, 0)
-    mergingIndexList.sort
-    i = 0
-    for index in mergingIndexList:
-        if mergingIndexList[i] < lowestMergingIndex[
-            1
-        ] or lowestMergingIndex == (0, 0):
-            lowestMergingIndex = (i, mergingIndexList[i])
-        i += 1
+    # MCz: edge case - stop it there is only one community left
+    while len(final_communities) > 1:
 
-    while lowestMergingIndex[1] <= mergingIndexThreshold:
-        # 17. Select the community with lowest merging index (Cx)
-        lowestMergingIndex = (0, 0)
-        mergingIndexList.sort
-        i = 0
-        for index in mergingIndexList:
-            if mergingIndexList[i] < lowestMergingIndex[
-                1
-            ] or lowestMergingIndex == (0, 0):
-                lowestMergingIndex = (i, mergingIndexList[i])
-            i += 1
+        # 13-14. Calculate merging index (ψi) for each community
+        merging_idx_list = np.array([
+            get_merging_index(G=G, community=comm, weight_attr=weight_attr)
+            for comm in final_communities
+        ])
+        printd(f"Community merging indices: {merging_idx_list}", debug)
 
-        print("Lowest merging index community: " + str(lowestMergingIndex[0]))
+        # 15. Select the community with the lowest merging index (Cx)
+        lowest_merging_idx = _get_extreme_val(merging_idx_list, np.argmin)
+        printd(f"Lowest merging index fo community {lowest_merging_idx[0]}: {lowest_merging_idx[1]}", debug)
 
-        # 18. Find the most similar community (Cy) to (Cx) and merge the two communites to form a new community (Cn)
-        similarityList = np.zeros(len(CSinit))
-        i = 0
-        for C in FC:
-            DSCsum = 0
-            if i != lowestMergingIndex[0]:
-                for u in CSinit[lowestMergingIndex[0]]:
-                    for v in C:
-                        DSCsum += (
-                            2 * len(list(nx.common_neighbors(G, u, v)))
-                        ) / (
-                            len(list(G.neighbors(u)))
-                            + len(list(G.neighbors(v)))
-                        )
-                similarityList[i] = DSCsum / len(CSinit[lowestMergingIndex[0]])
-            i += 1
-        print(
-            "Communities similarity to community "
-            + str(lowestMergingIndex[0])
-            + ": "
-            + str(similarityList)
-        )
+        # 19. Stop community consolidation if 'ψi' > 'δ'
+        if lowest_merging_idx[1] > delta:
+            break
 
-        highestSimilarity = (0, 0)
-        i = 0
-        for similarity in similarityList:
-            if similarity > highestSimilarity[1]:
-                highestSimilarity = (i, similarity)
-            i += 1
-        print("Most similar community: " + str(highestSimilarity[0]))
-        newCommunity = FC[lowestMergingIndex[0]] + FC[highestSimilarity[0]]
-        print("New community: " + str(newCommunity))
+        # 16. Find the most similar community (Cy) to (Cx) and merge the two
+        # communites to form a new community (Cn)
+        similarity_list = np.zeros(len(final_communities))
+        for idx, comm in enumerate(final_communities):
+            if idx == lowest_merging_idx[0]:
+                continue
+            dsc_sum = 0
+            for u in final_communities[lowest_merging_idx[0]]:
+                for v in comm:
+                    dsc_sum += dsc(G=G, u=u, v=v)
+            similarity_list[idx] = dsc_sum / len(final_communities[lowest_merging_idx[0]])
+        printd(f"Communities similarity to community {lowest_merging_idx[0]}: {similarity_list}", debug)
+        highest_similarity = _get_extreme_val(similarity_list, np.argmax)
+        printd(f"Most similar community {highest_similarity[0]}: {highest_similarity[1]}", debug)
+        new_community = final_communities[lowest_merging_idx[0]] + final_communities[highest_similarity[0]]
+        printd(f"New community: {new_community}", debug)
 
-        # 19. Calculate the merging index (ψn) for new community (Cn)
-        Eout = 0
-        Ein = 0
-        conductance = 0
-        scale = len(newCommunity) / len(list(G.nodes))
+        # 17. Calculate the merging index (ψn) for new community (Cn)
+        merging_idx = get_merging_index(G=G, community=new_community, weight_attr=weight_attr)
+        printd(f"New community merging index: {merging_idx}", debug)
 
-        visitedNodes = []
-        for node in newCommunity:
-            visitedNodes.append(node)
-            for neighbor in list(G.neighbors(node)):
-                if visitedNodes.count(neighbor) == 0:
-                    if C.count(neighbor) == 0:
-                        Eout += G[node][neighbor]["weight"]
-                    else:
-                        Ein += G[node][neighbor]["weight"]
+        # 18. Replace two communites 'Cx' and 'Cy' with new community 'Cn' in final community set (FC)
+        _final_communities = []
+        for idx, comm in enumerate(final_communities):
+            if idx == lowest_merging_idx[0]:
+                _final_communities.append(new_community)
+            elif idx == highest_similarity[0]:
+                continue
+            else:
+                _final_communities.append(comm)
+        final_communities = _final_communities
+        printd(f"Final Communities list so far: {final_communities}\n\n", debug)
 
-        conductance = Eout / (2 * Ein + Eout)
+    # 20. Return Final Communities
+    printd(f"Final Communities list: {final_communities}\n\n", debug)
+    return final_communities
 
-        print("New community conductance: " + str(conductance))
-        print("New community scale: " + str(scale))
-        mergingIndex = conductance * scale
-        print("New community merging index: " + str(mergingIndex))
 
-        # 20. Replace two communites 'Cx' and 'Cy' with new community 'Cn' in final community set (FC)
-        FC[lowestMergingIndex[0]] = newCommunity
-        del FC[highestSimilarity[0]]
-        print("Final Communities list (FC) so far: " + str(FC))
-
-        # 21. Repeat the process from 17 to 20 until 'ψi' > 'δ'
-        lowestMergingIndex = (0, mergingIndex)
-
-    print("Final Communities list (FC): " + str(FC))
-    return FC
+def _compute_katz_centralities(G: nx.Graph, communities: list[list[Any]], weight_attr: Optional[str] = None) -> list[list[dict[str, Any]]]:
+    """Calculate Katz centrality for each node in each community."""
+    katz_centralities = []
+    for community in communities:
+        kc_raw = nx.katz_centrality(G.subgraph(community), alpha=0.1, beta=1.0, max_iter=100, weight=weight_attr)
+        katz_centralities.append([{"node_id": k, "katz_centrality": v} for k, v in kc_raw.items()])
+    return katz_centralities
 
 
 def _select_seeds_from_katz(kcl: list[list[dict[str, Any]]], quotas: list[int]):
@@ -254,46 +270,37 @@ def _select_seeds_from_katz(kcl: list[list[dict[str, Any]]], quotas: list[int]):
     return set(seeds_ranked)
 
 
-def get_katz_and_select_seeds(G: nx.Graph, communities: list[list[Any]], num_seeds: int) -> list[Any]:
+def cbim(
+    net: nx.Graph, mergingIndexThreshold: float, seedNodeAmount: int, weight_attr: str="weight"
+) -> list[Any]:
     """
-    Find Katz centrality coeficient and select seed nodes.
+    Calculate Katz centrality for each node in each community.
 
-    Implementation of Algorithm 3 from https://doi.org/10.1016/j.ins.2022.07.103
-    based on code from here: https://github.com/doublejv/CBIM-Implementation.
+    Implementation of steps 2-7 of the Algorithm 3 from
+    https://doi.org/10.1016/j.ins.2022.07.103 based on implementation published
+    here: https://github.com/doublejv/CBIM-Implementation.
 
     :param G: input graph
     :param final_communities: nodes assigned to communities
-    :param seed_budget: how much nodes to choose
 
-    :return: list of picked nodes as seeds
+    :return: list of nodes assigned to each community and their katz centr.
     """
-    katz_centralities = []
-
-    # calculate Katz centrality for each node in each community
-    for C in communities:
-        kc_raw = nx.katz_centrality(G.subgraph(C), alpha=0.1, beta=1.0, max_iter=100, weight="weight")
-        katz_centralities.append([{"node_id": k, "katz_centrality": v} for k, v in kc_raw.items()])
-
-    # calculate required seed nodes from each community in quota based approach
-    quotas = compute_seed_quotas(G=G, communities=communities, num_seeds=num_seeds)
-
-    # select seed set according to katz centality in each community
-    return _select_seeds_from_katz(kcl=katz_centralities, quotas=quotas)
-
-
-def cbim(
-    net: nx.Graph, mergingIndexThreshold: float, seedNodeAmount: int
-) -> list[Any]:
-    initial_communities = init_communities(G=net)
+    initial_communities = detect_communities(G=net)
     final_communities = consolide_communities(
         G=net,
-        CSinit=initial_communities,
-        mergingIndexThreshold=mergingIndexThreshold,
+        initial_communities=initial_communities,
+        debug=True,
+        delta=mergingIndexThreshold,
     )
-    seed_set = get_katz_and_select_seeds(
-        communities=final_communities, G=net, num_seeds=seedNodeAmount
-    )
-    return seed_set
+
+    # steps 2-7 of the Algorithm 3
+    k_cenrt = _compute_katz_centralities(communities=final_communities, G=net, weight_attr=weight_attr)
+
+    # steps 8-9 of the Algorithm 3
+    quotas = compute_seed_quotas(G=net, communities=final_communities, num_seeds=seedNodeAmount)
+
+    # steps 10-11 of the Algorithm 3
+    return _select_seeds_from_katz(kcl=k_cenrt, quotas=quotas)
 
 
 def get_toy_network():
