@@ -18,14 +18,46 @@
 
 """Community based influence maximization algorithm."""
 
-from numbers import Number
+import warnings
 from typing import Any, Callable, Optional
 
 import networkx as nx
 import numpy as np
 import pandas as pd
+from networkx import PowerIterationFailedConvergence
 
 from network_diffusion.mln.kppshell import compute_seed_quotas
+
+
+def get_toy_network_cbim() -> nx.DiGraph:
+    """
+    Get a toy network.
+
+    The network was ised by the author of intitial implementation of the CBIM
+    method (https://github.com/doublejv/CBIM-Implementation).
+    """
+    adjecency_matrix = np.array(
+        [
+            [0, 0, 2, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 1, 0, 3, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 1, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        ],
+    )
+    net = nx.from_numpy_matrix(adjecency_matrix, create_using=nx.DiGraph)
+    net.remove_edges_from(nx.selfloop_edges(net))
+    return net
 
 
 def _printd(statement: str, debug: bool = False) -> None:
@@ -46,13 +78,13 @@ def _dsc(G: nx.graph, u: Any, v: Any) -> float:
 
 def _gamma(nb_edges_out: int, nb_edges_in: int) -> float:
     """Calculate conductance (γi)."""
-    if (denominator := (2 * nb_edges_in + nb_edges_out)) == 0:
+    if (denominator := 2 * nb_edges_in + nb_edges_out) == 0:
         raise ArithmeticError("Gamma cannot be computed (division by zero)!")
     return nb_edges_out / denominator
 
 
 def _theta(nb_nodes_comm: int, nb_nodes_graph: int) -> float:
-    """Calculate scale (θi)"""
+    """Calculate scale (θi)."""
     return nb_nodes_comm / nb_nodes_graph
 
 
@@ -86,9 +118,7 @@ def _merging_index(
                     edges_in += get_edge_weight(node, neighbour)
 
     try:
-        scale = _theta(
-            nb_nodes_comm=len(community), nb_nodes_graph=len(list(G.nodes))
-        )
+        scale = _theta(nb_nodes_comm=len(community), nb_nodes_graph=len(list(G.nodes)))
         conductance = _gamma(nb_edges_out=edges_out, nb_edges_in=edges_in)
         merging_index = _psi(gamma=conductance, theta=scale)
     except ArithmeticError:
@@ -98,9 +128,9 @@ def _merging_index(
 
 
 def _get_extreme_val(
-    val_arr: list[Number], extreme_func: Callable
-) -> tuple[int, Number]:
-    """Helper function to get the community with the lowest psi."""
+    val_arr: list[int | float], extreme_func: Callable
+) -> tuple[int, int | float]:
+    """Get the community with the lowest/highest value (whatever it is)."""
     extreme_idx = extreme_func(val_arr)
     if isinstance(extreme_idx, np.ndarray):
         extreme_idx = extreme_idx[0]
@@ -127,10 +157,8 @@ def _initialise_communities_in_component(
 
         # 2. Select the highest degree node not in initial_communities
         _printd(f"Degrees: {nodes_degrees}", debug)
-        v = max(nodes_degrees, key=nodes_degrees.get)
-        _printd(
-            f"The chosen hi. deg. ({nodes_degrees[v]}) node is: {v}", debug
-        )
+        v = max(nodes_degrees, key=nodes_degrees.__getitem__)
+        _printd(f"The chosen hi. deg. ({nodes_degrees[v]}) node is: {v}", debug)
 
         # 3a. Compute DSC similarities
         DSCs = {u: _dsc(G=G, u=u, v=v) for u in G.neighbors(v)}
@@ -144,7 +172,7 @@ def _initialise_communities_in_component(
             continue
 
         # 3b. Get the most similar neighbours of 'v' using DSC similarity
-        sn = max(DSCs, key=DSCs.get)
+        sn = max(DSCs, key=DSCs.__getitem__)
         _printd(f"The chosen neighbour node (sn) is: {sn}", debug)
 
         sn_in_community = False
@@ -200,19 +228,13 @@ def _consolide_communities_in_component(
 
         # 13-14. Calculate merging index (ψi) for each community
         merging_idx_list = np.array(
-            [
-                _merging_index(G=G, community=comm, weight_attr=weight_attr)
-                for comm in final_communities
-            ]
+            [_merging_index(G=G, community=comm, weight_attr=weight_attr) for comm in final_communities]
         )
         _printd(f"Community merging indices: {merging_idx_list}", debug)
 
         # 15. Select the community with the lowest merging index (Cx)
         lowest_merging_idx = _get_extreme_val(merging_idx_list, np.argmin)
-        _printd(
-            f"Lowest merging index of community {lowest_merging_idx[0]}: {lowest_merging_idx[1]}",
-            debug,
-        )
+        _printd(f"Lowest merging index of community {lowest_merging_idx[0]}: {lowest_merging_idx[1]}", debug)
 
         # 19. Stop community consolidation if 'ψi' > 'δ'
         if lowest_merging_idx[1] > delta:
@@ -228,31 +250,19 @@ def _consolide_communities_in_component(
             for u in final_communities[lowest_merging_idx[0]]:
                 for v in comm:
                     dsc_sum += _dsc(G=G, u=u, v=v)
-            similarity_list[idx] = dsc_sum / len(
-                final_communities[lowest_merging_idx[0]]
-            )
-        _printd(
-            f"Communities similarity to community {lowest_merging_idx[0]}: {similarity_list}",
-            debug,
-        )
+            similarity_list[idx] = dsc_sum / len(final_communities[lowest_merging_idx[0]])
+        _printd(f"Communities similarity to community {lowest_merging_idx[0]}: {similarity_list}", debug)
         highest_similarity = _get_extreme_val(similarity_list, np.argmax)
-        _printd(
-            f"Most similar community {highest_similarity[0]}: {highest_similarity[1]}",
-            debug,
-        )
-        new_community = (
-            final_communities[lowest_merging_idx[0]]
-            + final_communities[highest_similarity[0]]
-        )
+        _printd(f"Most similar community {highest_similarity[0]}: {highest_similarity[1]}", debug)
+        new_community = (final_communities[lowest_merging_idx[0]] + final_communities[highest_similarity[0]])
         _printd(f"New community: {new_community}", debug)
 
         # 17. Calculate the merging index (ψn) for new community (Cn)
-        merging_idx = _merging_index(
-            G=G, community=new_community, weight_attr=weight_attr
-        )
+        merging_idx = _merging_index(G, new_community, weight_attr)
         _printd(f"New community merging index: {merging_idx}", debug)
 
-        # 18. Replace two communites 'Cx' and 'Cy' with new community 'Cn' in final community set (FC)
+        # 18. Replace two communites 'Cx' and 'Cy' with new community 'Cn' in
+        # the final community set (FC)
         _final_communities = []
         for idx, comm in enumerate(final_communities):
             if idx == lowest_merging_idx[0]:
@@ -294,24 +304,20 @@ def detect_communities(
     :return: divison of the nodes into disjoint communities
     """
     if isinstance(net, nx.DiGraph):
-        components = [
-            nx.subgraph(net, component)
-            for component in nx.weakly_connected_components(net)
-        ]
+        components = [nx.subgraph(net, component) for component in nx.weakly_connected_components(net)]
     elif isinstance(net, nx.Graph):
-        components = [
-            nx.subgraph(net, component)
-            for component in nx.connected_components(net)
-        ]
+        components = [nx.subgraph(net, component) for component in nx.connected_components(net)]
     else:
         raise ValueError(f"Graph type {type(net)} is not supported!")
-    graph_communities = []
     _printd(f"Found {len(components)} components\n\n", debug)
 
+    graph_communities = []
     for component in components:
         # steps 1-11 of the Algorithm 2
         initial_communities = _initialise_communities_in_component(
-            G=component, debug=debug, weight_attr=weight_attr
+            G=component,
+            debug=debug,
+            weight_attr=weight_attr
         )
         # steps 12-20 of the Algorithm 2
         final_communities = _consolide_communities_in_component(
@@ -334,32 +340,37 @@ def _compute_katz_centralities(
     """Calculate Katz centrality for each node in each community."""
     katz_centralities = []
     for community in communities:
-        kc_raw = nx.katz_centrality(
-            G.subgraph(community),
-            alpha=0.1,
-            beta=1.0,
-            max_iter=100,
-            weight=weight_attr,
-        )
-        katz_centralities.append(
-            [{"node_id": k, "katz_centrality": v} for k, v in kc_raw.items()]
-        )
+        com_net = G.subgraph(community)
+        try:
+            kc_raw = nx.katz_centrality(
+                com_net,
+                alpha=0.1,
+                beta=1.0,
+                max_iter=10000,
+                weight=weight_attr,
+            )
+            katz_centralities.append([{"node_id": k, "katz_centrality": v} for k, v in kc_raw.items()])
+        except PowerIterationFailedConvergence:
+            katz_centralities.append([{"node_id": n, "katz_centrality": 0.} for n in com_net.nodes()])
+            warnings.warn("Katz centrality computation failed!", stacklevel=1)
     return katz_centralities
 
 
 def _select_seeds_from_katz(
-    kcl: list[list[dict[str, Any]]], quotas: list[int]
+    katz_centralities: list[list[dict[str, Any]]], quotas: list[int]
 ) -> set[Any]:
     """Select top-k nodes with highest katz-centrality from each community."""
     seeds_ranked = []
-    for quota, decomposed_community in zip(quotas, kcl):
-        # sort all the nodes in each community based on Katz Centrality Coeficient in descending order
+    for quota, decomposed_community in zip(quotas, katz_centralities):
+        # sort all the nodes in each community based on Katz Centrality
+        # Coeficient in descending order
         df = (
             pd.DataFrame(decomposed_community)
             .sort_values(["katz_centrality"], ascending=[False])
             .reset_index(drop=True)
         )
-        # select the quota number of highest Katz centrality coeficient nodes as seed nodes from each community (Ci)
+        # select the quota number of highest Katz centrality coeficient nodes
+        # as seed nodes from each community (Ci)
         seeds_ranked.extend(df.iloc[:quota]["node_id"].to_list())
     return set(seeds_ranked)
 
@@ -398,15 +409,11 @@ def cbim_seed_selection(
         weight_attr=weight_attr,
     )
     # steps 2-7 of the Algorithm 3
-    k_cenrt = _compute_katz_centralities(
-        communities=communities, G=net, weight_attr=weight_attr
-    )
+    k_cenrt = _compute_katz_centralities(communities=communities, G=net, weight_attr=weight_attr)
     # steps 8-9 of the Algorithm 3
-    quotas = compute_seed_quotas(
-        G=net, communities=communities, num_seeds=num_seeds
-    )
+    quotas = compute_seed_quotas(G=net, communities=communities, num_seeds=num_seeds)
     # steps 10-11 of the Algorithm 3
-    return _select_seeds_from_katz(kcl=k_cenrt, quotas=quotas)
+    return _select_seeds_from_katz(katz_centralities=k_cenrt, quotas=quotas)
 
 
 def cbim_seed_ranking(
@@ -449,28 +456,3 @@ def cbim_seed_ranking(
             if seed not in ranking:
                 ranking.append(seed)
     return ranking
-
-
-def get_toy_network() -> nx.DiGraph:
-    adjecency_matrix = np.array(
-        [
-            [0, 0, 2, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0, 0, 0, 2, 0, 1, 0, 3, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 1, 0, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        ],
-    )
-    net = nx.from_numpy_matrix(adjecency_matrix, create_using=nx.DiGraph)
-    net.remove_edges_from(nx.selfloop_edges(net))
-    return net

@@ -26,7 +26,7 @@ import pandas as pd
 
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
-# TODO - is it in another stub?
+
 def get_toy_network_kppshell() -> MultilayerNetwork:
     """
     Get a toy network that was used by the authors of K++ Shell method.
