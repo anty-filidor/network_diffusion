@@ -28,13 +28,13 @@ import pandas as pd
 from network_diffusion.mln.kppshell import compute_seed_quotas
 
 
-def printd(statement: str, debug: bool = False) -> None:
+def _printd(statement: str, debug: bool = False) -> None:
     """Hepler function to print statements in the debug mode."""
     if debug:
         print(statement)
 
 
-def dsc(G: nx.graph, u: Any, v: Any) -> float:
+def _dsc(G: nx.graph, u: Any, v: Any) -> float:
     """Compute Dice Similarity Coefficient between two nodes in the graph."""
     return (2 * len(list(nx.common_neighbors(G, u, v)))) / (
         len(list(G.neighbors(u))) + len(list(G.neighbors(v)))
@@ -56,7 +56,7 @@ def _psi(gamma: float, theta: float) -> float:
     return gamma * theta
 
 
-def merging_index(
+def _merging_index(
     G: nx.Graph,
     community: list[Any],
     weight_attr: Optional[str] = None,
@@ -87,7 +87,17 @@ def merging_index(
     return merging_index
 
 
-def detect_communities(
+def _get_extreme_val(
+        val_arr: list[Number], extreme_func: callable
+) -> tuple[int, Number]:
+    """Helper function to get the community with the lowest psi."""
+    extreme_idx = extreme_func(val_arr)
+    if isinstance(extreme_idx, np.ndarray):
+        extreme_idx = extreme_idx[0]
+    return extreme_idx, val_arr[extreme_idx]
+
+
+def _initialise_communities(
     G: nx.Graph, debug: bool, weight_attr: Optional[str] = None
 ) -> list[list[Any]]:
     """
@@ -106,15 +116,15 @@ def detect_communities(
     while len(nodes_degrees) > 0:
 
         # 2. Select the highest degree node not in initial_communities
-        printd(f"Degrees: {nodes_degrees}", debug)
+        _printd(f"Degrees: {nodes_degrees}", debug)
         v = max(nodes_degrees, key=nodes_degrees.get)
-        printd(f"The chosen hi. deg. ({nodes_degrees[v]}) node is: {v}", debug)
+        _printd(f"The chosen hi. deg. ({nodes_degrees[v]}) node is: {v}", debug)
 
         # 3. Get the most similar neighbours of 'v' using DSC similarity
-        DSCs = {u: dsc(G=G, u=u, v=v) for u in G.neighbors(v)}
-        printd(f"DCS: {DSCs}", debug)
+        DSCs = {u: _dsc(G=G, u=u, v=v) for u in G.neighbors(v)}
+        _printd(f"DCS: {DSCs}", debug)
         sn = max(DSCs, key=DSCs.get)
-        printd(f"The chosen neighbour node (sn) is: {sn}", debug)
+        _printd(f"The chosen neighbour node (sn) is: {sn}", debug)
 
         sn_in_community = False
         for comm in initial_communities:
@@ -136,20 +146,12 @@ def detect_communities(
             del nodes_degrees[v]
             del nodes_degrees[sn]
     
-        printd(f"Communities created so far: {initial_communities}", debug)
+        _printd(f"Communities created so far: {initial_communities}", debug)
 
     return initial_communities
 
 
-def _get_extreme_val(val_arr: list[Number], extreme_func: callable) -> tuple[int, Number]:
-    """Helper function to get the community with the lowest psi."""
-    extreme_idx = extreme_func(val_arr)
-    if isinstance(extreme_idx, np.ndarray):
-        extreme_idx = extreme_idx[0]
-    return extreme_idx, val_arr[extreme_idx]
-
-
-def consolide_communities(
+def _consolide_communities(
     initial_communities: list[list[Any]],
     G: nx.Graph,
     delta: float,
@@ -176,14 +178,14 @@ def consolide_communities(
 
         # 13-14. Calculate merging index (ψi) for each community
         merging_idx_list = np.array([
-            merging_index(G=G, community=comm, weight_attr=weight_attr)
+            _merging_index(G=G, community=comm, weight_attr=weight_attr)
             for comm in final_communities
         ])
-        printd(f"Community merging indices: {merging_idx_list}", debug)
+        _printd(f"Community merging indices: {merging_idx_list}", debug)
 
         # 15. Select the community with the lowest merging index (Cx)
         lowest_merging_idx = _get_extreme_val(merging_idx_list, np.argmin)
-        printd(f"Lowest merging index fo community {lowest_merging_idx[0]}: {lowest_merging_idx[1]}", debug)
+        _printd(f"Lowest merging index fo community {lowest_merging_idx[0]}: {lowest_merging_idx[1]}", debug)
 
         # 19. Stop community consolidation if 'ψi' > 'δ'
         if lowest_merging_idx[1] > delta:
@@ -198,17 +200,17 @@ def consolide_communities(
             dsc_sum = 0
             for u in final_communities[lowest_merging_idx[0]]:
                 for v in comm:
-                    dsc_sum += dsc(G=G, u=u, v=v)
+                    dsc_sum += _dsc(G=G, u=u, v=v)
             similarity_list[idx] = dsc_sum / len(final_communities[lowest_merging_idx[0]])
-        printd(f"Communities similarity to community {lowest_merging_idx[0]}: {similarity_list}", debug)
+        _printd(f"Communities similarity to community {lowest_merging_idx[0]}: {similarity_list}", debug)
         highest_similarity = _get_extreme_val(similarity_list, np.argmax)
-        printd(f"Most similar community {highest_similarity[0]}: {highest_similarity[1]}", debug)
+        _printd(f"Most similar community {highest_similarity[0]}: {highest_similarity[1]}", debug)
         new_community = final_communities[lowest_merging_idx[0]] + final_communities[highest_similarity[0]]
-        printd(f"New community: {new_community}", debug)
+        _printd(f"New community: {new_community}", debug)
 
         # 17. Calculate the merging index (ψn) for new community (Cn)
-        merging_idx = merging_index(G=G, community=new_community, weight_attr=weight_attr)
-        printd(f"New community merging index: {merging_idx}", debug)
+        merging_idx = _merging_index(G=G, community=new_community, weight_attr=weight_attr)
+        _printd(f"New community merging index: {merging_idx}", debug)
 
         # 18. Replace two communites 'Cx' and 'Cy' with new community 'Cn' in final community set (FC)
         _final_communities = []
@@ -220,10 +222,48 @@ def consolide_communities(
             else:
                 _final_communities.append(comm)
         final_communities = _final_communities
-        printd(f"Final Communities list so far: {final_communities}\n\n", debug)
+        _printd(f"Final Communities list so far: {final_communities}\n\n", debug)
 
     # 20. Return Final Communities
-    printd(f"Final Communities list: {final_communities}\n\n", debug)
+    _printd(f"Final Communities list: {final_communities}\n\n", debug)
+    return final_communities
+
+
+def detect_communities(
+    net: nx.Graph,
+    merging_idx_threshold: float,
+    debug: Optional[bool] = False,
+    weight_attr: Optional[str] = None,
+) -> list[list[Any]]:
+    """
+    Detect communities according to the CBIM algorithm.
+
+    This is an implementation of the Algorithm 2 from "CBIM: Community-based 
+    influence maximization in multilayer networks" by Venkatakrishna Rao,
+    C. Ravindranath Chowdary (https://doi.org/10.1016/j.ins.2022.07.103) This
+    implementation is based on https://github.com/doublejv/CBIM-Implementation,
+    but with several bugs fixed.
+
+    :param net: input graph
+    :param merging_idx_threshold: _description_
+    :param debug: if print debug statements, defaults to False
+    :param weight_attr: which (if any) attribute of edges to use as a weight, 
+        defaults to None
+
+    :return: divison of the nodes into disjoint communities
+    """
+    # steps 1-11 of the Algorithm 2
+    initial_communities = _initialise_communities(
+        G=net, debug=debug, weight_attr=weight_attr
+    )
+    # steps 12-20 of the Algorithm 2
+    final_communities = _consolide_communities(
+        G=net,
+        initial_communities=initial_communities,
+        debug=debug,
+        delta=merging_idx_threshold,
+        weight_attr=weight_attr
+    )
     return final_communities
 
 
@@ -277,28 +317,65 @@ def cbim_seed_selection(
 
     :return: seed set according to the given budget
     """
-    # steps 1-11 of the Algorithm 2
-    initial_communities = detect_communities(
-        G=net, debug=debug, weight_attr=weight_attr
-    )
-    # steps 12-20 of the Algorithm 2
-    final_communities = consolide_communities(
-        G=net,
-        initial_communities=initial_communities,
+    communities = detect_communities(
+        net=net,
+        merging_idx_threshold=merging_idx_threshold,
         debug=debug,
-        delta=merging_idx_threshold,
         weight_attr=weight_attr
     )
     # steps 2-7 of the Algorithm 3
     k_cenrt = _compute_katz_centralities(
-        communities=final_communities, G=net, weight_attr=weight_attr
+        communities=communities, G=net, weight_attr=weight_attr
     )
     # steps 8-9 of the Algorithm 3
     quotas = compute_seed_quotas(
-        G=net, communities=final_communities, num_seeds=num_seeds
+        G=net, communities=communities, num_seeds=num_seeds
     )
     # steps 10-11 of the Algorithm 3
     return _select_seeds_from_katz(kcl=k_cenrt, quotas=quotas)
+
+
+def cbim_seed_ranking(
+    net: nx.Graph,
+    merging_idx_threshold: float,
+    debug: Optional[bool] = False,
+    weight_attr: Optional[str] = None,
+) -> set[Any]:
+    """
+    Rank all nodes from <net> according to CBIM algorithm.
+
+    The routine is a modification of function cbim_seed_selection so that not a
+    given fraction of most influential nodes is returned, but all of them.
+
+    :param net: input graph
+    :param merging_idx_threshold: _description_
+    :param num_seeds: number of seeds to pick, in form of number of nodes
+    :param debug: if print debug statements, defaults to False
+    :param weight_attr: which (if any) attribute of edges to use as a weight, 
+        defaults to None
+
+    :return: an ordered ranking of nodes (most influential are at the beggining
+        of the list)
+    """
+    communities = detect_communities(
+        net=net,
+        merging_idx_threshold=merging_idx_threshold,
+        debug=debug,
+        weight_attr=weight_attr
+    )
+    k_cenrt = _compute_katz_centralities(net, communities, weight_attr)
+
+    # now, basing on communities build the ranking iteratively
+    ranking = []
+    for i in range(1, len(net.nodes) + 1):
+        quotas = compute_seed_quotas(net, communities, i)
+        seeds = _select_seeds_from_katz(k_cenrt, quotas)
+        for seed in seeds:
+            if seed not in ranking:
+                ranking.append(seed)
+    return ranking
+
+
 
 
 def get_toy_network():

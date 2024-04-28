@@ -266,9 +266,8 @@ def kppshell_seed_ranking(G: nx.Graph) -> List[Any]:
     """
     Rank all nodes from <G> according to K++ Shell decomposition.
 
-    The routine was is a modification of function kppshell_seed_selection so
-    that not given fraction of most influential nodes is returned, but all of
-    them.
+    The routine is a modification of function kppshell_seed_selection so that
+    not a given fraction of most influential nodes is returned, but all of them.
 
     :param G: a network to create ranking of all nodes from
 
