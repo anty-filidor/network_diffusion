@@ -18,7 +18,6 @@
 
 """Community based influence maximization algorithm."""
 
-import random
 from numbers import Number
 from typing import Any, Optional
 
@@ -27,6 +26,12 @@ import numpy as np
 import pandas as pd
 
 from network_diffusion.mln.kppshell import compute_seed_quotas
+
+
+def printd(statement: str, debug: bool = False) -> None:
+    """Hepler function to print statements in the debug mode."""
+    if debug:
+        print(statement)
 
 
 def dsc(G: nx.graph, u: Any, v: Any) -> float:
@@ -51,13 +56,7 @@ def _psi(gamma: float, theta: float) -> float:
     return gamma * theta
 
 
-def printd(statement: str, debug: bool = False) -> None:
-    """Hepler function to print statements in the debug mode."""
-    if debug:
-        print(statement)
-
-
-def get_merging_index(
+def merging_index(
     G: nx.Graph,
     community: list[Any],
     weight_attr: Optional[str] = None,
@@ -88,76 +87,58 @@ def get_merging_index(
     return merging_index
 
 
-def detect_communities(G: nx.Graph) -> list[list[Any]]:
-    """Phase 1 - Initial communities detection."""
+def detect_communities(
+    G: nx.Graph, debug: bool, weight_attr: Optional[str] = None
+) -> list[list[Any]]:
+    """
+    Phase 1 - Initial communities detection.
 
-    # 1. Initialize the variables 'NS' and 'CSinit'
-    NS = list(G.nodes)
-    CSinit = []
+    :param G: input graph
+    :param weight_attr: edge attribute to take weight from, defaults to None
 
-    while len(NS) > 0:
+    :return: initial divison of nodes into communities
+    """
+    # 1. Initialize the variables 'NS' and 'CSinit' and list of the degrees
+    nodes_degrees = dict(G.degree(weight=weight_attr))
+    initial_communities: list[list[Any]] = []
 
-        # 2. Select the highest degree nodes 'Dv'
-        degreeList = G.degree(weight="weight")
-        highestDegree = 0
-        highestDegreeNodes = []
-        for node in degreeList:
-            if node[1] == highestDegree and NS.count(node[0]) > 0:
-                highestDegreeNodes.append(node)
-            elif node[1] > highestDegree and NS.count(node[0]) > 0:
-                highestDegree = node[1]
-                highestDegreeNodes = []
-                highestDegreeNodes.append(node)
+    # 11. Repeat the steps from 2 to 10, until nodes_degrees is null
+    while len(nodes_degrees) > 0:
 
-        # 3. Randomly select a node 'v' from 'Dv'
-        # print("The highest degree nodes are: " + str(highestDegreeNodes))
-        v, _ = random.choice(highestDegreeNodes)
-        # print("The chosen highest degree (v) node is: " + str(v))
+        # 2. Select the highest degree node not in initial_communities
+        printd(f"Degrees: {nodes_degrees}", debug)
+        v = max(nodes_degrees, key=nodes_degrees.get)
+        printd(f"The chosen hi. deg. ({nodes_degrees[v]}) node is: {v}", debug)
 
-        # 4. Get the most similar neighbours of 'v' using Dice neighbour similarity
-        highestDSC = 0.0
-        highestDSCNodes = []
-        for u in G.neighbors(v):
-            DSC = dsc(G=G, u=u, v=v)
-            if DSC == highestDSC:
-                highestDSCNodes.append(u)
-            elif DSC > highestDSC:
-                highestDSC = DSC
-                highestDSCNodes = []
-                highestDSCNodes.append(u)
+        # 3. Get the most similar neighbours of 'v' using DSC similarity
+        DSCs = {u: dsc(G=G, u=u, v=v) for u in G.neighbors(v)}
+        printd(f"DCS: {DSCs}", debug)
+        sn = max(DSCs, key=DSCs.get)
+        printd(f"The chosen neighbour node (sn) is: {sn}", debug)
 
-        # 5. Randomly select a neighbour 'sn' from the most similar neighbours list
-        # print("The most similar neighbour nodes are: " + str(highestDSCNodes))
-        sn = random.choice(highestDSCNodes)
-        # print("The chosen neighbour node (sn) is: " + str(sn))
+        sn_in_community = False
+        for comm in initial_communities:
+            # 8-9. Find the community to which sn belongs to
+            if sn in comm:
+                # 10. Insert v into comm and remove it from nodes_degrees
+                comm.append(v)
+                del nodes_degrees[v]
+                sn_in_community = True
+                break
 
-        # 6. IF 'sn' is not in any community THEN
-        nodeIsPresent = False
-        for C in CSinit:
-
-            # 10. ELSE
-            # 11. Find the community to which 'sn' belongs to and denote it as 'C'
-            # print(C)
-            # print(C.count(sn))
-            if C.count(sn) > 0:
-                # 12. Insert node 'v' into 'C' and remove node 'v' from 'NS'
-                C.append(v)
-                NS.remove(v)
-                nodeIsPresent = True
-
-        if not nodeIsPresent:
-            # 7. Create a new community and assign 'v' and 'sn' to it
+        # 4. If sn is not in any community
+        if not sn_in_community:
+            # 5. Create a new community and assign v and sn to it
             community = [v, sn]
+            # 6. Insert the new community into community structure
+            initial_communities.append(community)
+            # 7. Remove v and sn from NS as they are classified
+            del nodes_degrees[v]
+            del nodes_degrees[sn]
+    
+        printd(f"Communities created so far: {initial_communities}", debug)
 
-            # 8. Insert the new community into community structure
-            CSinit.append(community)
-
-            # 9. Remove 'v' and 'sn' from NS
-            NS.remove(v)
-            NS.remove(sn)
-
-        # 13. Repeat the steps from 2 to 12, until 'NS' = null
-    return CSinit
+    return initial_communities
 
 
 def _get_extreme_val(val_arr: list[Number], extreme_func: callable) -> tuple[int, Number]:
@@ -185,7 +166,7 @@ def consolide_communities(
 
     :return: final divison of nodes into communities
     """
-    assert 0 <= delta <= 1
+    assert 0 <= delta <= 1, "Delta must be in range [0, 1]"
 
     # 12. Initialise Final Communities
     final_communities = initial_communities.copy()
@@ -195,7 +176,7 @@ def consolide_communities(
 
         # 13-14. Calculate merging index (ψi) for each community
         merging_idx_list = np.array([
-            get_merging_index(G=G, community=comm, weight_attr=weight_attr)
+            merging_index(G=G, community=comm, weight_attr=weight_attr)
             for comm in final_communities
         ])
         printd(f"Community merging indices: {merging_idx_list}", debug)
@@ -226,7 +207,7 @@ def consolide_communities(
         printd(f"New community: {new_community}", debug)
 
         # 17. Calculate the merging index (ψn) for new community (Cn)
-        merging_idx = get_merging_index(G=G, community=new_community, weight_attr=weight_attr)
+        merging_idx = merging_index(G=G, community=new_community, weight_attr=weight_attr)
         printd(f"New community merging index: {merging_idx}", debug)
 
         # 18. Replace two communites 'Cx' and 'Cy' with new community 'Cn' in final community set (FC)
@@ -255,7 +236,7 @@ def _compute_katz_centralities(G: nx.Graph, communities: list[list[Any]], weight
     return katz_centralities
 
 
-def _select_seeds_from_katz(kcl: list[list[dict[str, Any]]], quotas: list[int]):
+def _select_seeds_from_katz(kcl: list[list[dict[str, Any]]], quotas: list[int]) -> set[Any]:
     """Select top-k nodes with highest katz-centrality from each community."""
     seeds_ranked = []
     for quota, decomposed_community in zip(quotas, kcl):
@@ -270,35 +251,52 @@ def _select_seeds_from_katz(kcl: list[list[dict[str, Any]]], quotas: list[int]):
     return set(seeds_ranked)
 
 
-def cbim(
-    net: nx.Graph, mergingIndexThreshold: float, seedNodeAmount: int, weight_attr: str="weight"
-) -> list[Any]:
+def cbim_seed_selection(
+    net: nx.Graph,
+    num_seeds: int,
+    merging_idx_threshold: float,
+    debug: Optional[bool] = False,
+    weight_attr: Optional[str] = None,
+) -> set[Any]:
     """
-    Calculate Katz centrality for each node in each community.
+    Select <num_seeds> from <G> according to CBIM algorithm.
 
-    Implementation of steps 2-7 of the Algorithm 3 from
-    https://doi.org/10.1016/j.ins.2022.07.103 based on implementation published
-    here: https://github.com/doublejv/CBIM-Implementation.
+    The routine was published by Venkatakrishna Rao, C. Ravindranath Chowdary
+    in CBIM: Community-based influence maximization in multilayer networks"
+    (https://doi.org/10.1016/j.ins.2022.07.103) which was published in 
+    "Information Sciences", 2022, Volume 609. This implementation is based on
+    code from here https://github.com/doublejv/CBIM-Implementation, but with 
+    several bugs fixed.
 
-    :param G: input graph
-    :param final_communities: nodes assigned to communities
+    :param net: input graph
+    :param merging_idx_threshold: _description_
+    :param num_seeds: number of seeds to pick, in form of number of nodes
+    :param debug: if print debug statements, defaults to False
+    :param weight_attr: which (if any) attribute of edges to use as a weight, 
+        defaults to None
 
-    :return: list of nodes assigned to each community and their katz centr.
+    :return: seed set according to the given budget
     """
-    initial_communities = detect_communities(G=net)
+    # steps 1-11 of the Algorithm 2
+    initial_communities = detect_communities(
+        G=net, debug=debug, weight_attr=weight_attr
+    )
+    # steps 12-20 of the Algorithm 2
     final_communities = consolide_communities(
         G=net,
         initial_communities=initial_communities,
-        debug=True,
-        delta=mergingIndexThreshold,
+        debug=debug,
+        delta=merging_idx_threshold,
+        weight_attr=weight_attr
     )
-
     # steps 2-7 of the Algorithm 3
-    k_cenrt = _compute_katz_centralities(communities=final_communities, G=net, weight_attr=weight_attr)
-
+    k_cenrt = _compute_katz_centralities(
+        communities=final_communities, G=net, weight_attr=weight_attr
+    )
     # steps 8-9 of the Algorithm 3
-    quotas = compute_seed_quotas(G=net, communities=final_communities, num_seeds=seedNodeAmount)
-
+    quotas = compute_seed_quotas(
+        G=net, communities=final_communities, num_seeds=num_seeds
+    )
     # steps 10-11 of the Algorithm 3
     return _select_seeds_from_katz(kcl=k_cenrt, quotas=quotas)
 
