@@ -55,9 +55,7 @@ def closeness(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
         )  # values of closeness for one layer
     for actor in net.get_actors():
         for l_name in actor.layers:
-            close.append(
-                c_graph[l_name][actor.actor_id]
-            )  # saving information to the dict
+            close.append(c_graph[l_name][actor.actor_id])
         close_mean[actor] = sum(close) / len(close)
         close.clear()
     return close_mean
@@ -75,9 +73,7 @@ def katz(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
         )  # values of closeness for one layer
     for actor in net.get_actors():
         for l_name in actor.layers:
-            kat.append(
-                k_graph[l_name][actor.actor_id]
-            )  # saving information to the dict
+            kat.append(k_graph[l_name][actor.actor_id])
         katz_mean[actor] = sum(kat) / len(kat)
         kat.clear()
     return katz_mean
