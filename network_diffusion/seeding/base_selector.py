@@ -57,9 +57,8 @@ class BaseSeedSelector(ABC):
     def __str__(self) -> str:
         """Return seed method's description."""
 
-    @staticmethod
     @abstractmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """
         Create a ranking of nodes based on concrete metric/heuristic.
 
