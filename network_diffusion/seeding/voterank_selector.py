@@ -35,8 +35,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 class VoteRankSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on Vote Rank algorithm."""
 
-    @staticmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """
         Create a ranking of nodes with Vote Rank algorithm.
 
@@ -63,8 +62,7 @@ class VoteRankSeedSelector(BaseSeedSelector):
 class VoteRankMLNSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on Vote Rank algorithm."""
 
-    @staticmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
             "Nodewise ranking list cannot be computed for this class!"

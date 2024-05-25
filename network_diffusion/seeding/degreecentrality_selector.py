@@ -43,8 +43,7 @@ class DegreeCentralitySelector(BaseSeedSelector):
             f"\tdegree centrality choice\n{BOLD_UNDERLINE}\n"
         )
 
-    @staticmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
             "Nodewise ranking list is not implemented for this class!"
@@ -76,8 +75,7 @@ class DegreeCentralityDiscountSelector(BaseSeedSelector):
             f"\tDegree Centrality Discount\n{BOLD_UNDERLINE}\n"
         )
 
-    @staticmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """Create nodewise ranking."""
         return degree_discount_networkx(net=graph, k=len(graph.nodes))
 

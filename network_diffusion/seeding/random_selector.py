@@ -32,8 +32,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 class RandomSeedSelector(BaseSeedSelector):
     """Randomised seed selector prepared mainly for DSAA algorithm."""
 
-    @staticmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """
         Create a random ranking of nodes.
 

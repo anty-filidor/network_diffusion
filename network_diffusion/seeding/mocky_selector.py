@@ -43,8 +43,7 @@ class MockyActorSelector(BaseSeedSelector):
             f"\tmocked choice - seeds provided a priori\n{BOLD_UNDERLINE}\n"
         )
 
-    @staticmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
             "Nodewise ranking list cannot be computed for this class!"

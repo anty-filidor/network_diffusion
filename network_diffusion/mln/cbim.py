@@ -18,6 +18,8 @@
 
 """Community based influence maximization algorithm."""
 
+# pylint: disable=C0103, C3001
+
 import warnings
 from typing import Any, Callable, Optional
 
@@ -104,9 +106,9 @@ def _merging_index(
     edges_in = 0
 
     if weight_attr is None:
-        get_edge_weight = lambda u, v: 1
+        get_edge_weight = lambda u, v: 1  # noqa: E731
     else:
-        get_edge_weight = lambda u, v: G[u][v][weight_attr]
+        get_edge_weight = lambda u, v: G[u][v][weight_attr]  # noqa: E731
 
     for node in community:
         visited_nodes.append(node)
@@ -118,7 +120,9 @@ def _merging_index(
                     edges_in += get_edge_weight(node, neighbour)
 
     try:
-        scale = _theta(nb_nodes_comm=len(community), nb_nodes_graph=len(list(G.nodes)))
+        scale = _theta(
+            nb_nodes_comm=len(community), nb_nodes_graph=len(list(G.nodes))
+        )
         conductance = _gamma(nb_edges_out=edges_out, nb_edges_in=edges_in)
         merging_index = _psi(gamma=conductance, theta=scale)
     except ArithmeticError:
@@ -158,7 +162,9 @@ def _initialise_communities_in_component(
         # 2. Select the highest degree node not in initial_communities
         _printd(f"Degrees: {nodes_degrees}", debug)
         v = max(nodes_degrees, key=nodes_degrees.__getitem__)
-        _printd(f"The chosen hi. deg. ({nodes_degrees[v]}) node is: {v}", debug)
+        _printd(
+            f"The chosen hi. deg. ({nodes_degrees[v]}) node is: {v}", debug
+        )
 
         # 3a. Compute DSC similarities
         DSCs = {u: _dsc(G=G, u=u, v=v) for u in G.neighbors(v)}
@@ -218,6 +224,7 @@ def _consolide_communities_in_component(
 
     :return: final divison of nodes into communities
     """
+    # pylint: disable=R0914
     assert 0 <= delta <= 1, "Delta must be in range [0, 1]"
 
     # 12. Initialise Final Communities
@@ -228,13 +235,20 @@ def _consolide_communities_in_component(
 
         # 13-14. Calculate merging index (ψi) for each community
         merging_idx_list = np.array(
-            [_merging_index(G=G, community=comm, weight_attr=weight_attr) for comm in final_communities]
+            [
+                _merging_index(G=G, community=comm, weight_attr=weight_attr)
+                for comm in final_communities
+            ]
         )
         _printd(f"Community merging indices: {merging_idx_list}", debug)
 
         # 15. Select the community with the lowest merging index (Cx)
         lowest_merging_idx = _get_extreme_val(merging_idx_list, np.argmin)
-        _printd(f"Lowest merging index of community {lowest_merging_idx[0]}: {lowest_merging_idx[1]}", debug)
+        _printd(
+            "Lowest merging index of community "
+            + f"{lowest_merging_idx[0]}: {lowest_merging_idx[1]}",
+            debug,
+        )
 
         # 19. Stop community consolidation if 'ψi' > 'δ'
         if lowest_merging_idx[1] > delta:
@@ -250,11 +264,24 @@ def _consolide_communities_in_component(
             for u in final_communities[lowest_merging_idx[0]]:
                 for v in comm:
                     dsc_sum += _dsc(G=G, u=u, v=v)
-            similarity_list[idx] = dsc_sum / len(final_communities[lowest_merging_idx[0]])
-        _printd(f"Communities similarity to community {lowest_merging_idx[0]}: {similarity_list}", debug)
+            similarity_list[idx] = dsc_sum / len(
+                final_communities[lowest_merging_idx[0]]
+            )
+        _printd(
+            "Communities similarity to community "
+            + f"{lowest_merging_idx[0]}: {similarity_list}",
+            debug,
+        )
         highest_similarity = _get_extreme_val(similarity_list, np.argmax)
-        _printd(f"Most similar community {highest_similarity[0]}: {highest_similarity[1]}", debug)
-        new_community = (final_communities[lowest_merging_idx[0]] + final_communities[highest_similarity[0]])
+        _printd(
+            "Most similar community "
+            + f"{highest_similarity[0]}: {highest_similarity[1]}",
+            debug,
+        )
+        new_community = (
+            final_communities[lowest_merging_idx[0]]
+            + final_communities[highest_similarity[0]]
+        )
         _printd(f"New community: {new_community}", debug)
 
         # 17. Calculate the merging index (ψn) for new community (Cn)
@@ -304,9 +331,15 @@ def detect_communities(
     :return: divison of the nodes into disjoint communities
     """
     if isinstance(net, nx.DiGraph):
-        components = [nx.subgraph(net, component) for component in nx.weakly_connected_components(net)]
+        components = [
+            nx.subgraph(net, component)
+            for component in nx.weakly_connected_components(net)
+        ]
     elif isinstance(net, nx.Graph):
-        components = [nx.subgraph(net, component) for component in nx.connected_components(net)]
+        components = [
+            nx.subgraph(net, component)
+            for component in nx.connected_components(net)
+        ]
     else:
         raise ValueError(f"Graph type {type(net)} is not supported!")
     _printd(f"Found {len(components)} components\n\n", debug)
@@ -315,9 +348,7 @@ def detect_communities(
     for component in components:
         # steps 1-11 of the Algorithm 2
         initial_communities = _initialise_communities_in_component(
-            G=component,
-            debug=debug,
-            weight_attr=weight_attr
+            G=component, debug=debug, weight_attr=weight_attr
         )
         # steps 12-20 of the Algorithm 2
         final_communities = _consolide_communities_in_component(
@@ -349,9 +380,19 @@ def _compute_katz_centralities(
                 max_iter=10000,
                 weight=weight_attr,
             )
-            katz_centralities.append([{"node_id": k, "katz_centrality": v} for k, v in kc_raw.items()])
+            katz_centralities.append(
+                [
+                    {"node_id": k, "katz_centrality": v}
+                    for k, v in kc_raw.items()
+                ]
+            )
         except PowerIterationFailedConvergence:
-            katz_centralities.append([{"node_id": n, "katz_centrality": 0.} for n in com_net.nodes()])
+            katz_centralities.append(
+                [
+                    {"node_id": n, "katz_centrality": 0.0}
+                    for n in com_net.nodes()
+                ]
+            )
             warnings.warn("Katz centrality computation failed!", stacklevel=1)
     return katz_centralities
 
@@ -409,9 +450,13 @@ def cbim_seed_selection(
         weight_attr=weight_attr,
     )
     # steps 2-7 of the Algorithm 3
-    k_cenrt = _compute_katz_centralities(communities=communities, G=net, weight_attr=weight_attr)
+    k_cenrt = _compute_katz_centralities(
+        communities=communities, G=net, weight_attr=weight_attr
+    )
     # steps 8-9 of the Algorithm 3
-    quotas = compute_seed_quotas(G=net, communities=communities, num_seeds=num_seeds)
+    quotas = compute_seed_quotas(
+        G=net, communities=communities, num_seeds=num_seeds
+    )
     # steps 10-11 of the Algorithm 3
     return _select_seeds_from_katz(katz_centralities=k_cenrt, quotas=quotas)
 
