@@ -18,6 +18,8 @@
 
 """K++ Shell decomposition functions."""
 
+# pylint: disable=C0103
+
 from dataclasses import dataclass
 from typing import Any, Dict, List, Set
 
@@ -143,7 +145,7 @@ def kppshell_decomposition(G: nx.Graph) -> List[List[Dict[str, Any]]]:
         reward points their gained during decomposition.
     """
     communities = list(nx.community.label_propagation_communities(G))
-    assert sum([len(c) for c in communities]) == len(G.nodes)
+    assert sum(len(c) for c in communities) == len(G.nodes)
     bucket_lists = []
     for community in communities:
         bucket_list = _kppshell_community(
@@ -164,6 +166,7 @@ def compute_seed_quotas(
     compared to size of the <G>. There is a condition: communities should be
     separable, i.e. each node must be in only one community.
     """
+    # pylint: disable=R0912
     if num_seeds > len(G.nodes):
         raise ValueError("Number of seeds cannot be > number of nodes!")
     quotas = []
@@ -267,7 +270,7 @@ def kppshell_seed_ranking(G: nx.Graph) -> List[Any]:
     Rank all nodes from <G> according to K++ Shell decomposition.
 
     The routine is a modification of function kppshell_seed_selection so that
-    not a given fraction of most influential nodes is returned, but all of them.
+    not a given fraction of most influential nodes is returned but all of them.
 
     :param G: a network to create ranking of all nodes from
 

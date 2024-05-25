@@ -51,7 +51,7 @@ class CBIMSeedselector(BaseSeedSelector):
         :param merging_idx_threshold: a threshold above which communities will
             not be merged anymore during consolidation phase
         """
-        assert 0 < merging_idx_threshold <= 1, f"par. must be in range [0, 1]!"
+        assert 0 < merging_idx_threshold <= 1, "par. must be in range [0, 1]!"
         super().__init__()
         self.merging_idx_threshold = merging_idx_threshold  # 0.1
 

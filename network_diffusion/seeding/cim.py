@@ -18,6 +18,8 @@
 
 """Clique-based influence maximisation algorithm."""
 
+# pylint: disable=C0103
+
 from typing import Any, Dict, List, Set, Tuple
 
 import networkx as nx
@@ -31,18 +33,20 @@ from network_diffusion.seeding.base_selector import (
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 
-def _cim_maximal_cliques(net: nx.Graph, filter: bool = True) -> List[Set[Any]]:
+def _cim_maximal_cliques(
+    net: nx.Graph, filter_cliques: bool = True
+) -> List[Set[Any]]:
     """
     Get maximal cliques for given single-layered graph.
 
     :param net: network to find cliques for
-    :param filter: if true then weird filtering is applied according to example
-        provided by authors of the method
+    :param filter_cliques: if true then weird filtering is applied according to
+        example provided by authors of the method
     :return: list of maximal cliques as sets of nodes' ids
     """
     cliques_raw = [set(c) for c in nx.find_cliques(net)]
 
-    if filter:
+    if filter_cliques:
         components = nx.connected_components(net)
         cliques_filtered = []
         for clique in cliques_raw:
@@ -80,7 +84,7 @@ def _update_seed_set(
 
 
 def clique_influence_maximization(
-    G: nx.Graph, K: int, filter: bool = False
+    G: nx.Graph, K: int, filter_cliques: bool = False
 ) -> List[Any]:
     """
     Clique-based influence maximisation algorithm.
@@ -94,9 +98,10 @@ def clique_influence_maximization(
 
     :param G: a network to compute seeds for
     :param K: target size of the seed set
-    :param filter: a flag wether to filter out cliques according to authors of
-        the method; if true all cliques of size 1 and some cliques of size 2
-        will be discarded (even if they autonomous connected components)
+    :param filter_cliques: a flag wether to filter out cliques according to
+        authors of the method; if true all cliques of size 1 and some cliques
+        of size 2 will be discarded (even if they autonomous connected
+        components).
 
     :return: a list of nodes that are chosen as seeds
     """
@@ -104,7 +109,7 @@ def clique_influence_maximization(
         raise ValueError("Nb of seeds cannot be > than nb of nodes in graph!")
 
     # input data to the algorithm
-    max_cliques = _cim_maximal_cliques(net=G, filter=filter)
+    max_cliques = _cim_maximal_cliques(net=G, filter_cliques=filter_cliques)
     degrees = nx.degree(G)
 
     # output contaier
@@ -112,7 +117,9 @@ def clique_influence_maximization(
 
     # sort all the cliques in descending order based on size
     _mcs = [_sort_clique_by_degree(mc, degrees) for mc in max_cliques]
-    sorted_mcs = sorted(_mcs, key=lambda x: len(x), reverse=True)
+    sorted_mcs = sorted(
+        _mcs, key=lambda x: len(x), reverse=True  # pylint: disable=W0108
+    )
 
     # until budget is spent pick the very fist nodes from all cliques that are
     # not already in the seed set
@@ -128,8 +135,7 @@ def clique_influence_maximization(
 class CIMSeedSelector(BaseSeedSelector):
     """Seed selector based on Clique-based influence maximisation algorithm."""
 
-    @staticmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """
         Create a ranking of nodes with Clique-based influence maximisation alg.
 
@@ -137,7 +143,7 @@ class CIMSeedSelector(BaseSeedSelector):
         :return: list of node-ids ordered descending by their ranking position
         """
         ranking = clique_influence_maximization(
-            G=graph, K=len(graph.nodes), filter=False
+            G=graph, K=len(graph.nodes), filter_cliques=False
         )
         if len(ranking) != len(graph.nodes):  # that's a sanity check
             raise ValueError

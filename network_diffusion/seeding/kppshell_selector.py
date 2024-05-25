@@ -35,8 +35,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 class KPPShellSeedSelector(BaseSeedSelector):
     """Seed selector based on K++ Shell Decomposition algorithm."""
 
-    @staticmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """
         Create a ranking of nodes with K++ Shell Decomposition algorithm.
 
