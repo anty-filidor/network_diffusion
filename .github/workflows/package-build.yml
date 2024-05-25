@@ -60,7 +60,7 @@ jobs:
           sh .github/update_version.sh network_diffusion/__init__.py "${{ needs.Determine-Build-Type.outputs.package_ver }}"
           echo $(sh .github/get_version.sh)
       - name: Build a Wheel Package
-        run: python setup.py sdist bdist_wheel
+        run: python -m build --wheel .
       - name: Check if the package can be uploaded to PyPI
         run: python -m twine check dist/*
       - name: Save the artifacts
