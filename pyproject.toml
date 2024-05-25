@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+
+# Copyright 2022 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+#
+# This file is part of Network Diffusion.
+#
+# Network Diffusion is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 3 of the License, or (at your option) any
+# later version.
+#
+# Network Diffusion is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# =============================================================================
+
+[build-system]
+requires = ["setuptools>=61", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "network_diffusion"
+version = "0.14.0"
+requires-python = ">=3.10"
+authors = [
+    {name = "Michał Czuba", email="michal.czuba@pwr.edu.pl"},
+    {name = "Piotr Bródka", email="piotr.brodka@pwr.edu.pl"},
+]
+description = "Network Diffusion is a package for simulating spreading phenomena."
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "Programming Language :: Python :: 3.10",
+]
+keywords = [
+    "influence maximisation",
+    "influence maximization",
+    "multilayer networks",
+    "networkx",
+    "network science",
+    "phenomena spreading",
+    "simulation",
+    "social influence",
+    "social networks",
+    "spreading",
+    "temporal networks",
+]
+dynamic = ["dependencies", "readme"]
+
+[project.urls]
+Homepage = "https://github.com/anty-filidor/network_diffusion"
+Documentation = "https://network-diffusion.readthedocs.io/en/latest/"
+Issues = "https://github.com/anty-filidor/network_diffusion/issues"
