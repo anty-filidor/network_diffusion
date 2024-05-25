@@ -60,6 +60,7 @@ install the environment:
 ```bash
 conda env create -f requirements/environment.yml
 conda activate network-diffusion
+pip install -e .
 ```
 
 ## Citing us
