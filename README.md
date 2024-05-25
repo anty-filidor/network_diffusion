@@ -1,8 +1,6 @@
-# Network Diffusion - spreading models in complex networks
+# Network Diffusion - spreading models in networks
 
 [![License: GPL](https://img.shields.io/github/license/anty-filidor/network_diffusion)](https://www.gnu.org/licenses/gpl-3.0.html)
-[![DOI](https://img.shields.io/badge/DOI-10.1109%2FDSAA54385.2022.10032425-blue)](https://doi.org/10.1109/DSAA54385.2022.10032425)
-
 [![PyPI version](https://badge.fury.io/py/network-diffusion.svg)](https://badge.fury.io/py/network-diffusion)
 
 ![Tests](https://github.com/anty-filidor/network_diffusion/actions/workflows/tests.yml/badge.svg)
@@ -106,7 +104,7 @@ in complex networks, please add the following work:
 }
 ```
 
-## In case of any bugs
+## Bugs reporting
 
 Please report bugs on
 [this](https://github.com/anty-filidor/network_diffusion/issues) board or by
@@ -116,5 +114,5 @@ sending a direct [e-mail](https://github.com/anty-filidor) to the main author.
 
 This library is developed and maintained by Network Science Lab at
 [WUST](https://networks.pwr.edu.pl/) and external partners. For more
-information and updates, please visit our :
+information and updates, please visit our
 [website](https://networks.pwr.edu.pl/).
