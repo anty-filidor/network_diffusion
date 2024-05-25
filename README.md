@@ -51,10 +51,20 @@ including temporal models, multilayer models, and combinations of both.
   for network analysis. You can easily integrate it into your existing
   NetworkX-based workflows.
 
-## Installation
+## How to install this package
 
 **To install package, run this command: `pip install network_diffusion`**.
 Please note that we currently support Linux, MacOS, and Windows only.
+
+To contribute, please clone the repo, switch to a new feature-branch, and
+install the environment:
+
+```bash
+conda env create -f requirements/environment.yml
+conda activate network-diffusion
+```
+
+## Citing us
 
 If you used the package, please cite us as:
 
@@ -99,7 +109,7 @@ in complex networks, please add the following work:
 ## In case of any bugs
 
 Please report bugs on
-[this](https://github.com/anty-filidor/network_diffusion/issues). board or by
+[this](https://github.com/anty-filidor/network_diffusion/issues) board or by
 sending a direct [e-mail](https://github.com/anty-filidor) to the main author.
 
 ## About us
