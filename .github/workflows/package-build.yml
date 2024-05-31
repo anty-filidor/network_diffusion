@@ -3,16 +3,43 @@ name: package builds
 on:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
+    types: [opened, reopened, synchronize]
 
 env:
   PYTHON_VERSION: "3.10"
 
 jobs:
+  # if on pull req. add a timestamp to the version (treat it as a test release)
+  Determine-Build-Type:
+    runs-on: ubuntu-latest
+    env:
+      BASE_VER: Nil
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Obtain the base version
+        run: |
+          _BV=$(sh .github/get_version.sh)
+          echo "BASE_VER=${_BV}" >> $GITHUB_ENV
+      - name: Determine the final version
+        id: make_final_version
+        run: |
+          if [ ${{ github.event_name }} == 'pull_request' ]; then
+            export VER_SUFFIX="rc$(date +'%Y%m%d%H%M%S')"
+          else
+            export VER_SUFFIX=""
+          fi
+          echo "val=${{ env.BASE_VER }}${VER_SUFFIX}" >> $GITHUB_OUTPUT
+    outputs:
+      package_ver: ${{ steps.make_final_version.outputs.val }}
+
   # build wheel and prepare tarball with sources. since sources are OS-agnostic
   # it's ok to owerwrite sdists prepared by each of OS
-  # currently we don't support windows
   Build-Multiplatform-Package:
     runs-on: ${{ matrix.os }}
+    needs: [Determine-Build-Type]
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -28,11 +55,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements/production.txt
           pip install -r requirements/develop.txt
-      - name: Build Wheel Package
+      - name: Update the codebase by a build version
+        run: |
+          sh .github/update_version.sh network_diffusion/__init__.py "${{ needs.Determine-Build-Type.outputs.package_ver }}"
+          echo $(sh .github/get_version.sh)
+      - name: Build a Wheel Package
         run: python setup.py sdist bdist_wheel
-      - name: Checki if package can be uploaded to PyPI
+      - name: Check if the package can be uploaded to PyPI
         run: python -m twine check dist/*
-      - name: Save artifacts
+      - name: Save the artifacts
         uses: actions/upload-artifact@v3.1.3
         with:
           name: dist_temp
@@ -87,20 +118,14 @@ jobs:
   # create a GitHub release and tag current commit
   Create-Tag-Release:
     runs-on: ubuntu-latest
-    needs: [Convert-Ubuntu-To-Manylinux]
-    env:
-      VER: Nil
+    needs: [Determine-Build-Type, Convert-Ubuntu-To-Manylinux]
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Obtain version
-        run: |
-          _VER=$(cat network_diffusion/__init__.py | grep __version__ | cut -d'"' -f2)
-          echo "VER=${_VER}" >> $GITHUB_ENV
       - name: Add tag
         uses: rickstaa/action-create-tag@v1
         with:
-          tag: ${{ env.VER }}
+          tag: ${{ needs.Determine-Build-Type.outputs.package_ver }}
           message: "Added tag"
       - name: Download artifacts
         uses: actions/download-artifact@v2.1.1
@@ -110,7 +135,7 @@ jobs:
       - name: Add GitHub release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.VER }}
+          tag_name: ${{ needs.Determine-Build-Type.outputs.package_ver }}
           files: |
             dist/*.whl
             dist/*.tar.gz
