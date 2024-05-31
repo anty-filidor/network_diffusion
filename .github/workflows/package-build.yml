@@ -14,20 +14,26 @@ jobs:
   # if on pull req. add a timestamp to the version (treat it as a test release)
   Determine-Build-Type:
     runs-on: ubuntu-latest
+    env:
+      BASE_VER: Nil
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Initialise empty suffix
-        id: make_suffix
+      - name: Obtain the base version
         run: |
-          if [ ${{ github.event_name }} != 'pull_request' ]; then
-            export TEST_INDICATION="a$(date +'%Y%m%d%H%M%S')"
+          _BV=$(sh .github/get_version.sh)
+          echo "BASE_VER=${_BV}" >> $GITHUB_ENV
+      - name: Determine the final version
+        id: make_final_version
+        run: |
+          if [ ${{ github.event_name }} == 'pull_request' ]; then
+            export VER_SUFFIX="a$(date +'%Y%m%d%H%M%S')"
           else
-            export TEST_INDICATION=""
+            export VER_SUFFIX=""
           fi
-          echo "val=${TEST_INDICATION}" >> $GITHUB_OUTPUT
+          echo "val=${{ env.BASE_VER }}${VER_SUFFIX}" >> $GITHUB_OUTPUT
     outputs:
-      ver_suffix: ${{ steps.make_suffix.outputs.val }}
+      package_ver: ${{ steps.make_final_version.outputs.val }}
 
   # build wheel and prepare tarball with sources. since sources are OS-agnostic
   # it's ok to owerwrite sdists prepared by each of OS
@@ -46,7 +52,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Install dependencies
         run: |
-          echo "${{ needs.Determine-Build-Type.outputs.ver_suffix }}"
+          echo "${{ needs.Determine-Build-Type.outputs.package_ver }}"
           python -m pip install --upgrade pip
           pip install -r requirements/production.txt
           pip install -r requirements/develop.txt
@@ -110,14 +116,15 @@ jobs:
   Create-Tag-Release:
     runs-on: ubuntu-latest
     # needs: [Convert-Ubuntu-To-Manylinux]
+    env:
+      VER: Nil
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Obtain version
         run: |
-          echo "${{ env.VER }}"
-          echo "VER=$(sh .github/get_version.sh)aa" >> $GITHUB_ENV
-          echo "${{ env.VER }}"
+          _VER=$(cat network_diffusion/__init__.py | grep __version__ | cut -d'"' -f2)
+          echo "VER=${_VER}" >> $GITHUB_ENV
   #     - name: Add tag
   #       uses: rickstaa/action-create-tag@v1
   #       with:
