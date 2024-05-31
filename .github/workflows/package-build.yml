@@ -31,12 +31,12 @@ jobs:
       - name: Build Wheel Package
         run: python setup.py sdist bdist_wheel
       - name: Checki if package can be uploaded to PyPI
-        run: python -m twine check dist/*.whl
+        run: python -m twine check dist/*
       - name: Save artifacts
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: dist_temp
-          path: ./dist/*.whl
+          path: ./dist
 
   # previous job used Ubuntu OS, but PyPI requires ManyLinux distro, hence we
   # need to convert it properly
