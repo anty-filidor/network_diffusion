@@ -2,9 +2,9 @@ name: package builds
 
 on:
   push:
-    branches: [feature--add-test-builds]
+    branches: [master]
   pull_request:
-    branches: [feature--add-test-builds]
+    branches: [develop]
     types: [opened, reopened, synchronize]
 
 env:
@@ -26,8 +26,8 @@ jobs:
       - name: Determine the final version
         id: make_final_version
         run: |
-          if [ ${{ github.event_name }} == 'push' ]; then
-            export VER_SUFFIX="a$(date +'%Y%m%d%H%M%S')"
+          if [ ${{ github.event_name }} == 'pull_request' ]; then
+            export VER_SUFFIX="rc$(date +'%Y%m%d%H%M%S')"
           else
             export VER_SUFFIX=""
           fi
