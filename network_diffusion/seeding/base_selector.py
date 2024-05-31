@@ -56,23 +56,19 @@ class BaseSeedSelector(ABC):
     @abstractmethod
     def __str__(self) -> str:
         """Return seed method's description."""
-        ...
 
-    @staticmethod
     @abstractmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """
         Create a ranking of nodes based on concrete metric/heuristic.
 
         :param graph: single layer graph to compute ranking for
         :return: list of node-ids ordered descending by their ranking position
         """
-        ...
 
     @abstractmethod
     def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
         """Create actorwise ranking."""
-        ...
 
     def nodewise(self, net: MultilayerNetwork) -> Dict[str, List[Any]]:
         """Create nodewise ranking."""
@@ -105,7 +101,7 @@ def node_to_actor_ranking(
 
     def _avg_result(results: Dict[str, int], sizes: Dict[str, int]) -> float:
         """Compute average score in ranking weighted by size of layer."""
-        counter = sum(
+        counter = sum(  # pylint: disable=R1728
             [l_result * sizes[l_name] for l_name, l_result in results.items()]
         )
         denominator = sum(l_sizes.values())
@@ -120,5 +116,8 @@ def node_to_actor_ranking(
         key=_.get,  # type: ignore
     )
 
-    assert len(actor_ranking) == net.get_actors_num(), "Incorrect ranking!"
+    if (ar := len(actor_ranking)) != (an := net.get_actors_num()):
+        raise ArithmeticError(
+            f"Number of actors: {an} doesn't match length of the ranking: {ar}"
+        )
     return actor_ranking

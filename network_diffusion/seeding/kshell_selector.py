@@ -42,8 +42,7 @@ class KShellSeedSelector(BaseSeedSelector):
     layer, so that ranking is better ordered (nodes in shells can be ordered).
     """
 
-    @staticmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """
         Create a ranking based on nodes' k-shell cohort position & degree.
 
@@ -99,8 +98,7 @@ class KShellMLNSeedSelector(BaseSeedSelector):
     as in network_diffusion.mln.functions.k_shell_mln()
     """
 
-    @staticmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
             "Nodewise ranking list cannot be computed for this class!"

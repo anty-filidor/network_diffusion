@@ -55,9 +55,7 @@ def closeness(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
         )  # values of closeness for one layer
     for actor in net.get_actors():
         for l_name in actor.layers:
-            close.append(
-                c_graph[l_name][actor.actor_id]
-            )  # saving information to the dict
+            close.append(c_graph[l_name][actor.actor_id])
         close_mean[actor] = sum(close) / len(close)
         close.clear()
     return close_mean
@@ -75,9 +73,7 @@ def katz(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
         )  # values of closeness for one layer
     for actor in net.get_actors():
         for l_name in actor.layers:
-            kat.append(
-                k_graph[l_name][actor.actor_id]
-            )  # saving information to the dict
+            kat.append(k_graph[l_name][actor.actor_id])
         katz_mean[actor] = sum(kat) / len(kat)
         kat.clear()
     return katz_mean
@@ -377,7 +373,7 @@ def squeeze_by_neighbourhood(net: MultilayerNetwork) -> nx.Graph:
     return squeezed_net
 
 
-def get_toy_network() -> MultilayerNetwork:
+def get_toy_network_piotr() -> MultilayerNetwork:
     """Get threelayered toy network easy to visualise."""
     layer_1 = nx.Graph(
         (
@@ -423,6 +419,117 @@ def get_toy_network() -> MultilayerNetwork:
             [10, 11],
         )
     )
+
+    return MultilayerNetwork.from_nx_layers(
+        [layer_1, layer_2, layer_3], ["l1", "l2", "l3"]
+    )
+
+
+def get_toy_network_cim() -> MultilayerNetwork:
+    """
+    Get a toy network that was used by the authors of CIM method.
+
+    The paper is here: https://doi.org/10.1007/s10489-021-02656-0
+    """
+    actors = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+    layer_1 = nx.Graph(
+        (
+            [1, 2],
+            [1, 2],
+            [1, 3],
+            [1, 4],
+            [2, 3],
+            [2, 4],
+            [3, 4],
+            [3, 6],
+            [3, 7],
+            [4, 5],
+            [4, 11],
+            [5, 7],
+            [5, 11],
+            [6, 7],
+            [7, 8],
+            [7, 9],
+            [7, 10],
+            [8, 9],
+            [8, 10],
+            [9, 10],
+            [9, 12],
+            [10, 12],
+            [11, 12],
+        )
+    )
+    layer_1.add_nodes_from(actors)
+
+    layer_2 = nx.Graph(
+        (
+            [1, 2],
+            [1, 3],
+            [1, 4],
+            [1, 5],
+            [2, 3],
+            [2, 4],
+            [2, 5],
+            [3, 4],
+            [3, 5],
+            [3, 6],
+            [4, 5],
+            [4, 11],
+            [5, 11],
+            [6, 7],
+            [6, 8],
+            [6, 9],
+            [6, 10],
+            [6, 12],
+            [7, 8],
+            [7, 9],
+            [7, 10],
+            [7, 12],
+            [8, 9],
+            [8, 10],
+            [8, 12],
+            [9, 10],
+            [9, 12],
+            [10, 12],
+        )
+    )
+    layer_2.add_nodes_from(actors)
+
+    layer_3 = nx.Graph(
+        (
+            [2, 4],
+            [3, 6],
+            [3, 7],
+            [3, 8],
+            [3, 9],
+            [3, 10],
+            [3, 11],
+            [3, 12],
+            [6, 7],
+            [6, 8],
+            [6, 9],
+            [6, 10],
+            [6, 11],
+            [6, 12],
+            [7, 8],
+            [7, 9],
+            [7, 10],
+            [7, 11],
+            [7, 12],
+            [8, 9],
+            [8, 10],
+            [8, 11],
+            [8, 12],
+            [9, 10],
+            [9, 11],
+            [9, 12],
+            [10, 11],
+            [10, 12],
+            [11, 12],
+        )
+    )
+    layer_3.add_nodes_from(actors)
 
     return MultilayerNetwork.from_nx_layers(
         [layer_1, layer_2, layer_3], ["l1", "l2", "l3"]

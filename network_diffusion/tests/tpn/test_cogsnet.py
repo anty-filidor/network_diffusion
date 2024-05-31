@@ -1,4 +1,5 @@
 """Tests for the network_diffusion.tpn.cogsnet_lib."""
+
 import unittest
 
 from network_diffusion.tpn.cogsnet_lib import _cogsnet

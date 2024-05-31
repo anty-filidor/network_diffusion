@@ -35,8 +35,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 class PageRankSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on Page Rank algorithm."""
 
-    @staticmethod
-    def _calculate_ranking_list(graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
         """
         Create a ranking of nodes with Page Rank algorithm.
 

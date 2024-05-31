@@ -1,8 +1,6 @@
-# Network Diffusion - spreading models in complex networks
+# Network Diffusion - spreading models in networks
 
 [![License: GPL](https://img.shields.io/github/license/anty-filidor/network_diffusion)](https://www.gnu.org/licenses/gpl-3.0.html)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4592269.svg)](https://doi.org/10.5281/zenodo.4592269)
-
 [![PyPI version](https://badge.fury.io/py/network-diffusion.svg)](https://badge.fury.io/py/network-diffusion)
 
 ![Tests](https://github.com/anty-filidor/network_diffusion/actions/workflows/tests.yml/badge.svg)
@@ -30,7 +28,7 @@ including temporal models, multilayer models, and combinations of both.
   [CogSnet](https://www.researchgate.net/publication/348341904_Social_Networks_through_the_Prism_of_Cognition).
 
 - **Multilayer Networks**: The library supports multilayer networks, which are
-  essential for modeling real-world systems with interconnected layers of
+  essential for modelling real-world systems with interconnected layers of
   complexity.
 
 - **Predefined Models**: You have the option to use predefined diffusion models
@@ -38,7 +36,7 @@ including temporal models, multilayer models, and combinations of both.
   These models simplify the simulation process, allowing you to focus on your
   specific research questions.
 
-- **Custom Models**: Additionally, Nwtwork Diffusion allows you to define your
+- **Custom Models**: Additionally, Network Diffusion allows you to define your
   own diffusion models using open interfaces, providing flexibility for
   researchers to tailor simulations to their unique requirements.
 
@@ -46,43 +44,75 @@ including temporal models, multilayer models, and combinations of both.
   measures specifically designed for multilayer networks. These measures can be
   valuable for selecting influential seed nodes in diffusion processes.
 
-- **NetworkX Compatibility**: Last but not least, the package is built on top
-  of NetworkX, ensuring seamless compatibility with this popular Python library
+- **NetworkX Compatible**: Last but not least, the package is built on top of
+  NetworkX, ensuring seamless compatibility with this popular Python library
   for network analysis. You can easily integrate it into your existing
   NetworkX-based workflows.
 
-## Installation
+## How to install this package
 
-**To install package run this command: `pip install network_diffusion`**.
-Please note, that currently we support Linux, MacOS, and Windows only.
+**To install package, run this command: `pip install network_diffusion`**.
+Please note that we currently support Linux, MacOS, and Windows only.
 
-If you like the package, please cite us as:
+To contribute, please clone the repo, switch to a new feature-branch, and
+install the environment:
 
+```bash
+conda env create -f requirements/environment.yml
+conda activate network-diffusion
 ```
-@INPROCEEDINGS{czuba2022networkdiffusion,
-    author={Czuba, Micha\l{} and Br\'{o}dka, Piotr},
-    booktitle={2022 IEEE 9th International Conference on Data Science and Advanced Analytics (DSAA)},
-    title={Simulating Spreading of Multiple Interacting Processes in Complex Networks},
-    year={2022},
-    month={oct},
-    volume={},
-    number={},
-    pages={1-10},
-    publisher={IEEE},
-    address={Shenzhen, China},
-    doi={10.1109/DSAA54385.2022.10032425},
+
+## Citing us
+
+If you used the package, please cite us as:
+
+```latex
+@article{czuba2024networkdiffusion,
+  title={Network Diffusion – Framework to Simulate Spreading Processes in Complex Networks},
+  author={
+    Czuba, Micha{\l} and Nurek, Mateusz and Serwata, Damian and Qi, Yu-Xuan and
+    Jia, Mingshan and Musial, Katarzyna and Michalski, Rados{\l}aw and Br{\'o}dka, Piotr
+  },
+  journal={Big Data Mining And Analytics},
+  volume={},
+  number={},
+  pages={1-13},
+  year={2024},
+  publisher={IEEE},
+  doi = {10.26599/BDMA.2024.9020010},
+  url={https://doi.org/10.26599/BDMA.2024.9020010},
 }
 ```
 
-## New features incoming
+Particularly if you used the functionality of simulating coexisting phenomena
+in complex networks, please add the following work:
 
-A board with issues and state of the progress torwards implementing new
-functionalities can be found
-[here](https://github.com/users/anty-filidor/projects/6/views/1).
+```latex
+@inproceedings{czuba2022coexisting,
+    author={Czuba, Micha\l{} and Br\'{o}dka, Piotr},
+    booktitle={2022 IEEE 9th International Conference on Data Science and Advanced Analytics (DSAA)},
+    title={Simulating Spreading of Multiple Interacting Processes in Complex Networks},
+    volume={},
+    number={},
+    pages={1-10},
+    year={2022},
+    month={oct},
+    publisher={IEEE},
+    address={Shenzhen, China},
+    doi={10.1109/DSAA54385.2022.10032425},
+    url={https://ieeexplore.ieee.org/abstract/document/10032425},
+}
+```
+
+## Bugs reporting
+
+Please report bugs on
+[this](https://github.com/anty-filidor/network_diffusion/issues) board or by
+sending a direct [e-mail](https://github.com/anty-filidor) to the main author.
 
 ## About us
 
 This library is developed and maintained by Network Science Lab at
 [WUST](https://networks.pwr.edu.pl/) and external partners. For more
-information and updates, please visit our :
+information and updates, please visit our
 [website](https://networks.pwr.edu.pl/).

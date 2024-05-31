@@ -1,6 +1,6 @@
 import unittest
 
-from network_diffusion.mln.functions import get_toy_network
+from network_diffusion.mln.functions import get_toy_network_piotr
 from network_diffusion.seeding import (
     BetweennessSelector,
     ClosenessSelector,
@@ -42,7 +42,7 @@ SUBSELECTORS = (
 class TestDriverActorSelector(unittest.TestCase):
     def test_actorwise(self):
         selector = NeighbourhoodSizeSelector()
-        obtained_result = selector.actorwise(net=get_toy_network())
+        obtained_result = selector.actorwise(net=get_toy_network_piotr())
         self.assertEqual(
             [obtained_actor.actor_id for obtained_actor in obtained_result],
             [2, 6, 4, 3, 5, 9, 10, 11, 1, 7, 8],
@@ -51,14 +51,14 @@ class TestDriverActorSelector(unittest.TestCase):
     def test_nodewise(self):
         selector = NeighbourhoodSizeSelector()
         with self.assertRaises(NotImplementedError):
-            selector.nodewise(net=get_toy_network())
+            selector.nodewise(net=get_toy_network_piotr())
 
     def test_actorwise(self):
-        for (subselector, exp_result) in SUBSELECTORS:
+        for subselector, exp_result in SUBSELECTORS:
             with self.subTest(subselector=subselector, exp_result=exp_result):
                 das = DriverActorSelector(method=subselector)
                 ranking = [
-                    a.actor_id for a in das.actorwise(get_toy_network())
+                    a.actor_id for a in das.actorwise(get_toy_network_piotr())
                 ]
                 print(ranking)
                 self.assertEqual(
