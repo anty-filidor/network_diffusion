@@ -2,7 +2,7 @@ name: package builds
 
 on:
   push:
-    branches: [master, fix--*]
+    branches: [master]
 
 env:
   PYTHON_VERSION: "3.10"
