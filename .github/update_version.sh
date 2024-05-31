@@ -1,4 +1,3 @@
 #!/bin/bash
-INIT_FILE=$1
-NEW_VERSION=$2
-sed -i -e "/__version__ =/ s/= .*/= \"${NEW_VERSION}\"/" "$INIT_FILE"
+NEW_VERSION=$1
+sed -i -e "/version =/ s/= .*/= \"${NEW_VERSION}\"/" pyproject.toml

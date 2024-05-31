@@ -57,7 +57,7 @@ jobs:
           pip install -r requirements/develop.txt
       - name: Update the codebase by a build version
         run: |
-          sh .github/update_version.sh network_diffusion/__init__.py "${{ needs.Determine-Build-Type.outputs.package_ver }}"
+          sh .github/update_version.sh "${{ needs.Determine-Build-Type.outputs.package_ver }}"
           echo $(sh .github/get_version.sh)
       - name: Build a Wheel Package
         run: python -m build --wheel .
