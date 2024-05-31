@@ -9,21 +9,25 @@ on:
 
 env:
   PYTHON_VERSION: "3.10"
-  TEST_INDICATION: "hahaha"
 
 jobs:
   # if on pull req. add a timestamp to the version (treat it as a test release)
   Determine-Build-Type:
     runs-on: ubuntu-latest
-    outputs:
-      output1: ${{ env.TEST_INDICATION }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-      - name: Add a timestamp to the version
-        if: ${{ github.event_name == 'pull_request' }}
+      - name: Initialise empty suffix
+        id: make_suffix
         run: |
-          echo "TEST_INDICATION=a$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
+          if [ ${{ github.event_name }} != 'pull_request' ]; then
+            export TEST_INDICATION="a$(date +'%Y%m%d%H%M%S')"
+          else
+            export TEST_INDICATION=""
+          fi
+          echo "val=${TEST_INDICATION}" >> $GITHUB_OUTPUT
+    outputs:
+      ver_suffix: ${{ steps.make_suffix.outputs.val }}
 
   # build wheel and prepare tarball with sources. since sources are OS-agnostic
   # it's ok to owerwrite sdists prepared by each of OS
@@ -42,7 +46,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Install dependencies
         run: |
-          echo "${{ env.TEST_INDICATION }}"
+          echo "${{ needs.Determine-Build-Type.outputs.ver_suffix }}"
           python -m pip install --upgrade pip
           pip install -r requirements/production.txt
           pip install -r requirements/develop.txt
@@ -102,19 +106,18 @@ jobs:
   #         user: __token__
   #         password: ${{ secrets.PYPI_API_TOKEN }}
 
-  # # create a GitHub release and tag current commit
-  # Create-Tag-Release:
-  #   runs-on: ubuntu-latest
-  #   needs: [Convert-Ubuntu-To-Manylinux]
-  #   env:
-  #     VER: Nil
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v3
-  #     - name: Obtain version
-  #       run: |
-  #         _VER=$(cat network_diffusion/__init__.py | grep __version__ | cut -d'"' -f2)
-  #         echo "VER=${_VER}" >> $GITHUB_ENV
+  # create a GitHub release and tag current commit
+  Create-Tag-Release:
+    runs-on: ubuntu-latest
+    # needs: [Convert-Ubuntu-To-Manylinux]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Obtain version
+        run: |
+          echo "${{ env.VER }}"
+          echo "VER=$(sh .github/get_version.sh)aa" >> $GITHUB_ENV
+          echo "${{ env.VER }}"
   #     - name: Add tag
   #       uses: rickstaa/action-create-tag@v1
   #       with:
