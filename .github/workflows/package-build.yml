@@ -2,7 +2,7 @@ name: package builds
 
 on:
   push:
-    branches: [master]
+    branches: [master, fix--*]
 
 env:
   PYTHON_VERSION: "3.10"
@@ -31,12 +31,12 @@ jobs:
       - name: Build Wheel Package
         run: python setup.py sdist bdist_wheel
       - name: Checki if package can be uploaded to PyPI
-        run: python -m twine check dist/*
+        run: python -m twine check dist/*.whl
       - name: Save artifacts
         uses: actions/upload-artifact@master
         with:
           name: dist_temp
-          path: ./dist
+          path: ./dist/*.whl
 
   # previous job used Ubuntu OS, but PyPI requires ManyLinux distro, hence we
   # need to convert it properly
