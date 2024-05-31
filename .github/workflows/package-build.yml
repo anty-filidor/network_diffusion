@@ -17,11 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       output1: ${{ env.TEST_INDICATION }}
-    if: ${{ github.event_name == 'pull_request' }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Add a timestamp to the version
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
           echo "TEST_INDICATION=a$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
