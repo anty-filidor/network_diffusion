@@ -1,18 +1,8 @@
-# -*- coding: utf-8 -*-
-#
-# Configuration file for the Sphinx docs builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the docs:
-# http://www.sphinx-doc.org/en/master/config
+"""
+Configuration file for the Sphinx docs builder.
 
-# -- Path setup --------------------------------------------------------------
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# docs root, use os.path.abspath to make it absolute, like shown here.
-
-"""Configuration of the documentation."""
+For a full options list see: http://www.sphinx-doc.org/en/master/config
+"""
 
 # pylint: disable-all
 # flake8: noqa
@@ -20,18 +10,17 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../.."))
-
-from network_diffusion import __version__
+from sphinx_pyproject import SphinxConfig
 
 # -- Project information -----------------------------------------------------
+config = SphinxConfig("../../pyproject.toml", globalns=globals())
 
-project = "Network Diffusion"
-copyright = "2023, Michał Czuba, Piotr Bródka"
-author = "Michał Czuba, Piotr Bródka"
+# project = "Network Diffusion"
+# copyright = "2024, Michał Czuba, Piotr Bródka"
+# author = "Michał Czuba, Piotr Bródka"
 
-# The full version, including alpha/beta/rc tags
-release = __version__
+# # The full version, including alpha/beta/rc tags
+# release = __version__
 
 
 # -- General configuration ---------------------------------------------------
