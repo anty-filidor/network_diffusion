@@ -103,16 +103,16 @@ we encourage users to explore the repository. Another way to familiarise
 yourself with the operating principles of `network_diffusion` are projects
 which utilise it:
 
-1. [infmax-simulator-icm-mln](https://github.com/network-science-lab/infmax-simulator-icm-mln) -
-   v0.14.2
-2. [rank-refined-seeding-bc-infmax-mlnets-ltm](https://github.com/anty-filidor/rank-refined-seeding-bc-infmax-mlnets-ltm) -
-   v0.14.0 (pre-release)
-3. [bdma-experiments](https://github.com/anty-filidor/bdma-experiments) -
-   v0.13.0
-4. [Independent_Cascade_Model](https://github.com/damian4060/Independent_Cascade_Model) -
-   v0.10.0
-5. [network_diffusion_examples](https://github.com/anty-filidor/network_diffusion_examples) -
-   v0.6
+- Generator of a dataset with actors' spreading potentials - v0.14.2 -
+  [repo](https://github.com/network-science-lab/infmax-simulator-icm-mln) -
+- Influence max. under LTM in multilayer networks - v0.14.0 pre-release -
+  [repo](https://github.com/anty-filidor/rank-refined-seeding-bc-infmax-mlnets-ltm) -
+- Comparison of spreading in various temporal network models - v0.13.0 -
+  [repo](https://github.com/anty-filidor/bdma-experiments) -
+- Seed selection methods for ICM in multilayer networks - v0.10.0 -
+  [repo](https://github.com/damian4060/Independent_Cascade_Model) -
+- Modelling coexisting spreading phenomena - v0.6 -
+  [repo](https://github.com/anty-filidor/network_diffusion_examples) -
 
 ## Citing us
 
@@ -122,9 +122,10 @@ If you used the package, please consider citing us:
 @article{czuba2024networkdiffusion,
   title={Network Diffusion – Framework to Simulate Spreading Processes in Complex Networks},
   author={
-    Czuba, Micha{\l} and Nurek, Mateusz and Serwata, Damian and Qi, Yu-Xuan and
-    Jia, Mingshan and Musial, Katarzyna and Michalski, Rados{\l}aw and Br{\'o}dka, Piotr
-  },
+      Czuba, Micha{\l} and Nurek, Mateusz and Serwata, Damian and Qi, Yu-Xuan
+      and Jia, Mingshan and Musial, Katarzyna and Michalski, Rados{\l}aw
+      and Br{\'o}dka, Piotr
+    },
   journal={Big Data Mining And Analytics},
   volume={},
   number={},
@@ -141,18 +142,18 @@ in complex networks, please add the following reference:
 
 ```latex
 @inproceedings{czuba2022coexisting,
-    author={Czuba, Micha\l{} and Br\'{o}dka, Piotr},
-    booktitle={2022 IEEE 9th International Conference on Data Science and Advanced Analytics (DSAA)},
-    title={Simulating Spreading of Multiple Interacting Processes in Complex Networks},
-    volume={},
-    number={},
-    pages={1-10},
-    year={2022},
-    month={oct},
-    publisher={IEEE},
-    address={Shenzhen, China},
-    doi={10.1109/DSAA54385.2022.10032425},
-    url={https://ieeexplore.ieee.org/abstract/document/10032425},
+  author={Czuba, Micha\l{} and Br\'{o}dka, Piotr},
+  booktitle={9th International Conference on Data Science and Advanced Analytics (DSAA)},
+  title={Simulating Spreading of Multiple Interacting Processes in Complex Networks},
+  volume={},
+  number={},
+  pages={1-10},
+  year={2022},
+  month={oct},
+  publisher={IEEE},
+  address={Shenzhen, China},
+  doi={10.1109/DSAA54385.2022.10032425},
+  url={https://ieeexplore.ieee.org/abstract/document/10032425},
 }
 ```
 
