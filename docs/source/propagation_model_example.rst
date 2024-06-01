@@ -6,13 +6,13 @@ Module  ``propagation_model``
 What is propagation model?
 __________________________
 In this library propagation model is considered as one or a plenty of
-phenomenas acting in one network, e.g. Suspected-Infected model.
+phenomena acting in one network, e.g. Suspected-Infected model.
 
 Purpose of PropagationModel module
 ___________________________________
-If experiment includes more than two phenomenas interacting with themselves,
+If experiment includes more than two phenomena interacting with themselves,
 description of the propagation model becoming very complicated. E.g. model
-with 2 phenomenas with 2 local steps each:
+with 2 phenomena with 2 local steps each:
 
 * Suspected-Infected (phenomena Illness),
 * Aware-Unaware (phenomena "Awareness"),
@@ -43,17 +43,17 @@ This can be easily visualized by graph:
     :align: center
     :width: 250
 
-Note that with 3 phenomenas of respectively 2, 2, 3 local states we have 12
+Note that with 3 phenomena of respectively 2, 2, 3 local states we have 12
 global states with (sic!) 48 possible transitions. This is so big value, that
 without computer assistance it is difficult to handle cases like this. Thus
 library contains module named ``propagation_model`` to define model in semi
-automatic way with no constrains coming from number od phenomenas and number
-of states. User defines names of phenomenas, local states and only these
+automatic way with no constrains coming from number od phenomena and number
+of states. User defines names of phenomena, local states and only these
 transitions which are relevant to the simulation.
 
 Example of usage
 ________________
-Let's define model with 3 phenomenas, 2 (``layer_1``, ``layer_2``) with 2 local states
+Let's define model with 3 phenomena, 2 (``layer_1``, ``layer_2``) with 2 local states
 each (``A``, ``B``) and 1 (``layer_3``) with 3 local states (``A``, ``B``, ``C``). Then assign
 probabilities of transitions between certain states.
 
@@ -62,7 +62,7 @@ Define object of model propagation::
     from network_diffusion import PropagationModel
     model = PropagationModel()
 
-Assign phenomenas and local states. Then compile it ad see results::
+Assign phenomena and local states. Then compile it ad see results::
 
     model.add('layer_1', ('A', 'B'))
     model.add('layer_2', ('A', 'B'))
@@ -75,7 +75,7 @@ Assign phenomenas and local states. Then compile it ad see results::
     ============================================
     model of propagation
     --------------------------------------------
-    phenomenas and their states:
+    phenomena and their states:
     layer_1: ('A', 'B')
     layer_2: ('A', 'B')
     layer_3: ('A', 'B', 'C')
@@ -96,7 +96,7 @@ Assign nonzero probabilities to the propagation model code::
     ============================================
     model of propagation
     --------------------------------------------
-    phenomenas and their states:
+    phenomena and their states:
         layer_1: ('A', 'B')
         layer_2: ('A', 'B')
         layer_3: ('A', 'B', 'C')
@@ -117,7 +117,7 @@ Set random transitions and see all model::
     ============================================
     model of propagation
     --------------------------------------------
-    phenomenas and their states:
+    phenomena and their states:
         layer_1: ('A', 'B')
         layer_2: ('A', 'B')
         layer_3: ('A', 'B', 'C')
