@@ -29,8 +29,10 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.githubpages",
     "sphinx.ext.autodoc",
+    # "sphinx.ext.autosummary",
     "m2r",
 ]
+# autosummary_generate = True
 
 # Remove full paths in function signatures
 add_module_names = False
