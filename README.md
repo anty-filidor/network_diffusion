@@ -13,7 +13,36 @@ This Python library provides a versatile toolkit for simulating diffusion
 processes in complex networks. It offers support for various types of models,
 including temporal models, multilayer models, and combinations of both.
 
-<p align="center"> <b>Documentation</b> is available <a href="https://network-diffusion.readthedocs.io/en/latest/">here</a>! </p>
+## A Short Example
+
+```python
+import network_diffusion as nd
+
+# define the model with its internal parameters
+spreading_model = nd.models.MICModel(
+ seeding_budget=[90, 10, 0],  # 95% act suspected, 10% infected, 0% recovered
+ seed_selector=nd.seeding.RandomSeedSelector(),  # pick infected act randomly
+ protocol="OR",  # how to aggregate impulses from the network's layers
+ probability=0.5,  # probability of infection
+)
+
+# get the graph - a medium for spreading
+network = nd.mln.functions.get_toy_network_piotr()
+
+# perform the simulation that lasts four epochs
+simulator = nd.Simulator(model=spreading_model, network=network)
+logs = simulator.perform_propagation(n_epochs=3)
+
+# obtain detailed logs for each actor in the form of JSON
+raw_logs_json = logs.get_detailed_logs()
+
+# or obtain aggregated logs for each of the network's layer
+aggregated_logs_json = logs.get_aggragated_logs()
+
+# or just save a summary of the experiment with the details of the model,
+# network and both detailed and aggregated results
+logs.report(visualisation=True, path="my_experiment")
+```
 
 ## Key Features
 
@@ -49,12 +78,13 @@ including temporal models, multilayer models, and combinations of both.
   for network analysis. You can easily integrate it into your existing
   NetworkX-based workflows.
 
-## How to install this package
+## Package installation
 
-**To install package, run this command: `pip install network_diffusion`**.
-Please note that we currently support Linux, MacOS, and Windows only.
+**To install the package, run this command: `pip install network_diffusion`**.
+Please note that we currently support Linux, MacOS, and Windows, but the
+package is mostly tested and developed on Unix-based systems.
 
-To contribute, please clone the repo, switch to a new feature-branch, and
+To contribute, please clone the repo, switch to a new feature branch, and
 install the environment:
 
 ```bash
@@ -63,9 +93,30 @@ conda activate network-diffusion
 pip install -e .
 ```
 
+## Documentation
+
+<p align="center"> <b>Reference guide</b> is available <a href="https://network-diffusion.readthedocs.io/en/latest/">here</a>! </p>
+
+Please bear in mind that **this project is still in development**, so the API
+usually differs between versions. Nonetheless, the code is documented well, so
+we encourage users to explore the repository. Another way to familiarise
+yourself with the operating principles of `network_diffusion` are projects
+which utilise it:
+
+1. [infmax-simulator-icm-mln](https://github.com/network-science-lab/infmax-simulator-icm-mln) -
+   v0.14.2
+2. [rank-refined-seeding-bc-infmax-mlnets-ltm](https://github.com/anty-filidor/rank-refined-seeding-bc-infmax-mlnets-ltm) -
+   v0.14.0 (pre-release)
+3. [bdma-experiments](https://github.com/anty-filidor/bdma-experiments) -
+   v0.13.0
+4. [Independent_Cascade_Model](https://github.com/damian4060/Independent_Cascade_Model) -
+   v0.10.0
+5. [network_diffusion_examples](https://github.com/anty-filidor/network_diffusion_examples) -
+   v0.6
+
 ## Citing us
 
-If you used the package, please cite us as:
+If you used the package, please consider citing us:
 
 ```latex
 @article{czuba2024networkdiffusion,
@@ -86,7 +137,7 @@ If you used the package, please cite us as:
 ```
 
 Particularly if you used the functionality of simulating coexisting phenomena
-in complex networks, please add the following work:
+in complex networks, please add the following reference:
 
 ```latex
 @inproceedings{czuba2022coexisting,
@@ -105,7 +156,7 @@ in complex networks, please add the following work:
 }
 ```
 
-## Bugs reporting
+## Reporting bugs
 
 Please report bugs on
 [this](https://github.com/anty-filidor/network_diffusion/issues) board or by
@@ -113,7 +164,8 @@ sending a direct [e-mail](https://github.com/anty-filidor) to the main author.
 
 ## About us
 
-This library is developed and maintained by Network Science Lab at
-[WUST](https://networks.pwr.edu.pl/) and external partners. For more
-information and updates, please visit our
-[website](https://networks.pwr.edu.pl/).
+This library is developed and maintained by Network Science Lab from
+[WUST](https://networks.pwr.edu.pl/) (Wrocław, Lower Silesia, Poland) and
+external partners. For more information and updates, please visit our
+[website](https://networks.pwr.edu.pl/) or our
+[GitHub](https://github.com/network-science-lab) for more projects.
