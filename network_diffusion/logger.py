@@ -190,3 +190,11 @@ class Logger:
             print("============================================")
             if visualisation:
                 self.plot()
+
+    def get_aggragated_logs(self) -> List[Dict[str, Any]]:
+        """Get aggregated logs from the experiment as a list of dicts."""
+        return self._global_stats
+
+    def get_detailed_logs(self) -> Dict[int, List[Dict[str, str]]]:
+        """Get detailed logs from the experiment as a dict of list of dicts."""
+        return self._local_stats

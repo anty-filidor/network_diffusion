@@ -143,7 +143,7 @@ Concrete seed selectors
     :members:
     :show-inheritance:
 
-.. automodule:: network_diffusion.seeding.mocky_selector
+.. automodule:: network_diffusion.seeding.mocking_selector
     :members:
     :show-inheritance:
 
