@@ -7,21 +7,14 @@ For a full options list see: http://www.sphinx-doc.org/en/master/config
 # pylint: disable-all
 # flake8: noqa
 
-import os
-import sys
-
 from sphinx_pyproject import SphinxConfig
 
 # -- Project information -----------------------------------------------------
 config = SphinxConfig("../../pyproject.toml", globalns=globals())
-
-# project = "Network Diffusion"
-# copyright = "2024, Michał Czuba, Piotr Bródka"
-# author = "Michał Czuba, Piotr Bródka"
-
-# # The full version, including alpha/beta/rc tags
-# release = __version__
-
+project = name  # type: ignore
+author = author  # type: ignore
+copyright = "2024"
+release = version  # type: ignore
 
 # -- General configuration ---------------------------------------------------
 
@@ -36,6 +29,7 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.githubpages",
     "sphinx.ext.autodoc",
+    "m2r",
 ]
 
 # Remove full paths in function signatures
@@ -94,5 +88,12 @@ pygments_style = "sphinx"
 # default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
 # 'searchbox.html']``.
 #
-# html_sidebars = {}
+html_sidebars = {
+    "**": [
+        "globaltoc.html",
+        "relations.html",
+        "sourcelink.html",
+        "searchbox.html",
+    ]
+}
 html_theme = "sphinx_book_theme"

@@ -55,7 +55,7 @@ In base scenario one can obtain classic temporal network by having a chain
 of one-layered MultilayerNetworks.
 
 Class ``TemporalNetwork``
-++++++++++++++++++++++++
++++++++++++++++++++++++++
 
 Implemented in ``network_diffusion.tpn.tpnetwork``.
 
