@@ -20,10 +20,10 @@ import network_diffusion as nd
 
 # define the model with its internal parameters
 spreading_model = nd.models.MICModel(
- seeding_budget=[90, 10, 0],  # 95% act suspected, 10% infected, 0% recovered
- seed_selector=nd.seeding.RandomSeedSelector(),  # pick infected act randomly
- protocol="OR",  # how to aggregate impulses from the network's layers
- probability=0.5,  # probability of infection
+    seeding_budget=[90, 10, 0],  # 95% act suspected, 10% infected, 0% recovered
+    seed_selector=nd.seeding.RandomSeedSelector(),  # pick infected act randomly
+    protocol="OR",  # how to aggregate impulses from the network's layers
+    probability=0.5,  # probability of infection
 )
 
 # get the graph - a medium for spreading
@@ -39,8 +39,7 @@ raw_logs_json = logs.get_detailed_logs()
 # or obtain aggregated logs for each of the network's layer
 aggregated_logs_json = logs.get_aggragated_logs()
 
-# or just save a summary of the experiment with the details of the model,
-# network and both detailed and aggregated results
+# or just save a summary of the experiment with all the experiment's details
 logs.report(visualisation=True, path="my_experiment")
 ```
 
@@ -80,7 +79,7 @@ logs.report(visualisation=True, path="my_experiment")
 
 ## Package installation
 
-**To install the package, run this command: `pip install network_diffusion`**.
+To install the package, run this command: `pip install network_diffusion`.
 Please note that we currently support Linux, MacOS, and Windows, but the
 package is mostly tested and developed on Unix-based systems.
 
@@ -103,22 +102,22 @@ we encourage users to explore the repository. Another way to familiarise
 yourself with the operating principles of `network_diffusion` are projects
 which utilise it:
 
-- Generator of a dataset with actors' spreading potentials - v0.14.2 -
-  [repo](https://github.com/network-science-lab/infmax-simulator-icm-mln) -
-- Influence max. under LTM in multilayer networks - v0.14.0 pre-release -
-  [repo](https://github.com/anty-filidor/rank-refined-seeding-bc-infmax-mlnets-ltm) -
-- Comparison of spreading in various temporal network models - v0.13.0 -
-  [repo](https://github.com/anty-filidor/bdma-experiments) -
-- Seed selection methods for ICM in multilayer networks - v0.10.0 -
-  [repo](https://github.com/damian4060/Independent_Cascade_Model) -
-- Modelling coexisting spreading phenomena - v0.6 -
-  [repo](https://github.com/anty-filidor/network_diffusion_examples) -
+- Generator of a dataset with actors' spreading potentials - _v0.14.2_ -
+  [repo](https://github.com/network-science-lab/infmax-simulator-icm-mln)
+- Influence max. under LTM in multilayer networks - _v0.14.0 pre-release_ -
+  [repo](https://github.com/anty-filidor/rank-refined-seeding-bc-infmax-mlnets-ltm)
+- Comparison of spreading in various temporal network models - _v0.13.0_ -
+  [repo](https://github.com/anty-filidor/bdma-experiments)
+- Seed selection methods for ICM in multilayer networks - _v0.10.0_ -
+  [repo](https://github.com/damian4060/Independent_Cascade_Model)
+- Modelling coexisting spreading phenomena - _v0.6_ -
+  [repo](https://github.com/anty-filidor/network_diffusion_examples)
 
 ## Citing us
 
 If you used the package, please consider citing us:
 
-```latex
+```bibtex
 @article{czuba2024networkdiffusion,
   title={Network Diffusion – Framework to Simulate Spreading Processes in Complex Networks},
   author={
@@ -140,7 +139,7 @@ If you used the package, please consider citing us:
 Particularly if you used the functionality of simulating coexisting phenomena
 in complex networks, please add the following reference:
 
-```latex
+```bibtex
 @inproceedings{czuba2022coexisting,
   author={Czuba, Micha\l{} and Br\'{o}dka, Piotr},
   booktitle={9th International Conference on Data Science and Advanced Analytics (DSAA)},
