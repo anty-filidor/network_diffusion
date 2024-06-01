@@ -22,6 +22,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements/production.txt
           pip install -r requirements/develop.txt
+          pip install -e .
       - name: Validate
         run: |
           pre-commit install --config template-python/.pre-commit-config.yaml

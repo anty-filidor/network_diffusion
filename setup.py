@@ -24,8 +24,6 @@ from typing import List
 
 from setuptools import Extension, find_packages, setup
 
-from network_diffusion import __version__
-
 
 def parse_requirements() -> List[str]:
     """Parse requirements from the txt file."""
@@ -42,38 +40,8 @@ def parse_readme() -> str:
 
 
 setup(
-    name="network_diffusion",
-    version=__version__,
-    url="https://github.com/anty-filidor/network_diffusion",
-    project_urls={
-        "Documentation": "https://network-diffusion.readthedocs.io/en/latest/",
-        "Code": "https://github.com/anty-filidor/network_diffusion",
-    },
-    license="GPL",
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Science/Research",
-        "Topic :: Scientific/Engineering :: Artificial Intelligence",
-        "Topic :: Scientific/Engineering :: Information Analysis",
-        "License :: OSI Approved :: GNU General Public License (GPL)",
-        "Programming Language :: Python :: 3.10",
-    ],
-    keywords=[
-        "influence maximisation",
-        "multilayer networks",
-        "networkx",
-        "network science",
-        "phenomena spreading",
-        "simulation",
-        "social influence",
-        "spreading",
-        "temporal networks",
-    ],
-    description="Package to design and run diffusion phenomena in networks.",
     long_description=parse_readme(),
     long_description_content_type="text/markdown",
-    author="Michał Czuba, Piotr Bródka",
-    author_email="michal.czuba@pwr.edu.pl, piotr.brodka@pwr.edu.pl",
     install_requires=parse_requirements(),
     ext_modules=[
         Extension(
@@ -83,5 +51,4 @@ setup(
         )
     ],
     packages=find_packages(exclude=["*tests*"]),
-    python_requires=">=3.10",
 )
