@@ -8,7 +8,7 @@ import numpy as np
 
 from network_diffusion.mln.functions import get_toy_network_piotr
 from network_diffusion.models import MLTModel
-from network_diffusion.seeding.mocky_selector import MockyActorSelector
+from network_diffusion.seeding.mocking_selector import MockingActorSelector
 from network_diffusion.simulator import Simulator
 
 SPREADING_PARAMETERS = [
@@ -93,7 +93,7 @@ class TestMLTModel(unittest.TestCase):
             self.network.get_actor(6),
         ]
         rank = [*seeds, *set(self.network.get_actors()).difference(set(seeds))]
-        self.seed_selector = MockyActorSelector(rank)
+        self.seed_selector = MockingActorSelector(rank)
 
         # precentages of initially active and inactive actors
         prct_active = len(seeds) / self.network.get_actors_num() * 100

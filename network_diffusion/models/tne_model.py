@@ -258,10 +258,11 @@ class TemporalNetworkEpistemologyModel(BaseModel):
         """
         Return states in the network with number of agents that adopted them.
 
-        Vector of state for each agent is following:
-            <state of an actor><agent's belief><evidence>
-        And we are interested only in the state attribute.
+        Vector of states for each agent is following: <state of an actor>
+        <agent's belief><evidence>; and we are interested only in the state
+        attribute.
 
+        :param net: a network to get states number for
         :return: dictionary with items representing each of layers and with
             summary of nodes states in values
         """

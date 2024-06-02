@@ -18,7 +18,6 @@
 
 """Functions for the auxiliary operations."""
 
-
 import math
 import os
 import pathlib
