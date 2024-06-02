@@ -16,7 +16,7 @@
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
-"""Functions for logging experiments."""
+"""Functions for logging experiment results."""
 
 # pylint: disable=W0141
 import json

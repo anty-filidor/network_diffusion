@@ -16,7 +16,8 @@
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
-"""Functions for the phenomena spreading definition."""
+"""Functions for composing and executing an experiment."""
+
 import warnings
 from typing import Callable, List, Optional, Tuple, Union
 

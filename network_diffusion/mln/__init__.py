@@ -1,7 +1,6 @@
-"""Contains modules to handle operations on multilayer networks."""
+"""Modules that handle operations on multilayer networks."""
 
 # flake8: noqa
-
 
 from network_diffusion.mln import (
     cbim,

@@ -1,4 +1,4 @@
-"""Contains scripts that define various seding methods."""
+"""Various spreading model-agnostic seed selection methods."""
 
 # flake8: noqa
 
