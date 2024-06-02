@@ -18,7 +18,7 @@
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
-"""Contains modules to handle operations on temporal networks."""
+"""Modules to handle operations on temporal networks."""
 
 # flake8: noqa
 

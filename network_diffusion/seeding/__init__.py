@@ -1,7 +1,8 @@
-"""Contains scripts that define various seding methods."""
+"""Various spreading model-agnostic seed selection methods."""
 
 # flake8: noqa
 
+from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.seeding.betweenness_selector import BetweennessSelector
 from network_diffusion.seeding.cbim_selector import CBIMSeedselector
 from network_diffusion.seeding.cim import CIMSeedSelector
@@ -17,7 +18,7 @@ from network_diffusion.seeding.kshell_selector import (
     KShellMLNSeedSelector,
     KShellSeedSelector,
 )
-from network_diffusion.seeding.mocky_selector import MockyActorSelector
+from network_diffusion.seeding.mocking_selector import MockingActorSelector
 from network_diffusion.seeding.neighbourhoodsize_selector import (
     NeighbourhoodSizeDiscountSelector,
     NeighbourhoodSizeSelector,
