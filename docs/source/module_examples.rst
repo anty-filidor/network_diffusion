@@ -3,6 +3,6 @@ Example
 ===================================================
 
 .. toctree::
-    propagation_model_example
     multilayer_network_example
+    propagation_model_example
     simulator_example

@@ -48,9 +48,9 @@ Implemented in ``network_diffusion.mln.functions``.
 Operations on temporal networks
 =================================
 
-In the library TemporalNetwork is an ordered sequence of MultilayerNetworks.
-In base scenario one can obtain classic temporal network by having a chain
-of one-layered MultilayerNetworks.
+A ``TemporalNetwork`` is an ordered sequence of ``MultilayerNetwork``s.
+In a base scenario, one can obtain a classic temporal network by having a chain
+of one-layered ``MultilayerNetwork``s.
 
 Class ``TemporalNetwork``
 +++++++++++++++++++++++++
