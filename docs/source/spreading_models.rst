@@ -14,6 +14,9 @@ Base structures for concrete models
 .. autoclass:: network_diffusion.models.utils.compartmental.CompartmentalGraph
     :members:
 
+.. autoclass:: network_diffusion.models.utils.types.NetworkUpdateBuffer
+    :members:
+
 Concrete propagation models
 ===========================
 

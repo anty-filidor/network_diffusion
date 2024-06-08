@@ -1,21 +1,22 @@
 
-Module ``multilayer_network``
+==============================
+Class ``nd.MultilayerNetwork``
 ==============================
 
 What is a multilayer network?
-______________________________
+=============================
 Multilayer network is a class to extend the functionality of ``networkx.Graph``
 library to store and manipulate multilayer networks, which are a fundamental
 structure in the library. The module also allows to read the network from
 ``mpx`` text files, which store such structures.
 
 Available data
-______________
+==============
 `Here <http://multilayer.it.uu.se/datasets.html>`_ is the exemplary repository
 with multilayer networks, which can be read by ``network_diffusion``.
 
 Example of usage
-________________
+================
 Let's crete some multilayer networks in several ways.
 
 1. By defining separate graphs and layer names::
@@ -148,7 +149,7 @@ Let's crete some multilayer networks in several ways.
     ============================================
 
 Other functionalities
-_____________________
+=====================
 ``network_diffusion`` provides functions to read properties of multilayer
 networks and centrality metrics tailored for such models (e.g., VoteRank,
 PageRank, community detection routines). See the reference guide for further

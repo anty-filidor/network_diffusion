@@ -3,7 +3,6 @@
 import random
 import unittest
 
-import networkx as nx
 import numpy as np
 
 from network_diffusion.mln.functions import get_toy_network_piotr

@@ -40,7 +40,7 @@ class TestCompartmentalGraph(unittest.TestCase):
             "add func seems to have no effect",
         )
 
-    def test_describe_empty(self):
+    def test__str__empty(self):
         """Check describing a model that not have been initialised."""
         log = (
             "============================================\n"
@@ -51,7 +51,7 @@ class TestCompartmentalGraph(unittest.TestCase):
             "process '1' transitions with nonzero weight:\n\t"
             "from A to B with probability 0.2137 and constrains []\n\t"
             "from B to A with probability 0.2137 and constrains []\n"
-            "============================================"
+            "============================================\n"
         )
 
         model = CompartmentalGraph()
@@ -59,7 +59,7 @@ class TestCompartmentalGraph(unittest.TestCase):
         model.compile(background_weight=0.2137)
 
         self.assertEqual(
-            model.describe(),
+            model._get_desctiprion_str(),
             log,
             "Empty description string not in expected form",
         )
