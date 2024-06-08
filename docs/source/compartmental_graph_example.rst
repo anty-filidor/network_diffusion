@@ -1,14 +1,10 @@
 
-Module  ``models``
-==================
+======================================
+Class ``nd.models.CompartmentalGraph``
+======================================
 
-What is a propagation model?
-____________________________
-In ``network_diffusion``, a propagation model is considered as one or plenty of
-phenomena acting in the network.
-
-Purpose of the ``CompartmentalGraph``
-______________________________________
+What is a compartmental graph?
+==============================
 If the experiment includes more than two phenomena interacting with themselves,
 a description of the propagation model becomes complicated. E.g., model with two
 phenomena with two local steps each one:
@@ -50,7 +46,7 @@ states. The user needs to determine the names of phenomena, local states, and
 only the transitions relevant to the simulation.
 
 Example of usage
-________________
+================
 Let's define a ``CompartmentalGraph`` with three phenomena. Two of them
 (``phenomena_1``, ``phenomena_2``) with two local states, and one
 (``phenomena_3``) with three local states. Then, we will assign probabilities of

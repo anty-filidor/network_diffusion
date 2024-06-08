@@ -39,9 +39,9 @@ class Logger:
         Construct object.
 
         :param model_description: description of the model (i.e.
-            PropagationModel.describe()) which is used for saving in logs
+            PropagationModel.__str__()) which is used for saving in logs
         :param network_description: description of the network (i.e.
-            MultiplexNetwork.describe()) which is used for saving in logs
+            MultiplexNetwork.__str__()) which is used for saving in logs
         """
         self._model_description = model_description
         self._network_description = network_description

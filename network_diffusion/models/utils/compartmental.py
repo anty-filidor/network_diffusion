@@ -42,6 +42,10 @@ class CompartmentalGraph:
         self.background_weight: float = float("inf")
         self._seeding_budget: Dict[str, Tuple[NumericType, ...]] = {}
 
+    def __str__(self) -> str:
+        """Print out quickly properties of the graph."""
+        return self._get_desctiprion_str()
+
     @property
     def seeding_budget(self) -> Dict[str, Tuple[NumericType, ...]]:
         """
@@ -137,7 +141,7 @@ class CompartmentalGraph:
         assert process_name not in self.reserved_names, "Invalid name"
         self.__setattr__(process_name, states)  # pylint: disable=C2801
 
-    def describe(self) -> str:
+    def _get_desctiprion_str(self) -> str:
         """
         Print out parameters of the compartmental model.
 
@@ -177,7 +181,7 @@ class CompartmentalGraph:
                     f"{constraints}\n"
                 )
 
-        return global_info + transitions_info + BOLD_UNDERLINE
+        return global_info + transitions_info + BOLD_UNDERLINE + "\n"
 
     def get_compartments(self) -> Dict[str, Tuple[str, ...]]:
         """
