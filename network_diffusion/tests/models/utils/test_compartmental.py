@@ -9,6 +9,7 @@ import unittest
 import networkx as nx
 
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 
 def get_compiled_model():
@@ -42,22 +43,23 @@ class TestCompartmentalGraph(unittest.TestCase):
 
     def test__str__empty(self):
         """Check describing a model that not have been initialised."""
+        self.maxDiff = None
         log = (
             "============================================\n"
-            "compartmental model"
-            "\n--------------------------------------------\n"
-            "processes, their states and initial sizes:\n"
-            "--------------------------------------------\n"
-            "process '1' transitions with nonzero weight:\n\t"
-            "from A to B with probability 0.2137 and constrains []\n\t"
-            "from B to A with probability 0.2137 and constrains []\n"
-            "============================================\n"
+            + "compartmental model\n"
+            + "--------------------------------------------\n"
+            + "processes, their states and initial sizes:\n"
+            + "--------------------------------------------\n"
+            + "process '1' transitions with nonzero weight:\n\t"
+            + "from A to B with probability 0.2137 and constrains []\n\t"
+            + "from B to A with probability 0.2137 and constrains []\n"
+            + "============================================\n"
         )
 
         model = CompartmentalGraph()
         model.add("1", ["A", "B"])
         model.compile(background_weight=0.2137)
-
+        print(model._get_desctiprion_str())
         self.assertEqual(
             model._get_desctiprion_str(),
             log,

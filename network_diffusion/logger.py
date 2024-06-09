@@ -27,6 +27,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
+
 
 class Logger:
     """Store and processes logs acquired during performing Simulator."""
@@ -177,14 +179,10 @@ class Logger:
         else:
             print(self._network_description)
             print(self._model_description)
-            print(
-                "============================================\n"
-                "propagation report\n"
-                "--------------------------------------------"
-            )
+            print(f"{BOLD_UNDERLINE}\npropagation report\n{THIN_UNDERLINE}")
             for stat in self._global_stats_converted:
                 print(stat, "\n", self._global_stats_converted[stat], "\n")
-            print("============================================")
+            print(BOLD_UNDERLINE)
             if visualisation:
                 self.plot()
 
