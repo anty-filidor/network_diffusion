@@ -27,7 +27,7 @@ import networkx as nx
 import numpy as np
 
 from network_diffusion.mln.actor import MLNetworkActor
-from network_diffusion.utils import read_mpx
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, read_mpx
 
 
 class MultilayerNetwork:
@@ -171,12 +171,7 @@ class MultilayerNetwork:
         :return: string describing object
         """
         assert len(self.layers) > 0, "Import network to the object first!"
-        final_str = (
-            "============================================\n"
-            "network parameters\n"
-            "--------------------------------------------\n"
-        )
-
+        final_str = f"{BOLD_UNDERLINE}\nnetwork parameters\n{THIN_UNDERLINE}\n"
         final_str += "general parameters:\n"
         final_str += f"\tnumber of layers: {len(self.layers)}\n"
         final_str += f"\tnumber of actors: {self.get_actors_num()}\n"
@@ -204,7 +199,7 @@ class MultilayerNetwork:
                 )
             else:
                 final_str += "\tclustering coefficient - nan\n"
-        final_str += "============================================"
+        final_str += BOLD_UNDERLINE
 
         return final_str
 
