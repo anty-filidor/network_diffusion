@@ -19,8 +19,8 @@
 """Functions for the auxiliary operations."""
 
 import math
-import os
 import pathlib
+import random
 import string
 from typing import Any, Dict, List, Union
 
@@ -135,19 +135,15 @@ def read_tpn(
     return net_dict
 
 
-def create_directory(dest_path: str) -> None:
-    """
-    Check out if given directory exists and if doesn't it creates it.
-
-    :param dest_path: absolute path to create folder
-    """
-    if not os.path.exists(dest_path):
-        os.mkdir(dest_path)
-
-
 def get_absolute_path() -> str:
-    """Get absolute path of library."""
+    """Get absolute path of the library's sources."""
     return str(pathlib.Path(__file__).parent)
+
+
+def fix_random_seed(seed: int) -> None:
+    """Fix pseudo-random number generator seed for reproducible tests."""
+    random.seed(seed)
+    np.random.seed(seed)
 
 
 NumericType = Union[int, float, np.number]

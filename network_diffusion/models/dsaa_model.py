@@ -34,16 +34,24 @@ class DSAAModel(BaseModel):
 
     def __init__(self, compartmental_graph: CompartmentalGraph) -> None:
         """Create the object."""
-        super().__init__(
-            compartmental_graph=compartmental_graph,
-            seed_selector=RandomSeedSelector(),
-        )
+        self.__comp_graph = compartmental_graph
+        self.__seed_selector = RandomSeedSelector()
+
+    @property
+    def _compartmental_graph(self) -> CompartmentalGraph:
+        """Compartmental model that defines allowed transitions and states."""
+        return self.__comp_graph
+
+    @property
+    def _seed_selector(self) -> RandomSeedSelector:
+        """A method of selecting seed agents."""
+        return self.__seed_selector
 
     def __str__(self) -> str:
         """Return string representation of the object."""
         descr = f"{BOLD_UNDERLINE}\nDSAA Model"
         descr += f"\n{THIN_UNDERLINE}\n"
-        descr += self._compartmental_graph.describe()
+        descr += self._compartmental_graph._get_desctiprion_str()
         descr += str(self._seed_selector)
         descr += f"\n{BOLD_UNDERLINE}"
         return descr
@@ -152,14 +160,13 @@ class DSAAModel(BaseModel):
         :param network: a network to evaluate
         :return: list of nodes that changed state after the evaluation
         """
-        activated_nodes: List[NetworkUpdateBuffer] = []
-
+        new_st: List[NetworkUpdateBuffer] = []
         for layer_name, layer_graph in net.layers.items():
             for node in layer_graph.nodes():
                 new_state = self.agent_evaluation_step(node, layer_name, net)
                 layer_graph.nodes[node]["status"] = new_state
-
-        return activated_nodes
+                new_st.append(NetworkUpdateBuffer(node, layer_name, new_state))
+        return new_st
 
     def get_allowed_states(
         self, net: MultilayerNetwork

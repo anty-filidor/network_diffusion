@@ -66,8 +66,8 @@ class MLTModel(BaseModel):
         :param mi: activation threshold to transit from INACTIVE to ACTIVE in
             evaluation of the actor in particular layer
         """
-        compart_graph = self._create_compartments(seeding_budget, mi_value)
-        super().__init__(compart_graph, seed_selector)
+        self.__comp_graph = self._create_compartments(seeding_budget, mi_value)
+        self.__seed_selector = seed_selector
         if protocol == "AND":
             self.protocol = self._protocol_and
         elif protocol == "OR":
@@ -75,11 +75,21 @@ class MLTModel(BaseModel):
         else:
             raise ValueError("Only OR or AND protocols are allowed!")
 
+    @property
+    def _compartmental_graph(self) -> CompartmentalGraph:
+        """Compartmental model that defines allowed transitions and states."""
+        return self.__comp_graph
+
+    @property
+    def _seed_selector(self) -> BaseSeedSelector:
+        """A method of selecting seed agents."""
+        return self.__seed_selector
+
     def __str__(self) -> str:
         """Return string representation of the object."""
         descr = f"{BOLD_UNDERLINE}\nMultilayer Linear Threshold Model"
         descr += f"\n{THIN_UNDERLINE}\n"
-        descr += self._compartmental_graph.describe()
+        descr += self._compartmental_graph._get_desctiprion_str()
         descr += str(self._seed_selector)
         descr += f"{BOLD_UNDERLINE}\nauxiliary parameters\n{THIN_UNDERLINE}"
         descr += f"\n\tprotocol: {self.protocol.__name__}"

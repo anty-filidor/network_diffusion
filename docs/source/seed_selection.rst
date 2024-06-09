@@ -2,8 +2,8 @@
 Seed selection classes for propagation models
 ==============================================
 
-See dedicated `propagation model guide <propagation_model_example.html>`_ for
-these functions.
+See a `propagation model guide <propagation_model_example.html>`_ for details
+of these classes.
 
 Base structures for concrete seed selectors
 ===========================================
