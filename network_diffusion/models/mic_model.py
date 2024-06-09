@@ -63,9 +63,8 @@ class MICModel(BaseModel):
         """
         assert 0 <= probability <= 1, f"incorrect probability: {probability}!"
         self.probability = probability
-
-        compart_graph = self._create_comparents(seeding_budget)
-        super().__init__(compart_graph, seed_selector)
+        self.__comp_graph = self._create_compartments(seeding_budget)
+        self.__seed_selector = seed_selector
         if protocol == "AND":
             self.protocol = self._protocol_and
         elif protocol == "OR":
@@ -73,11 +72,21 @@ class MICModel(BaseModel):
         else:
             raise ValueError("Only AND & OR value is allowed!")
 
+    @property
+    def _compartmental_graph(self) -> CompartmentalGraph:
+        """Compartmental model that defines allowed transitions and states."""
+        return self.__comp_graph
+
+    @property
+    def _seed_selector(self) -> BaseSeedSelector:
+        """A method of selecting seed agents."""
+        return self.__seed_selector
+
     def __str__(self) -> str:
         """Return string representation of the object."""
         descr = f"{BOLD_UNDERLINE}\nMultilayer Independent Cascade Model"
         descr += f"\n{THIN_UNDERLINE}\n"
-        descr += self._compartmental_graph.describe()
+        descr += self._compartmental_graph._get_desctiprion_str()
         descr += f"\n{self._seed_selector}"
         descr += f"{BOLD_UNDERLINE}\nauxiliary parameters\n{THIN_UNDERLINE}"
         descr += f"\n\tprotocol: {self.protocol.__name__}"
@@ -87,7 +96,7 @@ class MICModel(BaseModel):
         descr += f"\n{BOLD_UNDERLINE}"
         return descr
 
-    def _create_comparents(
+    def _create_compartments(
         self,
         sending_budget: Tuple[NumericType, NumericType, NumericType],
     ) -> CompartmentalGraph:

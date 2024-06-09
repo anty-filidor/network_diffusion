@@ -2,8 +2,8 @@
 Performing experiments
 ======================
 
-See dedicated `simulator guide <simulator_example.html>`_ for these
-functions.
+See the `simulator guide <simulator_example.html>`_ to see how to use the
+functions described in this section.
 
 .. automodule:: network_diffusion.simulator
    :members:

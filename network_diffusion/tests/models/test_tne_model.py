@@ -10,6 +10,7 @@ from network_diffusion import TemporalNetwork
 from network_diffusion.models import TemporalNetworkEpistemologyModel
 from network_diffusion.seeding import RandomSeedSelector
 from network_diffusion.simulator import Simulator
+from network_diffusion.utils import fix_random_seed
 
 
 def create_artificial_temporal_data():
@@ -45,8 +46,7 @@ class TestTemporalNetworkEpistemologyModel(unittest.TestCase):
     def setUp(self) -> None:
         """Set up most common testing parameters."""
 
-        random.seed(42)
-        np.random.seed(42)
+        fix_random_seed(42)
 
         # init temporal network from nx predefined network
         temporal_snaps = create_artificial_temporal_data()

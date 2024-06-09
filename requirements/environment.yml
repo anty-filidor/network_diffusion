@@ -1,4 +1,4 @@
-name: network-diffusion2
+name: network-diffusion
 channels:
   - defaults
 dependencies:

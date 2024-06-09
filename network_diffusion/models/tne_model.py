@@ -56,16 +56,26 @@ class TemporalNetworkEpistemologyModel(BaseModel):
         :param epsilon: the difference between expected value of B action, and
             A action equal to 0.5
         """
-        compart_graph = self._create_compartments(seeding_budget)
-        super().__init__(compart_graph, seed_selector)
+        self.__comp_graph = self._create_compartments(seeding_budget)
+        self.__seed_selector = seed_selector
         self.trials_nr = trials_nr
         self.epsilon = epsilon
+
+    @property
+    def _compartmental_graph(self) -> CompartmentalGraph:
+        """Compartmental model that defines allowed transitions and states."""
+        return self.__comp_graph
+
+    @property
+    def _seed_selector(self) -> BaseSeedSelector:
+        """A method of selecting seed agents."""
+        return self.__seed_selector
 
     def __str__(self) -> str:
         """Return string representation of the object."""
         descr = f"{BOLD_UNDERLINE}\nTemporal Network Epistemology Model"
         descr += f"\n{THIN_UNDERLINE}\n"
-        descr += self._compartmental_graph.describe()
+        descr += self._compartmental_graph._get_desctiprion_str()
         descr += f"\n{self._seed_selector}"
         descr += f"{BOLD_UNDERLINE}\nauxiliary parameters\n{THIN_UNDERLINE}"
         descr += f"\n{BOLD_UNDERLINE}"
