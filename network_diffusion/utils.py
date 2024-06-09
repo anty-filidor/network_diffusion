@@ -136,7 +136,7 @@ def read_tpn(
 
 
 def get_absolute_path() -> str:
-    """Get absolute path of library."""
+    """Get absolute path of the library's sources."""
     return str(pathlib.Path(__file__).parent)
 
 

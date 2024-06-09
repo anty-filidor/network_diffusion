@@ -68,7 +68,7 @@ __________________________
 To provide comprehensive experiment logging, a user needs to implement two
 functions. The first one - ``__str__`` should print a general description of the
 model with compartments and allowed transitions (which can be easily read from a
-property ``_compartmental_graph``). The second method, ``get_allowed_states, ``
+property ``_compartmental_graph`` ). The second method, ``get_allowed_states``
 is used in the process of creating a simulation report. It is supposed to return
 a dictionary with a list of network layers where each of phenomena took place
 and allowed states in each layer.
@@ -77,4 +77,4 @@ Concrete spreading models
 =========================
 ``network_diffusion`` also provides out-of-the-box spreading models (like LTM or
 ICM) adapted to multilayer networks. For details, see
-`a reference <spreading_models.html>`.
+`a reference <spreading_models.html>`_.
