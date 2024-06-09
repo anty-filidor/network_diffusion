@@ -77,7 +77,7 @@ class CompartmentalGraph:
         # check if proposed dict has values that sum to 100 in each process
         for states in proposed_is.values():
             if sum(states) != 100:
-                raise ValueError("Sum in each process must equals to 100!")
+                raise ValueError("Sum in each process must equals 100!")
 
         self._seeding_budget = proposed_is
 

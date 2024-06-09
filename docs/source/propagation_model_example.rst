@@ -47,7 +47,8 @@ of this function is the new state of an agent in the given network layer.
 _______________________________________________
 This method is responsible for evaluating the entire network in a single
 experiment step. It involves iterating over each agent to determine its new state
-according to the method ``agent_evaluation_step``. The output is a list of ``NetworkUpdateBuffer`` structures.
+according to the method ``agent_evaluation_step``. The output is a list of
+``NetworkUpdateBuffer`` structures.
 
 ``nd.models.BaseModel._seed_selector``
 ______________________________________
