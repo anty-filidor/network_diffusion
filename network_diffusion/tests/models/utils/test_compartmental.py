@@ -59,7 +59,6 @@ class TestCompartmentalGraph(unittest.TestCase):
         model = CompartmentalGraph()
         model.add("1", ["A", "B"])
         model.compile(background_weight=0.2137)
-        print(model._get_desctiprion_str())
         self.assertEqual(
             model._get_desctiprion_str(),
             log,
