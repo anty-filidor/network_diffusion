@@ -125,8 +125,8 @@ SPREADING_PARAMETERS = [
 ]
 
 
-class TestMLTModel(unittest.TestCase):
-    """Test class for Multilayer Linear Threshold Model class."""
+class TestMICModel(unittest.TestCase):
+    """Test class for Multilayer Independent Cascade Model class."""
 
     def setUp(self) -> None:
 
