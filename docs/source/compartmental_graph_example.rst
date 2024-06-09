@@ -52,12 +52,16 @@ Let's define a ``CompartmentalGraph`` with three phenomena. Two of them
 (``phenomena_3``) with three local states. Then, we will assign probabilities of
 transitions between the states.
 
-Define the object to store states and transitions::
+Define the object to store states and transitions:
+
+.. code-block:: python
 
     import network_diffusion as nd
     compartments = nd.models.CompartmentalGraph()
 
-Assign phenomena and local states. Then compile it ad see results::
+Assign phenomena and local states. Then compile it ad see results:
+
+.. code-block:: python
 
     compartments.add("phenomenon_1", ("A", "B"))
     compartments.add("phenomenon_2", ("A", "B"))
@@ -84,7 +88,9 @@ Since we set up a ``background_weight`` to 0.0, no transitions are made during
 the compilation process. However, when given, the resulting compartmental graph
 contains all possible transitions with the same probability of occurrence (i.e.,
 a value of the parameter ``background_weight``). In this example, we will set up
-the transition weights manually::
+the transition weights manually:
+
+.. code-block:: python
 
     compartments.set_transition_canonical(
         "phenomenon_1",
@@ -111,7 +117,9 @@ the transition weights manually::
     process 'phenomenon_3' transitions with nonzero weight:
     ============================================
 
-We can also do it in a faster way::
+We can also do it in a faster way:
+
+.. code-block:: python
 
     compartments.set_transition_fast(
         "phenomenon_3.A",
@@ -137,7 +145,9 @@ We can also do it in a faster way::
         from A to B with probability 0.6 and constrains ['phenomenon_1.B' 'phenomenon_2.B']
     ============================================
 
-There is also a functionality of assigning transition weights randomly::
+There is also a functionality of assigning transition weights randomly:
+
+.. code-block:: python
 
     compartments.set_transitions_in_random_edges([[0.2, 0.3, 0.4], [0.2], [0.3]])
     print(compartments)
@@ -163,9 +173,11 @@ There is also a functionality of assigning transition weights randomly::
         from A to B with probability 0.6 and constrains ['phenomenon_1.B' 'phenomenon_2.B']
     ============================================
 
-The propagation model is stored as a dictionary of ``networkx``graphs. Hence, we
+The propagation model is stored as a dictionary of ``networkx`` graphs. Hence, we
 can draw it, but as the model grows bigger, the readability of visualisation is
-less::
+less:
+
+.. code-block:: python
 
     import matplotlib.pyplot as plt
 

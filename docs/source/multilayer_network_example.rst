@@ -19,7 +19,9 @@ Example of usage
 ================
 Let's crete some multilayer networks in several ways.
 
-1. By defining separate graphs and layer names::
+1. By defining separate graphs and layer names
+
+.. code-block:: python
 
     import networkx as nx
     import network_diffusion as nd
@@ -66,7 +68,9 @@ Let's crete some multilayer networks in several ways.
         clustering coefficient - 0.5731
     ============================================
 
-2. By defining separate graphs and using concrete names for the layers::
+2. By defining separate graphs and using concrete names for the layers
+
+.. code-block:: python
 
     import networkx as nx
     import network_diffusion as nd
@@ -113,7 +117,9 @@ Let's crete some multilayer networks in several ways.
         clustering coefficient - 0.5731
     ============================================
 
-3. By reading directly the `mpx` file::
+3. By reading directly the `mpx` file
+
+.. code-block:: python
 
     import network_diffusion as nd
 
