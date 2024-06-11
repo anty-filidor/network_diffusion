@@ -58,8 +58,8 @@ class MICModel(BaseModel):
             can be OR (then actor gets activated if it gets positive input in
             one layer) or AND (then actor gets activated if it gets positive
             input in all layers)
-        :param probability: threshold parameter which activate actor(a random
-             variable must be greater than this param)
+        :param probability: threshold parameter which activate actor (a random
+             variable must be greater than this param to result in activation)
         """
         assert 0 <= probability <= 1, f"incorrect probability: {probability}!"
         self.probability = probability
@@ -70,7 +70,7 @@ class MICModel(BaseModel):
         elif protocol == "OR":
             self.protocol = self._protocol_or
         else:
-            raise ValueError("Only AND & OR value is allowed!")
+            raise ValueError("Only AND & OR values are allowed!")
 
     @property
     def _compartmental_graph(self) -> CompartmentalGraph:
@@ -98,7 +98,7 @@ class MICModel(BaseModel):
 
     def _create_compartments(
         self,
-        sending_budget: Tuple[NumericType, NumericType, NumericType],
+        seeding_budget: Tuple[NumericType, NumericType, NumericType],
     ) -> CompartmentalGraph:
         """
         Create compartmental graph for the model.
@@ -113,7 +113,7 @@ class MICModel(BaseModel):
             process_name=self.PROCESS_NAME,
             states=[self.INACTIVE_NODE, self.ACTIVE_NODE, self.ACTIVATED_NODE],
         )
-        compart_graph.seeding_budget = {self.PROCESS_NAME: sending_budget}
+        compart_graph.seeding_budget = {self.PROCESS_NAME: seeding_budget}
 
         # Add allowed transitions
         compart_graph.compile(background_weight=0.0)

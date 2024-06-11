@@ -16,7 +16,7 @@
 # Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
 # =============================================================================
 
-"""Functions for the propagation model definition."""
+"""A definition of class to model processes spread in the network."""
 
 # pylint: disable=W0141
 
@@ -32,7 +32,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
 
 class CompartmentalGraph:
-    """Class which encapsulates model of processes speared in network."""
+    """Class which encapsulates model of processes spread in the network."""
 
     reserved_names = {"graph", "background_weight", "_seeding_budget"}
 

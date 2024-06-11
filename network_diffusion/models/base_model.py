@@ -45,11 +45,6 @@ class BaseModel(ABC):
     def __str__(self) -> str:
         """Return string representation of the object."""
 
-    @property
-    def compartments(self) -> CompartmentalGraph:
-        """Return defined compartments and allowed transitions."""
-        return self._compartmental_graph
-
     @abstractmethod
     def determine_initial_states(
         self, net: MultilayerNetwork

@@ -47,6 +47,11 @@ class DSAAModel(BaseModel):
         """A method of selecting seed agents."""
         return self.__seed_selector
 
+    @property
+    def compartments(self) -> CompartmentalGraph:
+        """Return defined compartments and allowed transitions."""
+        return self._compartmental_graph
+
     def __str__(self) -> str:
         """Return string representation of the object."""
         descr = f"{BOLD_UNDERLINE}\nDSAA Model"
