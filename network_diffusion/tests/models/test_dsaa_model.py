@@ -8,6 +8,41 @@ import networkx as nx
 from network_diffusion.mln import MultilayerNetwork
 from network_diffusion.models import DSAAModel
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
+from network_diffusion.simulator import Simulator
+from network_diffusion.utils import fix_random_seed
+
+EXPECTED_SPREADING_OUTCOME = [
+    {
+        "ill": (("S", 64), ("R", 3), ("I", 10)),
+        "aware": (("UA", 59), ("A", 18)),
+        "vacc": (("UV", 69), ("V", 8)),
+    },
+    {
+        "ill": (("S", 18), ("I", 56), ("R", 3)),
+        "aware": (("UA", 34), ("A", 43)),
+        "vacc": (("UV", 69), ("V", 8)),
+    },
+    {
+        "ill": (("I", 53), ("R", 18), ("S", 6)),
+        "aware": (("UA", 24), ("A", 53)),
+        "vacc": (("UV", 68), ("V", 9)),
+    },
+    {
+        "ill": (("I", 27), ("R", 44), ("S", 6)),
+        "aware": (("UA", 17), ("A", 60)),
+        "vacc": (("UV", 66), ("V", 11)),
+    },
+    {
+        "ill": (("I", 18), ("R", 53), ("S", 6)),
+        "aware": (("UA", 13), ("A", 64)),
+        "vacc": (("UV", 66), ("V", 11)),
+    },
+    {
+        "ill": (("I", 18), ("R", 53), ("S", 6)),
+        "aware": (("UA", 13), ("A", 64)),
+        "vacc": (("UV", 66), ("V", 11)),
+    },
+]
 
 
 def prepare_compartments() -> Tuple[CompartmentalGraph, Dict]:
@@ -42,10 +77,10 @@ def prepare_compartments() -> Tuple[CompartmentalGraph, Dict]:
 class TestDSAAModel(unittest.TestCase):
     """Test class for MultilayerNetwork class."""
 
-    # pylint: disable=W0212, C0206, C0201, R0914, R1721
-
     def setUp(self) -> None:
-        """Set up most common testing parameters."""
+
+        fix_random_seed(42)
+
         compartments, phenomena = prepare_compartments()
         self.phenomena = phenomena
 
@@ -114,7 +149,7 @@ class TestDSAAModel(unittest.TestCase):
                 )
 
     def test_get_states_num(self):
-        """Tests if nodes states are being returned correctly."""
+        """Test if nodes states are being returned correctly."""
         exp_result = {
             "ill": ((None, 77),),
             "aware": ((None, 77),),
@@ -124,4 +159,14 @@ class TestDSAAModel(unittest.TestCase):
             self.model.get_states_num(self.network),
             exp_result,
             "Global states in the network according to model are incorrect",
+        )
+
+    def test_e2e(self):
+        experiment = Simulator(model=self.model, network=self.network)
+        logs = experiment.perform_propagation(n_epochs=10, patience=1)
+        self.assertEqual(
+            logs.get_aggragated_logs(),
+            EXPECTED_SPREADING_OUTCOME,
+            f"Wrong course of the spreading process, expected "
+            f"{EXPECTED_SPREADING_OUTCOME} found {logs.get_aggragated_logs()}",
         )

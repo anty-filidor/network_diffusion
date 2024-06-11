@@ -31,21 +31,15 @@ from network_diffusion.seeding.base_selector import BaseSeedSelector
 class BaseModel(ABC):
     """Base abstract propagation model."""
 
-    def __init__(
-        self,
-        compartmental_graph: CompartmentalGraph,
-        seed_selector: BaseSeedSelector,
-    ) -> None:
-        """
-        Create the object.
+    @property
+    @abstractmethod
+    def _compartmental_graph(self) -> CompartmentalGraph:
+        """Compartmental model that defines allowed transitions and states."""
 
-        :param compartmental_graph: a compartmental model that defines allowed
-            transitions and states
-        :param seed_selector: definition of the influence seeds choice
-        """
-        self._compartmental_graph = compartmental_graph
-        self._seed_selector = seed_selector
-        self._seeds: List[NetworkUpdateBuffer] = []
+    @property
+    @abstractmethod
+    def _seed_selector(self) -> BaseSeedSelector:
+        """A method of selecting seed agents."""
 
     @abstractmethod
     def __str__(self) -> str:

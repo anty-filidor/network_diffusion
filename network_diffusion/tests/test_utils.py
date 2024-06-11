@@ -169,64 +169,6 @@ class TestUtils(unittest.TestCase):
             data, expected_data, "Bankwiring file read incorrectly!"
         )
 
-    def test_create_directory_new(self):
-        """
-        Test for creating directory.
-
-        Scenario 1 - directory doesn't exists
-        """
-        # mock up data
-        dir = os.path.join(
-            pathlib.Path(__file__).parent,
-            "".join(random.choices(string.ascii_letters, k=5)),
-        )
-        if os.path.isdir(dir):
-            shutil.rmtree(dir)
-
-        # execute desired function
-        utils.create_directory(dir)
-
-        # check correctness of execution
-        self.assertEqual(
-            os.path.isdir(dir), True, "Unable to create directory!"
-        )
-
-        # clean up
-        shutil.rmtree(dir)
-
-    def test_create_directory_exists(self):
-        """
-        Test for creating directory.
-
-        Scenario 2 - directory exists.
-        """
-        # mock up data
-        dir = os.path.join(
-            pathlib.Path(__file__).parent,
-            "".join(random.choices(string.ascii_letters, k=5)),
-        )
-        os.mkdir(dir)
-        file_name = "".join(random.choices(string.ascii_letters, k=3)) + ".txt"
-        with open(os.path.join(dir, file_name), "a") as f:
-            f.write("random text")
-            f.close()
-
-        # execute function
-        utils.create_directory(dir)
-
-        # check correctness of execution
-        self.assertEqual(
-            os.path.isdir(dir), True, f"Directory {dir} should exists!"
-        )
-        self.assertEqual(
-            os.path.isfile(os.path.join(dir, file_name)),
-            True,
-            f"File {file_name} should exists!",
-        )
-
-        # clean up
-        shutil.rmtree(dir)
-
 
 if __name__ == "__main__":
     unittest.main()

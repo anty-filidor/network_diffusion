@@ -20,13 +20,14 @@
 
 # pylint: disable=W0141
 import json
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from network_diffusion.utils import create_directory
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 
 class Logger:
@@ -39,9 +40,9 @@ class Logger:
         Construct object.
 
         :param model_description: description of the model (i.e.
-            PropagationModel.describe()) which is used for saving in logs
+            BaseModel.__str__()) which is used for saving in logs
         :param network_description: description of the network (i.e.
-            MultiplexNetwork.describe()) which is used for saving in logs
+            MultilayerNetwork.__str__()) which is used for saving in logs
         """
         self._model_description = model_description
         self._network_description = network_description
@@ -58,7 +59,7 @@ class Logger:
         Add raw log from single epoch to the object.
 
         :param log: raw log (i.e. a single call of
-            MultiplexNetwork.get_states_num())
+            MultilayerNetwork.get_states_num())
         """
         self._global_stats.append(log)
 
@@ -146,9 +147,7 @@ class Logger:
             provided logs are printed out on the screen
         """
         if path is not None:
-
-            # create directory from given path
-            create_directory(path)
+            Path(path).mkdir(exist_ok=True, parents=True)
 
             # save progress in propagation of each layer to csv file
             for stat in self._global_stats_converted:
@@ -180,14 +179,10 @@ class Logger:
         else:
             print(self._network_description)
             print(self._model_description)
-            print(
-                "============================================\n"
-                "propagation report\n"
-                "--------------------------------------------"
-            )
+            print(f"{BOLD_UNDERLINE}\npropagation report\n{THIN_UNDERLINE}")
             for stat in self._global_stats_converted:
                 print(stat, "\n", self._global_stats_converted[stat], "\n")
-            print("============================================")
+            print(BOLD_UNDERLINE)
             if visualisation:
                 self.plot()
 

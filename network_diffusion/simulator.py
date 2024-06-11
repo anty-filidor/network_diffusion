@@ -31,7 +31,7 @@ from network_diffusion.tpn.tpnetwork import TemporalNetwork
 
 
 class Simulator:
-    """Perform experiment defined by PropagationModel on MultiLayerNetwork."""
+    """Perform experiment defined by BaseModel on MultiLayerNetwork."""
 
     def __init__(
         self,
