@@ -3,7 +3,6 @@ import os
 import unittest
 
 import networkx as nx
-import numpy as np
 
 from network_diffusion import utils
 from network_diffusion.mln import MLNetworkActor, MultilayerNetwork
@@ -61,7 +60,7 @@ class TestMultilayerNetwork(unittest.TestCase):
 
     def test_from_nx_layers(self):
         """Tests loading network from several graphs."""
-        graphs = [nx.random_tree(10)] * 4
+        graphs = [nx.random_labeled_tree(10)] * 4
         layer_names = ["1", "2", "3", "4"]
 
         network = MultilayerNetwork.from_nx_layers(graphs, layer_names)

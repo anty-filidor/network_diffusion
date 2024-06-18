@@ -86,7 +86,9 @@ class Logger:
 
         # change NaN values to 0 and all values to integers
         for layer, vals in self._global_stats_converted.items():
-            self._global_stats_converted[layer] = vals.fillna(0).astype(int)
+            self._global_stats_converted[layer] = (
+                vals.infer_objects().fillna(0).astype(int)
+            )
 
     def __str__(self) -> str:
         return str(self._global_stats_converted)
