@@ -87,7 +87,7 @@ To contribute, please clone the repo, switch to a new feature branch, and
 install the environment:
 
 ```bash
-conda env create -f requirements/environment.yml
+conda env create -f env/conda.yml
 conda activate network-diffusion
 pip install -e .
 ```
