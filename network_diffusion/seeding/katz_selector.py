@@ -1,19 +1,9 @@
-# Copyright 2023 by D. Dąbrowski, M. Czuba, P. Bródka. All Rights Reserved.
+# Copyright (c) 2023 by Damian Dąbrowski, Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """A definition of the seed selector based on Katz centrality."""

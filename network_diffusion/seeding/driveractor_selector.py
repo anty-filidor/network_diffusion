@@ -1,3 +1,12 @@
+# Copyright (c) 2023 by Yu-Xuan Qi, Mingshan Jia, Katarzyna Musial, Michał
+# Czuba.
+#
+# This file is a part of Network Diffusion.
+#
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
+# =============================================================================
+
 """A definition of the seed selector based on driver actors."""
 
 from typing import Any, List, Optional

@@ -1,3 +1,12 @@
+# Copyright (c) 2023 by Yu-Xuan Qi, Mingshan Jia, Katarzyna Musial, Michał
+# Czuba.
+#
+# This file is a part of Network Diffusion.
+#
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
+# =============================================================================
+
 """Script with functions for driver actor selections."""
 
 from copy import deepcopy

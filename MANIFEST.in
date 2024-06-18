@@ -1,5 +1,5 @@
 include LICENSE
-include requirements/production.txt
+include env/pip_prod.txt
 recursive-include c_modules *.*
 prune */__pycache__
 global-exclude *.o *.so *.dylib *.a .git *.pyc
