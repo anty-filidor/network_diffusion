@@ -1,6 +1,6 @@
 # Network Diffusion - spreading models in networks
 
-[![License: GPL](https://img.shields.io/github/license/anty-filidor/network_diffusion)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![Licence](https://img.shields.io/github/license/anty-filidor/network_diffusion)](https://opensource.org/license/mit)
 [![PyPI version](https://badge.fury.io/py/network-diffusion.svg)](https://badge.fury.io/py/network-diffusion)
 
 ![Tests](https://github.com/anty-filidor/network_diffusion/actions/workflows/tests.yml/badge.svg)
