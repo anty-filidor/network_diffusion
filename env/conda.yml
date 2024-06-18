@@ -1,9 +1,9 @@
-name: network-diffusion
+name: network-diffusion2
 channels:
   - defaults
 dependencies:
-  - pip=23.0.1
-  - python=3.10.9
+  - pip=24.0
+  - python=3.12.3
   - pip:
-      - -r production.txt
-      - -r develop.txt
+      - -r pip_prod.txt
+      - -r pip_dev.txt
