@@ -1,1 +1,1 @@
-"""Tests for models."""
+"""Tests for spreading models."""

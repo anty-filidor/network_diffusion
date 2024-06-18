@@ -1,3 +1,11 @@
+# Copyright (c) 2023 by Michał Czuba, Piotr Bródka.
+#
+# This file is a part of Network Diffusion.
+#
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
+# =============================================================================
+
 """A definition of the seed selector based on betweenness centrality."""
 
 from typing import Any, List

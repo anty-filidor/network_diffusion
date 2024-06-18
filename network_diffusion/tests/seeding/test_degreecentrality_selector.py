@@ -1,5 +1,3 @@
-"""Tests for the network_diffusion.multilayer_network."""
-
 import unittest
 
 from network_diffusion.mln.functions import get_toy_network_piotr
