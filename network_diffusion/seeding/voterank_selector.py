@@ -8,7 +8,7 @@
 
 """A definition of the seed selectors based on Vote Rank algorithm."""
 
-from typing import Any, List
+from typing import Any
 
 import networkx as nx
 
@@ -25,7 +25,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 class VoteRankSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on Vote Rank algorithm."""
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """
         Create a ranking of nodes with Vote Rank algorithm.
 
@@ -44,7 +44,7 @@ class VoteRankSeedSelector(BaseSeedSelector):
             f"\tVoterank\n{BOLD_UNDERLINE}\n"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Compute ranking for actors."""
         return node_to_actor_ranking(super().nodewise(net), net)
 
@@ -52,7 +52,7 @@ class VoteRankSeedSelector(BaseSeedSelector):
 class VoteRankMLNSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on Vote Rank algorithm."""
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
             "Nodewise ranking list cannot be computed for this class!"
@@ -65,7 +65,7 @@ class VoteRankMLNSeedSelector(BaseSeedSelector):
             f"\tVoterank computed actorwise\n{BOLD_UNDERLINE}\n"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Compute ranking for actors."""
         elected_nodes = voterank_actorwise(net=net)
         unelected_nodes = set(net.get_actors()).difference(set(elected_nodes))

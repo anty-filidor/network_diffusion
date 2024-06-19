@@ -8,7 +8,7 @@
 
 """A definition of the seed selectors based on Page Rank algorithm."""
 
-from typing import Any, List
+from typing import Any
 
 import networkx as nx
 
@@ -25,7 +25,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 class PageRankSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on Page Rank algorithm."""
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """
         Create a ranking of nodes with Page Rank algorithm.
 
@@ -47,7 +47,7 @@ class PageRankSeedSelector(BaseSeedSelector):
             f"\nPage Rank\n{BOLD_UNDERLINE}\n"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Compute ranking for actors."""
         return node_to_actor_ranking(super().nodewise(net), net)
 
@@ -62,7 +62,7 @@ class PageRankMLNSeedSelector(PageRankSeedSelector):
             f"\nPage Rank computed actorwise\n{BOLD_UNDERLINE}\n"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Compute ranking for actors."""
         squeezed_net = squeeze_by_neighbourhood(net)
         return self._calculate_ranking_list(squeezed_net)

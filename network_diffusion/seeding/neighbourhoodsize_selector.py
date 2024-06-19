@@ -8,7 +8,7 @@
 
 """A definition of the seed selector based on neighbourhood size."""
 
-from typing import Any, Dict, List
+from typing import Any
 
 import networkx as nx
 
@@ -38,14 +38,14 @@ class NeighbourhoodSizeSelector(BaseSeedSelector):
             f"\n{BOLD_UNDERLINE}\n"
         )
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError("Nodewise ranking list cannot be computed!")
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Get ranking for actors using Neighbourhood Size metric."""
-        neighbourhood_size_values: Dict[int, List[MLNetworkActor]] = {}
-        ranking_list: List[MLNetworkActor] = []
+        neighbourhood_size_values: dict[int, list[MLNetworkActor]] = {}
+        ranking_list: list[MLNetworkActor] = []
 
         for actor, a_nsize in neighbourhood_size(
             net=net, connection_hop=self.connection_hop
@@ -70,10 +70,10 @@ class NeighbourhoodSizeDiscountSelector(BaseSeedSelector):
             f"\tNeighbourhood Size Discount\n{BOLD_UNDERLINE}\n"
         )
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError("Nodewise ranking list cannot be computed!")
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Get ranking for actors using Degree Centrality Discount algo."""
         return neighbourhood_size_discount(net=net, k=len(net))

@@ -9,7 +9,7 @@
 """A definition of the base seed selector class."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Union
+from typing import Any
 
 import networkx as nx
 
@@ -27,7 +27,7 @@ class BaseSeedSelector(ABC):
 
     def __call__(
         self, network: MultilayerNetwork, actorwise: bool = False
-    ) -> Union[Dict[str, List[Any]], List[MLNetworkActor]]:
+    ) -> dict[str, list[Any]] | list[MLNetworkActor]:
         """
         Prepare ranking list according to implementing seeding strategy.
 
@@ -48,7 +48,7 @@ class BaseSeedSelector(ABC):
         """Return seed method's description."""
 
     @abstractmethod
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """
         Create a ranking of nodes based on concrete metric/heuristic.
 
@@ -57,10 +57,10 @@ class BaseSeedSelector(ABC):
         """
 
     @abstractmethod
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Create actorwise ranking."""
 
-    def nodewise(self, net: MultilayerNetwork) -> Dict[str, List[Any]]:
+    def nodewise(self, net: MultilayerNetwork) -> dict[str, list[Any]]:
         """Create nodewise ranking."""
         nodes_ranking = {}
         for l_name, l_graph in net.layers.items():
@@ -70,8 +70,8 @@ class BaseSeedSelector(ABC):
 
 
 def node_to_actor_ranking(
-    nodewise_ranking: Dict[str, List[Any]], net: MultilayerNetwork
-) -> List[MLNetworkActor]:
+    nodewise_ranking: dict[str, list[Any]], net: MultilayerNetwork
+) -> list[MLNetworkActor]:
     """
     Nodewise / actorwise converter of seed ranking by weighted average.
 
@@ -82,14 +82,14 @@ def node_to_actor_ranking(
     l_sizes = {l_name: len(l_graph) for l_name, l_graph in net.layers.items()}
 
     # obtain score of each actor in its layers
-    actor_partial_scores: Dict[str, Dict[str, int]] = {}
+    actor_partial_scores: dict[str, dict[str, int]] = {}
     for l_name, l_ranking in nodewise_ranking.items():
         for idx, node_id in enumerate(l_ranking, start=1):
             if node_id not in actor_partial_scores:
                 actor_partial_scores[node_id] = {}
             actor_partial_scores[node_id][l_name] = idx
 
-    def _avg_result(results: Dict[str, int], sizes: Dict[str, int]) -> float:
+    def _avg_result(results: dict[str, int], sizes: dict[str, int]) -> float:
         """Compute average score in ranking weighted by size of layer."""
         counter = sum(  # pylint: disable=R1728
             [l_result * sizes[l_name] for l_name, l_result in results.items()]

@@ -10,7 +10,7 @@
 
 # pylint: disable=C0103
 
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any
 
 import networkx as nx
 
@@ -25,7 +25,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 def _cim_maximal_cliques(
     net: nx.Graph, filter_cliques: bool = True
-) -> List[Set[Any]]:
+) -> list[set[Any]]:
     """
     Get maximal cliques for given single-layered graph.
 
@@ -51,15 +51,15 @@ def _cim_maximal_cliques(
 
 
 def _sort_clique_by_degree(
-    clique: Set[Any], degrees: Dict[Any, int]
-) -> List[Any]:
+    clique: set[Any], degrees: dict[Any, int]
+) -> list[Any]:
     """Sort nodes in clique by their degrees."""
     return sorted(list(clique), key=lambda x: degrees[x], reverse=True)
 
 
 def _update_seed_set(
-    seed_set: List[Any], clique: List[Any], update_by: int
-) -> Tuple[List[Any], int]:
+    seed_set: list[Any], clique: list[Any], update_by: int
+) -> tuple[list[Any], int]:
     """
     Add <update_by> first nodes (without duplicates) from clique to seed_set.
 
@@ -75,7 +75,7 @@ def _update_seed_set(
 
 def clique_influence_maximization(
     G: nx.Graph, K: int, filter_cliques: bool = False
-) -> List[Any]:
+) -> list[Any]:
     """
     Clique-based influence maximisation algorithm.
 
@@ -103,7 +103,7 @@ def clique_influence_maximization(
     degrees = nx.degree(G)
 
     # output contaier
-    seeds: List[Any] = []
+    seeds: list[Any] = []
 
     # sort all the cliques in descending order based on size
     _mcs = [_sort_clique_by_degree(mc, degrees) for mc in max_cliques]
@@ -125,7 +125,7 @@ def clique_influence_maximization(
 class CIMSeedSelector(BaseSeedSelector):
     """Seed selector based on Clique-based influence maximisation algorithm."""
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """
         Create a ranking of nodes with Clique-based influence maximisation alg.
 
@@ -146,6 +146,6 @@ class CIMSeedSelector(BaseSeedSelector):
             f"\tClique-based Influence Maximisation\n{BOLD_UNDERLINE}\n"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Compute ranking for actors."""
         return node_to_actor_ranking(super().nodewise(net), net)
