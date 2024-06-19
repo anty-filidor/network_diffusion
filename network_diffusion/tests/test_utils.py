@@ -1,14 +1,4 @@
-#!/usr/bin/env python3
-# pylint: disable-all
-# type: ignore
-
-"""Tests for the network_diffusion.utils."""
-
 import os
-import pathlib
-import random
-import shutil
-import string
 import unittest
 
 from network_diffusion import utils

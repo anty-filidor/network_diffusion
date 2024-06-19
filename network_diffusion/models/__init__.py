@@ -1,3 +1,11 @@
+# Copyright (c) 2023 by Michał Czuba, Piotr Bródka.
+#
+# This file is a part of Network Diffusion.
+#
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
+# =============================================================================
+
 """Defined propagation, end-to-end models."""
 
 # flake8: noqa

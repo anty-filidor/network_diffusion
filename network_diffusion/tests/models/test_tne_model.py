@@ -1,10 +1,7 @@
-"""Tests for the network_diffusion.models.tne_model."""
-
 import random
 import unittest
 
 import networkx as nx
-import numpy as np
 
 from network_diffusion import TemporalNetwork
 from network_diffusion.models import TemporalNetworkEpistemologyModel

@@ -1,9 +1,4 @@
-"""Tests for the network_diffusion.models.mic_model."""
-
-import random
 import unittest
-
-import numpy as np
 
 from network_diffusion.mln.functions import get_toy_network_piotr
 from network_diffusion.models import MICModel

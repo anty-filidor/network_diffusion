@@ -1,6 +1,6 @@
 # Network Diffusion - spreading models in networks
 
-[![License: GPL](https://img.shields.io/github/license/anty-filidor/network_diffusion)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![Licence](https://img.shields.io/github/license/anty-filidor/network_diffusion)](https://opensource.org/license/mit)
 [![PyPI version](https://badge.fury.io/py/network-diffusion.svg)](https://badge.fury.io/py/network-diffusion)
 
 ![Tests](https://github.com/anty-filidor/network_diffusion/actions/workflows/tests.yml/badge.svg)
@@ -87,7 +87,7 @@ To contribute, please clone the repo, switch to a new feature branch, and
 install the environment:
 
 ```bash
-conda env create -f requirements/environment.yml
+conda env create -f env/conda.yml
 conda activate network-diffusion
 pip install -e .
 ```
@@ -102,7 +102,7 @@ we encourage users to explore the repository. Another way to familiarise
 yourself with the operating principles of `network_diffusion` are projects
 which utilise it:
 
-- Generator of a dataset with actors' spreading potentials - _v0.14.2_ -
+- Generator of a dataset with actors' spreading potentials - _v0.14.4_ -
   [repo](https://github.com/network-science-lab/infmax-simulator-icm-mln)
 - Influence max. under LTM in multilayer networks - _v0.14.0 pre-release_ -
   [repo](https://github.com/anty-filidor/rank-refined-seeding-bc-infmax-mlnets-ltm)
@@ -164,8 +164,9 @@ sending a direct [e-mail](https://github.com/anty-filidor) to the main author.
 
 ## About us
 
-This library is developed and maintained by Network Science Lab from
-[WUST](https://networks.pwr.edu.pl/) (Wrocław, Lower Silesia, Poland) and
-external partners. For more information and updates, please visit our
-[website](https://networks.pwr.edu.pl/) or our
-[GitHub](https://github.com/network-science-lab) for more projects.
+This library is developed and maintained by
+[Network Science Lab](https://networks.pwr.edu.pl/) from Politechnika
+Wrocławska / Wrocław University of Science and Technology / Technische
+Universität Breslau and external partners. For more information and updates,
+please visit our [website](https://networks.pwr.edu.pl/) or
+[GitHub](https://github.com/network-science-lab) page.

@@ -1,24 +1,14 @@
-# Copyright 2023 by D. Dąbrowski, M. Czuba, P. Bródka. All Rights Reserved.
+# Copyright (c) 2023 by Damian Dąbrowski, Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """A definition community based influence maximization selector class."""
 
-from typing import Any, List
+from typing import Any
 
 import networkx as nx
 
@@ -62,7 +52,7 @@ class CBIMSeedselector(BaseSeedSelector):
             f"\tCBIM choice\n{BOLD_UNDERLINE}\n"
         )
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking.
 
         :param graph: single layer graph to compute ranking for
@@ -75,6 +65,6 @@ class CBIMSeedselector(BaseSeedSelector):
             weight_attr=None,
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Get ranking using Community Based Influence Maximization."""
         return node_to_actor_ranking(super().nodewise(net), net)

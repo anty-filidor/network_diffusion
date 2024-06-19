@@ -1,25 +1,14 @@
-# Copyright 2023 by Damian Dąbrowski, Michał Czuba. All Rights Reserved.
+# Copyright (c) 2023 by Damian Dąbrowski, Michał Czuba.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """Multilayer Independent Cascade Model class."""
 
 import random
-from typing import Dict, List, Tuple
 
 import networkx as nx
 import numpy as np
@@ -43,7 +32,7 @@ class MICModel(BaseModel):
 
     def __init__(
         self,
-        seeding_budget: Tuple[NumericType, NumericType, NumericType],
+        seeding_budget: tuple[NumericType, NumericType, NumericType],
         seed_selector: BaseSeedSelector,
         protocol: str,
         probability: float,
@@ -58,8 +47,8 @@ class MICModel(BaseModel):
             can be OR (then actor gets activated if it gets positive input in
             one layer) or AND (then actor gets activated if it gets positive
             input in all layers)
-        :param probability: threshold parameter which activate actor(a random
-             variable must be greater than this param)
+        :param probability: threshold parameter which activate actor (a random
+             variable must be greater than this param to result in activation)
         """
         assert 0 <= probability <= 1, f"incorrect probability: {probability}!"
         self.probability = probability
@@ -70,7 +59,7 @@ class MICModel(BaseModel):
         elif protocol == "OR":
             self.protocol = self._protocol_or
         else:
-            raise ValueError("Only AND & OR value is allowed!")
+            raise ValueError("Only AND & OR values are allowed!")
 
     @property
     def _compartmental_graph(self) -> CompartmentalGraph:
@@ -98,7 +87,7 @@ class MICModel(BaseModel):
 
     def _create_compartments(
         self,
-        sending_budget: Tuple[NumericType, NumericType, NumericType],
+        seeding_budget: tuple[NumericType, NumericType, NumericType],
     ) -> CompartmentalGraph:
         """
         Create compartmental graph for the model.
@@ -113,7 +102,7 @@ class MICModel(BaseModel):
             process_name=self.PROCESS_NAME,
             states=[self.INACTIVE_NODE, self.ACTIVE_NODE, self.ACTIVATED_NODE],
         )
-        compart_graph.seeding_budget = {self.PROCESS_NAME: sending_budget}
+        compart_graph.seeding_budget = {self.PROCESS_NAME: seeding_budget}
 
         # Add allowed transitions
         compart_graph.compile(background_weight=0.0)
@@ -140,18 +129,18 @@ class MICModel(BaseModel):
         return compart_graph
 
     @staticmethod
-    def _protocol_or(inputs: Dict[str, str]) -> bool:
+    def _protocol_or(inputs: dict[str, str]) -> bool:
         """Protocol OR for actor activation basing on layer impulses."""
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.any())
 
     @staticmethod
-    def _protocol_and(inputs: Dict[str, str]) -> bool:
+    def _protocol_and(inputs: dict[str, str]) -> bool:
         """Protocol AND for actor activation basing on layer impulses."""
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.all())
 
-    def determine_initial_states(self, net: MultilayerNetwork) -> List[NUBff]:
+    def determine_initial_states(self, net: MultilayerNetwork) -> list[NUBff]:
         """
         Set initial states in the network according to seed selection method.
 
@@ -162,7 +151,7 @@ class MICModel(BaseModel):
         budget = self._compartmental_graph.get_seeding_budget_for_network(
             net=net, actorwise=True
         )
-        seed_nodes: List[NUBff] = []
+        seed_nodes: list[NUBff] = []
 
         for idx, actor in enumerate(self._seed_selector.actorwise(net=net)):
 
@@ -216,14 +205,14 @@ class MICModel(BaseModel):
 
         return current_state
 
-    def network_evaluation_step(self, net: MultilayerNetwork) -> List[NUBff]:
+    def network_evaluation_step(self, net: MultilayerNetwork) -> list[NUBff]:
         """
         Evaluate the network at one time stamp with MICModel.
 
         :param net: a network to evaluate
         :return: list of nodes that changed state after the evaluation
         """
-        nodes_to_update: List[NUBff] = []
+        nodes_to_update: list[NUBff] = []
 
         for actor in net.get_actors():
 
@@ -263,7 +252,7 @@ class MICModel(BaseModel):
 
     def get_allowed_states(
         self, net: MultilayerNetwork
-    ) -> Dict[str, Tuple[str, ...]]:
+    ) -> dict[str, tuple[str, ...]]:
         """
         Return dict with allowed states in each layer of net if applied model.
 

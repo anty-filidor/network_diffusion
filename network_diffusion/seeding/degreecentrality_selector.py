@@ -1,24 +1,14 @@
-# Copyright 2023 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2023 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """A definition of the seed selector based on degree centrality."""
 
-from typing import Any, Dict, List
+from typing import Any
 
 import networkx as nx
 
@@ -43,16 +33,16 @@ class DegreeCentralitySelector(BaseSeedSelector):
             f"\tdegree centrality choice\n{BOLD_UNDERLINE}\n"
         )
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
             "Nodewise ranking list is not implemented for this class!"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Get ranking for actors using Degree Centrality metric."""
-        degree_centrality_values: Dict[int, List[MLNetworkActor]] = {}
-        ranking_list: List[MLNetworkActor] = []
+        degree_centrality_values: dict[int, list[MLNetworkActor]] = {}
+        ranking_list: list[MLNetworkActor] = []
 
         for actor, a_degree in degree(net=net).items():
             if degree_centrality_values.get(a_degree) is None:
@@ -75,10 +65,10 @@ class DegreeCentralityDiscountSelector(BaseSeedSelector):
             f"\tDegree Centrality Discount\n{BOLD_UNDERLINE}\n"
         )
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         return degree_discount_networkx(net=graph, k=len(graph.nodes))
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Get ranking for actors using Degree Centrality Discount algo."""
         return degree_discount(net=net, k=len(net))

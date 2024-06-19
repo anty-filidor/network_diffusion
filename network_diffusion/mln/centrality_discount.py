@@ -1,24 +1,14 @@
-# Copyright 2023 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2023 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """Implementation of actors arnkings basing on Degree Discount algorithm."""
 
-from typing import Any, Dict, List
+from typing import Any
 
 import networkx as nx
 
@@ -31,7 +21,7 @@ from network_diffusion.mln.functions import (
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
-def _argmax_centrality_dict(centr_dict: Dict[Any, int]) -> List[Any]:
+def _argmax_centrality_dict(centr_dict: dict[Any, int]) -> list[Any]:
     """Get key(s) for maximal value in the dict."""
     if len(centr_dict) == 0:
         return []
@@ -40,7 +30,7 @@ def _argmax_centrality_dict(centr_dict: Dict[Any, int]) -> List[Any]:
     return max_keys
 
 
-def degree_discount_networkx(net: nx.Graph, k: int) -> List[Any]:
+def degree_discount_networkx(net: nx.Graph, k: int) -> list[Any]:
     """
     Degree Discount Heuristic for NetworkX Graph.
 
@@ -58,7 +48,7 @@ def degree_discount_networkx(net: nx.Graph, k: int) -> List[Any]:
     :return: a list of nodes ordered descending (the higher node in the list,
         more central is)
     """
-    seed_list: List[Any] = []
+    seed_list: list[Any] = []
     degrees = dict(nx.degree(net))
     while len(seed_list) < k:
         max_degree_node = _argmax_centrality_dict(degrees)[0]
@@ -72,8 +62,8 @@ def degree_discount_networkx(net: nx.Graph, k: int) -> List[Any]:
 
 
 def _centrality_discount_mln(
-    net: MultilayerNetwork, k: int, centr_dict: Dict[MLNetworkActor, int]
-) -> List[MLNetworkActor]:
+    net: MultilayerNetwork, k: int, centr_dict: dict[MLNetworkActor, int]
+) -> list[MLNetworkActor]:
     """
     Rank actors using discounting algo.
 
@@ -85,7 +75,7 @@ def _centrality_discount_mln(
     """
     if k > len(net):
         raise ValueError("Nb of seeds to be selscted > than number of actors!")
-    seed_list: List[MLNetworkActor] = []
+    seed_list: list[MLNetworkActor] = []
     while len(seed_list) < k:
         max_centr_actor = _argmax_centrality_dict(centr_dict)[0]
         seed_list.append(max_centr_actor)
@@ -97,7 +87,7 @@ def _centrality_discount_mln(
     return seed_list
 
 
-def degree_discount(net: MultilayerNetwork, k: int) -> List[MLNetworkActor]:
+def degree_discount(net: MultilayerNetwork, k: int) -> list[MLNetworkActor]:
     """
     Degree Discount Heuristic for MultilayerNetwork.
 
@@ -120,7 +110,7 @@ def degree_discount(net: MultilayerNetwork, k: int) -> List[MLNetworkActor]:
 
 def neighbourhood_size_discount(
     net: MultilayerNetwork, k: int
-) -> List[MLNetworkActor]:
+) -> list[MLNetworkActor]:
     """
     Neighbourhood Size Discount Heuristic for MultilayerNetwork.
 

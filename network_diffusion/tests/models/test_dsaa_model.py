@@ -1,7 +1,4 @@
-"""Tests for the network_diffusion.simulator."""
-
 import unittest
-from typing import Dict, Tuple
 
 import networkx as nx
 
@@ -45,7 +42,7 @@ EXPECTED_SPREADING_OUTCOME = [
 ]
 
 
-def prepare_compartments() -> Tuple[CompartmentalGraph, Dict]:
+def prepare_compartments() -> tuple[CompartmentalGraph, dict]:
     """Set up compartments needed to perform tests."""
     cmprt = CompartmentalGraph()
     phenomena = {
@@ -112,7 +109,7 @@ class TestDSAAModel(unittest.TestCase):
         # obtain info about numbers of nodes
         real_nodes_states = {}
         for l_name, l_graph in self.network.layers.items():
-            l_states: Dict[str, int] = {}
+            l_states: dict[str, int] = {}
             for node in l_graph.nodes():
                 state = l_graph.nodes[node]["status"]
                 if not l_states.get(state):

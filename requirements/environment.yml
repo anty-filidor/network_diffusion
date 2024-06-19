@@ -1,9 +1,0 @@
-name: network-diffusion
-channels:
-  - defaults
-dependencies:
-  - pip=23.0.1
-  - python=3.10.9
-  - pip:
-      - -r production.txt
-      - -r develop.txt

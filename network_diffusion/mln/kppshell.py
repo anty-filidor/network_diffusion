@@ -1,19 +1,9 @@
-# Copyright 2024 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2024 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """K++ Shell decomposition functions."""
@@ -21,7 +11,7 @@
 # pylint: disable=C0103
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Set
+from typing import Any
 
 import networkx as nx
 import pandas as pd
@@ -71,7 +61,7 @@ class KPPSNode:
     shell: int
     reward_points: int
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialise object into dictionary."""
         return {
             "node_id": self.node_id,
@@ -82,7 +72,7 @@ class KPPSNode:
 
 def _kppshell_community(
     community_graph: nx.Graph,
-) -> List[Dict[str, KPPSNode]]:
+) -> list[dict[str, KPPSNode]]:
     """
     K++ Shell decomposition of a single community of the graph.
 
@@ -94,7 +84,7 @@ def _kppshell_community(
         node_id: KPPSNode(node_id, degree, 0)
         for node_id, degree in degrees.items()
     }
-    bucket_list: List[KPPSNode] = []
+    bucket_list: list[KPPSNode] = []
 
     # iterate until there is still a node to be picked
     while len(nodes) >= 1:
@@ -124,7 +114,7 @@ def _kppshell_community(
     return [b.to_dict() for b in bucket_list]
 
 
-def kppshell_decomposition(G: nx.Graph) -> List[List[Dict[str, Any]]]:
+def kppshell_decomposition(G: nx.Graph) -> list[list[dict[str, Any]]]:
     """
     Decompose network according to K++ shell routine.
 
@@ -156,8 +146,8 @@ def kppshell_decomposition(G: nx.Graph) -> List[List[Dict[str, Any]]]:
 
 
 def compute_seed_quotas(
-    G: nx.Graph, communities: List[Any], num_seeds: int
-) -> List[int]:
+    G: nx.Graph, communities: list[Any], num_seeds: int
+) -> list[int]:
     """
     Compute number of seeds to be chosen from communities according to budget.
 
@@ -223,8 +213,8 @@ def compute_seed_quotas(
 
 
 def _select_seeds_from_kppshells(
-    shells: List[List[Dict[str, Any]]], quotas: List[int]
-) -> Set[Any]:
+    shells: list[list[dict[str, Any]]], quotas: list[int]
+) -> set[Any]:
     """Select seeds according to quota and decomposed network to the shells."""
     seeds_ranked = []
     for quota, decomposed_community in zip(quotas, shells):
@@ -240,7 +230,7 @@ def _select_seeds_from_kppshells(
     return set(seeds_ranked)
 
 
-def kppshell_seed_selection(G: nx.Graph, num_seeds: int) -> Set[Any]:
+def kppshell_seed_selection(G: nx.Graph, num_seeds: int) -> set[Any]:
     """
     Select <num_seeds> from <G> according to K++ Shell decomposition.
 
@@ -265,7 +255,7 @@ def kppshell_seed_selection(G: nx.Graph, num_seeds: int) -> Set[Any]:
     return _select_seeds_from_kppshells(shells=shells, quotas=quotas_in_shells)
 
 
-def kppshell_seed_ranking(G: nx.Graph) -> List[Any]:
+def kppshell_seed_ranking(G: nx.Graph) -> list[Any]:
     """
     Rank all nodes from <G> according to K++ Shell decomposition.
 

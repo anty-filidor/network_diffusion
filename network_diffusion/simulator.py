@@ -1,25 +1,15 @@
-# Copyright 2022 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2022 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """Functions for composing and executing an experiment."""
 
 import warnings
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable
 
 from tqdm import tqdm
 
@@ -36,7 +26,7 @@ class Simulator:
     def __init__(
         self,
         model: BaseModel,
-        network: Union[MultilayerNetwork, TemporalNetwork],
+        network: MultilayerNetwork | TemporalNetwork,
     ) -> None:
         """
         Construct an object.
@@ -51,8 +41,8 @@ class Simulator:
 
     def _update_counter(
         self,
-        new_states: List[NetworkUpdateBuffer],
-        old_states: List[NetworkUpdateBuffer],
+        new_states: list[NetworkUpdateBuffer],
+        old_states: list[NetworkUpdateBuffer],
     ) -> None:
         """Update a counter of dead epochs."""
         if set(new_states) == set(old_states):
@@ -62,7 +52,7 @@ class Simulator:
 
     def _create_iterator(
         self, n_epochs: int
-    ) -> Tuple[Callable[[int], MultilayerNetwork], int]:
+    ) -> tuple[Callable[[int], MultilayerNetwork], int]:
         """Create iterator through snapshots of the network."""
         if isinstance(self._network, MultilayerNetwork):
             return lambda x: self._network, n_epochs  # type: ignore
@@ -95,9 +85,7 @@ class Simulator:
                 raise ValueError("Net should have one actors set in snaps!")
 
     def perform_propagation(
-        self,
-        n_epochs: int,
-        patience: Optional[int] = None,
+        self, n_epochs: int, patience: int | None = None
     ) -> Logger:
         """
         Perform experiment on given network and given model.
