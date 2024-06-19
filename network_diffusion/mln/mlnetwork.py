@@ -11,7 +11,7 @@
 import random
 import warnings
 from copy import deepcopy
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 import networkx as nx
 import numpy as np
@@ -23,7 +23,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, read_mpx
 class MultilayerNetwork:
     """Container for multilayer network."""
 
-    def __init__(self, layers: Dict[str, nx.Graph]) -> None:
+    def __init__(self, layers: dict[str, nx.Graph]) -> None:
         """
         Create an object.
 
@@ -45,7 +45,7 @@ class MultilayerNetwork:
         raw_data = read_mpx(file_path)
 
         # create layers
-        layers: Dict[str, nx.Graph] = {}
+        layers: dict[str, nx.Graph] = {}
         if "layers" in raw_data:
             for layer_name, layer_type in raw_data["layers"]:
                 if layer_type == "DIRECTED":
@@ -74,8 +74,8 @@ class MultilayerNetwork:
     @classmethod
     def from_nx_layers(
         cls,
-        network_list: List[nx.Graph],
-        layer_names: Optional[List[Any]] = None,
+        network_list: list[nx.Graph],
+        layer_names: list[Any] | None = None,
     ) -> "MultilayerNetwork":
         """
         Load multilayer network as list of layers and list of its labels.
@@ -100,7 +100,7 @@ class MultilayerNetwork:
 
     @classmethod
     def from_nx_layer(
-        cls, network_layer: nx.Graph, layer_names: List[Any]
+        cls, network_layer: nx.Graph, layer_names: list[Any]
     ) -> "MultilayerNetwork":
         """
         Create multiplex network from one nx.Graph layer and layers names.
@@ -118,8 +118,8 @@ class MultilayerNetwork:
 
     @staticmethod
     def _prepare_nodes_attribute(
-        layers: Dict[str, nx.Graph]
-    ) -> Dict[str, nx.Graph]:
+        layers: dict[str, nx.Graph]
+    ) -> dict[str, nx.Graph]:
         """Prepare network to the experiment."""
         for layer in layers.values():
             status_dict = {n: None for n in layer.nodes()}
@@ -134,7 +134,7 @@ class MultilayerNetwork:
         """Create a copy of the network."""
         return self.copy()
 
-    def __deepcopy__(self, memo: Dict[int, Any]) -> "MultilayerNetwork":
+    def __deepcopy__(self, memo: dict[int, Any]) -> "MultilayerNetwork":
         """Create a deep copy of the network."""
         cls = self.__class__
         result = cls.__new__(cls)
@@ -208,14 +208,14 @@ class MultilayerNetwork:
         )
         return copied_instance
 
-    def subgraph(self, actors: List[MLNetworkActor]) -> "MultilayerNetwork":
+    def subgraph(self, actors: list[MLNetworkActor]) -> "MultilayerNetwork":
         """
         Return a subgraph of the network.
 
         The induced subgraph of the graph contains the nodes in `nodes` and the
         edges between those nodes. This is an equivalent of nx.Graph.subgraph.
         """
-        nodes_to_keep: Dict[str, List[Any]] = {
+        nodes_to_keep: dict[str, list[Any]] = {
             l_name: [] for l_name in self.get_layer_names()
         }
         for actor in actors:
@@ -252,14 +252,14 @@ class MultilayerNetwork:
             multiplexed_layers[layer] = updated_layer
         return MultilayerNetwork(multiplexed_layers)
 
-    def get_actors(self, shuffle: bool = False) -> List[MLNetworkActor]:
+    def get_actors(self, shuffle: bool = False) -> list[MLNetworkActor]:
         """
         Get actors that exist in the network and read their states.
 
         :param shuffle: a flag that determines whether to shuffle actor list
         :return: a list with actors that live in the network
         """
-        actor_dict: Dict[str, Dict] = {}
+        actor_dict: dict[str, dict] = {}
         for layer_name, layer_graph in self.layers.items():
             for node in layer_graph.nodes:
                 if node not in actor_dict:
@@ -292,12 +292,12 @@ class MultilayerNetwork:
 
     def get_actors_num(self) -> int:
         """Get number of actors that live in the network."""
-        actors_set: Set[Any] = set()
+        actors_set: set[Any] = set()
         for layer_graph in self.layers.values():
             actors_set = actors_set.union(set(layer_graph.nodes))
         return len(actors_set)
 
-    def get_nodes_num(self) -> Dict[str, int]:
+    def get_nodes_num(self) -> dict[str, int]:
         """Get number of nodes that live in each layer of the network."""
         nodes_num = {}
         for layer_name, layer_graph in self.layers.items():
@@ -305,8 +305,8 @@ class MultilayerNetwork:
         return nodes_num
 
     def get_links(
-        self, actor_id: Optional[Any] = None
-    ) -> Set[Tuple[MLNetworkActor, MLNetworkActor]]:
+        self, actor_id: Any | None = None
+    ) -> set[tuple[MLNetworkActor, MLNetworkActor]]:
         """
         Get links connecting all actors from the network regardless layers.
 
@@ -330,12 +330,12 @@ class MultilayerNetwork:
                 for l_graph in self.layers.values()
             ]
 
-        actor_edges_merged: Set[Tuple[MLNetworkActor, MLNetworkActor]] = set()
+        actor_edges_merged: set[tuple[MLNetworkActor, MLNetworkActor]] = set()
         for l_edges in actor_edges_per_layer:
             actor_edges_merged = actor_edges_merged.union(l_edges)
         return actor_edges_merged
 
-    def get_layer_names(self) -> List[str]:
+    def get_layer_names(self) -> list[str]:
         """
         Get names of layers in the network.
 
