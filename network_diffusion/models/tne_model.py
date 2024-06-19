@@ -8,7 +8,8 @@
 
 """Definition of the temporal network epistemology model."""
 
-from typing import Any, Counter, Dict, List, Tuple
+from collections import Counter
+from typing import Any
 
 import networkx as nx
 import numpy as np
@@ -31,7 +32,7 @@ class TemporalNetworkEpistemologyModel(BaseModel):
 
     def __init__(
         self,
-        seeding_budget: Tuple[NumericType, NumericType],
+        seeding_budget: tuple[NumericType, NumericType],
         seed_selector: BaseSeedSelector,
         trials_nr: int,
         epsilon: float,
@@ -72,7 +73,7 @@ class TemporalNetworkEpistemologyModel(BaseModel):
         return descr
 
     def _create_compartments(
-        self, seeding_budget: Tuple[NumericType, NumericType]
+        self, seeding_budget: tuple[NumericType, NumericType]
     ) -> CompartmentalGraph:
         """
         Create compartmental graph for the model.
@@ -92,7 +93,7 @@ class TemporalNetworkEpistemologyModel(BaseModel):
         compart_graph.compile()
         return compart_graph
 
-    def determine_initial_states(self, net: MultilayerNetwork) -> List[NUBff]:
+    def determine_initial_states(self, net: MultilayerNetwork) -> list[NUBff]:
         """
         Set initial states in the network according to seed selection method.
 
@@ -103,7 +104,7 @@ class TemporalNetworkEpistemologyModel(BaseModel):
         budget = self._compartmental_graph.get_seeding_budget_for_network(
             net=net, actorwise=True
         )
-        seed_nodes: List[NUBff] = []
+        seed_nodes: list[NUBff] = []
 
         for idx, actor in enumerate(self._seed_selector.actorwise(net=net)):
 
@@ -149,7 +150,7 @@ class TemporalNetworkEpistemologyModel(BaseModel):
         return encoded_status
 
     @staticmethod
-    def decode_actor_status(encoded_status: str) -> Tuple[str, float, int]:
+    def decode_actor_status(encoded_status: str) -> tuple[str, float, int]:
         """
         Decode agent features from str form.
 
@@ -216,14 +217,14 @@ class TemporalNetworkEpistemologyModel(BaseModel):
         )
         return encoded_state
 
-    def network_evaluation_step(self, net: MultilayerNetwork) -> List[NUBff]:
+    def network_evaluation_step(self, net: MultilayerNetwork) -> list[NUBff]:
         """
         Evaluate the given snapshot of the network.
 
         :param net: a network to evaluate
         :return: list of nodes that changed state after the evaluation
         """
-        nodes_to_update: List[NUBff] = []
+        nodes_to_update: list[NUBff] = []
         for actor in net.get_actors():
             new_state_encoded = self.agent_evaluation_step(
                 actor, actor.layers[0], net
@@ -242,7 +243,7 @@ class TemporalNetworkEpistemologyModel(BaseModel):
 
     def get_allowed_states(
         self, net: MultilayerNetwork
-    ) -> Dict[str, Tuple[str, ...]]:
+    ) -> dict[str, tuple[str, ...]]:
         """
         Return dict with allowed states of net if applied model.
 
@@ -254,7 +255,7 @@ class TemporalNetworkEpistemologyModel(BaseModel):
     @staticmethod
     def get_states_num(
         net: MultilayerNetwork,
-    ) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
+    ) -> dict[str, tuple[tuple[Any, int], ...]]:
         """
         Return states in the network with number of agents that adopted them.
 

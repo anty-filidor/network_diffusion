@@ -8,7 +8,7 @@
 
 """Functions for the phenomena spreading definition."""
 
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import networkx as nx
 import numpy as np
@@ -54,7 +54,7 @@ class DSAAModel(BaseModel):
 
     def determine_initial_states(
         self, net: MultilayerNetwork
-    ) -> List[NetworkUpdateBuffer]:
+    ) -> list[NetworkUpdateBuffer]:
         """
         Set initial states in the network according to seed selection method.
 
@@ -67,7 +67,7 @@ class DSAAModel(BaseModel):
             raise ValueError("This model works only with multiplex networks!")
 
         budget = self._compartmental_graph.get_seeding_budget_for_network(net)
-        seed_nodes: List[NetworkUpdateBuffer] = []
+        seed_nodes: list[NetworkUpdateBuffer] = []
 
         # set initial states in each layer of network
         for l_name, ranking in self._seed_selector.nodewise(net).items():
@@ -81,7 +81,7 @@ class DSAAModel(BaseModel):
             _rngs = [
                 sum(list(l_budget.values())[:x]) for x in range(len(l_budget))
             ] + [l_nodes_num]
-            ranges: List[Tuple[int, int]] = list(zip(_rngs[:-1], _rngs[1:]))
+            ranges: list[tuple[int, int]] = list(zip(_rngs[:-1], _rngs[1:]))
 
             # generate update buffer
             for i, _ in enumerate(ranges):
@@ -145,7 +145,7 @@ class DSAAModel(BaseModel):
 
     def network_evaluation_step(
         self, net: MultilayerNetwork
-    ) -> List[NetworkUpdateBuffer]:
+    ) -> list[NetworkUpdateBuffer]:
         """
         Evaluate the network at one time stamp according to the model.
 
@@ -156,7 +156,7 @@ class DSAAModel(BaseModel):
         :param network: a network to evaluate
         :return: list of nodes that changed state after the evaluation
         """
-        new_st: List[NetworkUpdateBuffer] = []
+        new_st: list[NetworkUpdateBuffer] = []
         for layer_name, layer_graph in net.layers.items():
             for node in layer_graph.nodes():
                 new_state = self.agent_evaluation_step(node, layer_name, net)
@@ -166,7 +166,7 @@ class DSAAModel(BaseModel):
 
     def get_allowed_states(
         self, net: MultilayerNetwork
-    ) -> Dict[str, Tuple[str, ...]]:
+    ) -> dict[str, tuple[str, ...]]:
         """
         Return dict with allowed states in each layer of net if applied model.
 

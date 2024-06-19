@@ -9,7 +9,6 @@
 """Definition of the aux types used in the library."""
 
 from dataclasses import dataclass
-from typing import Dict
 
 
 @dataclass(frozen=True, eq=True)
@@ -23,7 +22,7 @@ class NetworkUpdateBuffer:
     def __str__(self) -> str:
         return f"{self.layer_name}:{self.node_name}:{self.new_state}"
 
-    def to_json(self) -> Dict[str, str]:
+    def to_json(self) -> dict[str, str]:
         """Return dict writable to JSON."""
         return {
             "layer_name": self.layer_name,
