@@ -18,9 +18,6 @@ can build it with `python setup.py build`.
 # mypy: disable-error-code=empty-body
 
 
-from typing import List
-
-
 def _cogsnet(
     forgetting_type: str,
     snapshot_interval: int,
@@ -30,5 +27,5 @@ def _cogsnet(
     units: int,
     path_events: str,
     delimiter: str,
-) -> List[List[List[float]]]:
+) -> list[list[list[float]]]:
     """Call cogsnet function in C and get snapshots of weighted edgelists."""

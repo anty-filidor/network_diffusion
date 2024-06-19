@@ -9,7 +9,7 @@
 """Functions for composing and executing an experiment."""
 
 import warnings
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable
 
 from tqdm import tqdm
 
@@ -26,7 +26,7 @@ class Simulator:
     def __init__(
         self,
         model: BaseModel,
-        network: Union[MultilayerNetwork, TemporalNetwork],
+        network: MultilayerNetwork | TemporalNetwork,
     ) -> None:
         """
         Construct an object.
@@ -41,8 +41,8 @@ class Simulator:
 
     def _update_counter(
         self,
-        new_states: List[NetworkUpdateBuffer],
-        old_states: List[NetworkUpdateBuffer],
+        new_states: list[NetworkUpdateBuffer],
+        old_states: list[NetworkUpdateBuffer],
     ) -> None:
         """Update a counter of dead epochs."""
         if set(new_states) == set(old_states):
@@ -52,7 +52,7 @@ class Simulator:
 
     def _create_iterator(
         self, n_epochs: int
-    ) -> Tuple[Callable[[int], MultilayerNetwork], int]:
+    ) -> tuple[Callable[[int], MultilayerNetwork], int]:
         """Create iterator through snapshots of the network."""
         if isinstance(self._network, MultilayerNetwork):
             return lambda x: self._network, n_epochs  # type: ignore
@@ -85,9 +85,7 @@ class Simulator:
                 raise ValueError("Net should have one actors set in snaps!")
 
     def perform_propagation(
-        self,
-        n_epochs: int,
-        patience: Optional[int] = None,
+        self, n_epochs: int, patience: int | None = None
     ) -> Logger:
         """
         Perform experiment on given network and given model.

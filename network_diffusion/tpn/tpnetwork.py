@@ -8,7 +8,7 @@
 
 """A script where a temporal network is defined."""
 
-from typing import Any, List, Optional
+from typing import Any
 
 import networkx as nx
 import pandas as pd
@@ -19,7 +19,7 @@ from network_diffusion.tpn.cogsnet_lib import _cogsnet  # pylint: disable=E0611
 from network_diffusion.utils import read_tpn
 
 
-def cogsnet_snap_to_nxgraph(cogsnet_snap: List[List[float]]) -> nx.DiGraph:
+def cogsnet_snap_to_nxgraph(cogsnet_snap: list[list[float]]) -> nx.DiGraph:
     """
     Create nx.DiGraph from one snapshot obtained from CogSNet.
 
@@ -37,7 +37,7 @@ def cogsnet_snap_to_nxgraph(cogsnet_snap: List[List[float]]) -> nx.DiGraph:
 class TemporalNetwork:
     """Container for a temporal network."""
 
-    def __init__(self, snaps: List[MultilayerNetwork]) -> None:
+    def __init__(self, snaps: list[MultilayerNetwork]) -> None:
         """
         Create a temporal network object.
 
@@ -76,7 +76,7 @@ class TemporalNetwork:
 
     @classmethod
     def from_nx_layers(
-        cls, network_list: List[nx.Graph], snap_ids: Optional[List[Any]] = None
+        cls, network_list: list[nx.Graph], snap_ids: list[Any] | None = None
     ) -> "TemporalNetwork":
         """
         Load a temporal network from a list of networks and their snapshot ids.
@@ -100,7 +100,7 @@ class TemporalNetwork:
             ]
         return cls(snaps)
 
-    def get_actors(self, shuffle: bool = False) -> List[MLNetworkActor]:
+    def get_actors(self, shuffle: bool = False) -> list[MLNetworkActor]:
         """
         Get actors that from the first snapshot of network.
 
@@ -110,7 +110,7 @@ class TemporalNetwork:
 
     def get_actors_from_snap(
         self, snapshot_id: int, shuffle: bool = False
-    ) -> List[MLNetworkActor]:
+    ) -> list[MLNetworkActor]:
         """
         Get actors that exist in the network at given snapshot.
 
@@ -176,4 +176,4 @@ class TemporalNetwork:
             MultilayerNetwork({"layer_1": cogsnet_snap_to_nxgraph(snap)})
             for snap in cogsnet_snaps
         ]
-        return cls(mln_snaps)  # TODO: add to docs!
+        return cls(mln_snaps)
