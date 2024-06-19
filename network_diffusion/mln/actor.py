@@ -8,13 +8,13 @@
 
 """Contains funcitons to handle actors of the multilayer network."""
 
-from typing import Any, Dict, Tuple
+from typing import Any
 
 
 class MLNetworkActor:
     """Dataclass that contain data of actor in the network."""
 
-    def __init__(self, actor_id: str, layers_states: Dict[str, str]) -> None:
+    def __init__(self, actor_id: str, layers_states: dict[str, str]) -> None:
         """
         Initialise the object.
 
@@ -26,7 +26,7 @@ class MLNetworkActor:
         self._layers_states = layers_states
 
     @classmethod
-    def from_dict(cls, base_dict: Dict[str, Any]) -> "MLNetworkActor":
+    def from_dict(cls, base_dict: dict[str, Any]) -> "MLNetworkActor":
         """
         Create an object from serialised dicitonary.
 
@@ -63,23 +63,23 @@ class MLNetworkActor:
         )
 
     @property
-    def layers(self) -> Tuple[str, ...]:
+    def layers(self) -> tuple[str, ...]:
         """Get network layers where actor exists."""
         return tuple(self._layers_states.keys())
 
     @property
-    def states(self) -> Dict[str, str]:
+    def states(self) -> dict[str, str]:
         """Get actor's states for where actitor exists."""
         return self._layers_states
 
     @states.setter
-    def states(self, updated_states: Dict[str, str]) -> None:
+    def states(self, updated_states: dict[str, str]) -> None:
         """Set actor's states for layers where it exists."""
         for layer_name, new_state in updated_states.items():
             assert layer_name in self._layers_states
             self._layers_states[layer_name] = new_state
 
-    def states_as_compartmental_graph(self) -> Tuple[str, ...]:
+    def states_as_compartmental_graph(self) -> tuple[str, ...]:
         """
         Return actor states in form accepted by CompartmentalGraph.
 

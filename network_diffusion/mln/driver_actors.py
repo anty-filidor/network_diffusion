@@ -10,15 +10,15 @@
 """Script with functions for driver actor selections."""
 
 from copy import deepcopy
-from typing import Any, List, Set
+from typing import Any
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
-def compute_driver_actors(net: MultilayerNetwork) -> List[MLNetworkActor]:
+def compute_driver_actors(net: MultilayerNetwork) -> list[MLNetworkActor]:
     """Return driver actors for a given network."""
-    min_dominating_set: Set[Any] = set()
+    min_dominating_set: set[Any] = set()
     for layer in net.layers:
         min_dominating_set = minimum_dominating_set_with_initial(
             net, layer, min_dominating_set
@@ -28,8 +28,8 @@ def compute_driver_actors(net: MultilayerNetwork) -> List[MLNetworkActor]:
 
 
 def minimum_dominating_set_with_initial(
-    net: MultilayerNetwork, layer: str, initial_set: Set[Any]
-) -> Set[int]:
+    net: MultilayerNetwork, layer: str, initial_set: set[Any]
+) -> set[int]:
     """
     Return a dominating set that includes the initial set.
 
