@@ -1,11 +1,9 @@
 """Setup script to produce a package from the code."""
 
-from typing import List
-
 from setuptools import Extension, find_packages, setup
 
 
-def parse_requirements() -> List[str]:
+def parse_requirements() -> list[str]:
     """Parse requirements from the txt file."""
     with open(file="env/pip_prod.txt", encoding="utf-8") as file:
         requirements = file.readlines()
