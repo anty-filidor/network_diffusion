@@ -8,7 +8,7 @@
 
 """A definition of "selector" that returns aprioiry provided actors."""
 
-from typing import Any, List
+from typing import Any
 
 import networkx as nx
 
@@ -21,7 +21,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 class MockingActorSelector(BaseSeedSelector):
     """Mock seed selector - returns a ranking provided as argument to init."""
 
-    def __init__(self, preselected_actors: List[MLNetworkActor]) -> None:
+    def __init__(self, preselected_actors: list[MLNetworkActor]) -> None:
         """Initialise object."""
         self.preselected_actors = preselected_actors
         super().__init__()
@@ -33,13 +33,13 @@ class MockingActorSelector(BaseSeedSelector):
             f"\tmocked choice - seeds provided a priori\n{BOLD_UNDERLINE}\n"
         )
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
             "Nodewise ranking list cannot be computed for this class!"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Get ranking for actors."""
         if net.get_actors_num() != len(self.preselected_actors):
             raise ValueError("Incorrect length of preselected actors!")

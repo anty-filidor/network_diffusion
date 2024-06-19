@@ -8,7 +8,7 @@
 
 """A definition community based influence maximization selector class."""
 
-from typing import Any, List
+from typing import Any
 
 import networkx as nx
 
@@ -52,7 +52,7 @@ class CBIMSeedselector(BaseSeedSelector):
             f"\tCBIM choice\n{BOLD_UNDERLINE}\n"
         )
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking.
 
         :param graph: single layer graph to compute ranking for
@@ -65,6 +65,6 @@ class CBIMSeedselector(BaseSeedSelector):
             weight_attr=None,
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Get ranking using Community Based Influence Maximization."""
         return node_to_actor_ranking(super().nodewise(net), net)

@@ -8,7 +8,7 @@
 
 """A definition of the seed selector based on degree centrality."""
 
-from typing import Any, Dict, List
+from typing import Any
 
 import networkx as nx
 
@@ -33,16 +33,16 @@ class DegreeCentralitySelector(BaseSeedSelector):
             f"\tdegree centrality choice\n{BOLD_UNDERLINE}\n"
         )
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
             "Nodewise ranking list is not implemented for this class!"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Get ranking for actors using Degree Centrality metric."""
-        degree_centrality_values: Dict[int, List[MLNetworkActor]] = {}
-        ranking_list: List[MLNetworkActor] = []
+        degree_centrality_values: dict[int, list[MLNetworkActor]] = {}
+        ranking_list: list[MLNetworkActor] = []
 
         for actor, a_degree in degree(net=net).items():
             if degree_centrality_values.get(a_degree) is None:
@@ -65,10 +65,10 @@ class DegreeCentralityDiscountSelector(BaseSeedSelector):
             f"\tDegree Centrality Discount\n{BOLD_UNDERLINE}\n"
         )
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         return degree_discount_networkx(net=graph, k=len(graph.nodes))
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Get ranking for actors using Degree Centrality Discount algo."""
         return degree_discount(net=net, k=len(net))

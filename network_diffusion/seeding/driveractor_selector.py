@@ -9,7 +9,7 @@
 
 """A definition of the seed selector based on driver actors."""
 
-from typing import Any, List, Optional
+from typing import Any
 
 import networkx as nx
 
@@ -24,7 +24,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 class DriverActorSelector(BaseSeedSelector):
     """Driver Actor based seed selector."""
 
-    def __init__(self, method: Optional[BaseSeedSelector]) -> None:
+    def __init__(self, method: BaseSeedSelector | None) -> None:
         """
         Initialise object.
 
@@ -46,14 +46,14 @@ class DriverActorSelector(BaseSeedSelector):
             f"\tdriver actor{s_str}\n{BOLD_UNDERLINE}\n"
         )
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
             "Nodewise ranking list cannot be computed for this class!"
         )
 
     # TODO: other methods and parameters?
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Return a list of driver actors for a multilayer network."""
         driver_actors_list = compute_driver_actors(net)
 
@@ -66,16 +66,16 @@ class DriverActorSelector(BaseSeedSelector):
 
     def snap_select(
         self, net: TemporalNetwork, snap_id: int
-    ) -> List[MLNetworkActor]:
+    ) -> list[MLNetworkActor]:
         """Return a list of driver actors for a temporal network."""
         snap = net.snaps[snap_id]
         return self.actorwise(snap)
 
     @staticmethod
     def _reorder_seeds(
-        driver_actors: List[MLNetworkActor],
-        all_actors: List[MLNetworkActor],
-    ) -> List[MLNetworkActor]:
+        driver_actors: list[MLNetworkActor],
+        all_actors: list[MLNetworkActor],
+    ) -> list[MLNetworkActor]:
         """Return a list of actor ids, where driver actors in the first."""
         result = []
 

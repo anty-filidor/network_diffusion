@@ -8,7 +8,7 @@
 
 """A definition of the seed selector based on closeness centrality."""
 
-from typing import Any, List
+from typing import Any
 
 import networkx as nx
 
@@ -29,15 +29,15 @@ class ClosenessSelector(BaseSeedSelector):
             f"\tcloseness centrality choice\n{BOLD_UNDERLINE}\n"
         )
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
             "Nodewise ranking list cannot be computed for this class!"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Get ranking for actors using closeness centrality metric."""
-        ranking_list: List[MLNetworkActor] = []
+        ranking_list: list[MLNetworkActor] = []
         # sorted by value of dictonaries
         for dc_val, _ in sorted(
             closeness(net=net).items(), reverse=True, key=lambda x: x[1]

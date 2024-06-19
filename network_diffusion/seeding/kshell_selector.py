@@ -8,7 +8,7 @@
 
 """A definition of the seed selectors based on k-shell algorithm."""
 
-from typing import Any, List
+from typing import Any
 
 import networkx as nx
 
@@ -32,7 +32,7 @@ class KShellSeedSelector(BaseSeedSelector):
     layer, so that ranking is better ordered (nodes in shells can be ordered).
     """
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """
         Create a ranking based on nodes' k-shell cohort position & degree.
 
@@ -75,7 +75,7 @@ class KShellSeedSelector(BaseSeedSelector):
             f"\tK Shell decomposition computed nodewise\n{BOLD_UNDERLINE}\n"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Compute ranking for actors."""
         return node_to_actor_ranking(super().nodewise(net), net)
 
@@ -88,7 +88,7 @@ class KShellMLNSeedSelector(BaseSeedSelector):
     as in network_diffusion.mln.functions.k_shell_mln()
     """
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
             "Nodewise ranking list cannot be computed for this class!"
@@ -101,7 +101,7 @@ class KShellMLNSeedSelector(BaseSeedSelector):
             f"\tK Shell decomposition computed actorwise\n{BOLD_UNDERLINE}\n"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Compute ranking for actors."""
         ksh_deepest_actors = set(k_shell_mln(net=net).get_actors())
         shell_ranking = {}
