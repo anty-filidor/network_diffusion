@@ -9,7 +9,6 @@
 """Multilayer Independent Cascade Model class."""
 
 import random
-from typing import Dict, List, Tuple
 
 import networkx as nx
 import numpy as np
@@ -33,7 +32,7 @@ class MICModel(BaseModel):
 
     def __init__(
         self,
-        seeding_budget: Tuple[NumericType, NumericType, NumericType],
+        seeding_budget: tuple[NumericType, NumericType, NumericType],
         seed_selector: BaseSeedSelector,
         protocol: str,
         probability: float,
@@ -88,7 +87,7 @@ class MICModel(BaseModel):
 
     def _create_compartments(
         self,
-        seeding_budget: Tuple[NumericType, NumericType, NumericType],
+        seeding_budget: tuple[NumericType, NumericType, NumericType],
     ) -> CompartmentalGraph:
         """
         Create compartmental graph for the model.
@@ -130,18 +129,18 @@ class MICModel(BaseModel):
         return compart_graph
 
     @staticmethod
-    def _protocol_or(inputs: Dict[str, str]) -> bool:
+    def _protocol_or(inputs: dict[str, str]) -> bool:
         """Protocol OR for actor activation basing on layer impulses."""
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.any())
 
     @staticmethod
-    def _protocol_and(inputs: Dict[str, str]) -> bool:
+    def _protocol_and(inputs: dict[str, str]) -> bool:
         """Protocol AND for actor activation basing on layer impulses."""
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.all())
 
-    def determine_initial_states(self, net: MultilayerNetwork) -> List[NUBff]:
+    def determine_initial_states(self, net: MultilayerNetwork) -> list[NUBff]:
         """
         Set initial states in the network according to seed selection method.
 
@@ -152,7 +151,7 @@ class MICModel(BaseModel):
         budget = self._compartmental_graph.get_seeding_budget_for_network(
             net=net, actorwise=True
         )
-        seed_nodes: List[NUBff] = []
+        seed_nodes: list[NUBff] = []
 
         for idx, actor in enumerate(self._seed_selector.actorwise(net=net)):
 
@@ -206,14 +205,14 @@ class MICModel(BaseModel):
 
         return current_state
 
-    def network_evaluation_step(self, net: MultilayerNetwork) -> List[NUBff]:
+    def network_evaluation_step(self, net: MultilayerNetwork) -> list[NUBff]:
         """
         Evaluate the network at one time stamp with MICModel.
 
         :param net: a network to evaluate
         :return: list of nodes that changed state after the evaluation
         """
-        nodes_to_update: List[NUBff] = []
+        nodes_to_update: list[NUBff] = []
 
         for actor in net.get_actors():
 
@@ -253,7 +252,7 @@ class MICModel(BaseModel):
 
     def get_allowed_states(
         self, net: MultilayerNetwork
-    ) -> Dict[str, Tuple[str, ...]]:
+    ) -> dict[str, tuple[str, ...]]:
         """
         Return dict with allowed states in each layer of net if applied model.
 

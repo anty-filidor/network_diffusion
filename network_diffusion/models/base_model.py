@@ -10,7 +10,7 @@
 
 from abc import ABC, abstractmethod
 from collections import Counter
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
@@ -38,7 +38,7 @@ class BaseModel(ABC):
     @abstractmethod
     def determine_initial_states(
         self, net: MultilayerNetwork
-    ) -> List[NetworkUpdateBuffer]:
+    ) -> list[NetworkUpdateBuffer]:
         """
         Determine initial states in the network according to seed selector.
 
@@ -66,7 +66,7 @@ class BaseModel(ABC):
     @abstractmethod
     def network_evaluation_step(
         self, net: MultilayerNetwork
-    ) -> List[NetworkUpdateBuffer]:
+    ) -> list[NetworkUpdateBuffer]:
         """
         Evaluate the network at one time stamp according to the model.
 
@@ -77,8 +77,8 @@ class BaseModel(ABC):
     @staticmethod
     def update_network(
         net: MultilayerNetwork,
-        activated_nodes: List[NetworkUpdateBuffer],
-    ) -> List[Dict[str, str]]:
+        activated_nodes: list[NetworkUpdateBuffer],
+    ) -> list[dict[str, str]]:
         """
         Update the network global state by list of already activated nodes.
 
@@ -96,7 +96,7 @@ class BaseModel(ABC):
     @abstractmethod
     def get_allowed_states(
         self, net: MultilayerNetwork
-    ) -> Dict[str, Tuple[str, ...]]:
+    ) -> dict[str, tuple[str, ...]]:
         """
         Return dict with allowed states in each layer of net if applied model.
 
@@ -106,7 +106,7 @@ class BaseModel(ABC):
     @staticmethod
     def get_states_num(
         net: MultilayerNetwork,
-    ) -> Dict[str, Tuple[Tuple[Any, int], ...]]:
+    ) -> dict[str, tuple[tuple[Any, int], ...]]:
         """
         Return states in the network with number of agents that adopted them.
 
