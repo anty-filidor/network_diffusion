@@ -1,19 +1,9 @@
-# Copyright 2022 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2022 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """Functions for the auxiliary operations."""
@@ -22,7 +12,7 @@ import math
 import pathlib
 import random
 import string
-from typing import Any, Dict, List, Union
+from typing import Any
 
 import dynetx as dn
 import networkx as nx
@@ -32,7 +22,7 @@ BOLD_UNDERLINE = "============================================"
 THIN_UNDERLINE = "--------------------------------------------"
 
 
-def read_mpx(file_path: str) -> Dict[str, List[Any]]:
+def read_mpx(file_path: str) -> dict[str, list[Any]]:
     """
     Handle MPX file for the MultilayerNetwork class.
 
@@ -42,7 +32,7 @@ def read_mpx(file_path: str) -> Dict[str, List[Any]]:
     """
     # initialise empty containers
     net_dict = {}
-    tab: List[Any] = []
+    tab: list[Any] = []
     name = "foo"
 
     with open(file=file_path, mode="r", encoding="utf-8") as file:
@@ -83,11 +73,11 @@ def read_mpx(file_path: str) -> Dict[str, List[Any]]:
 
 
 def get_nx_snapshot(
-    graph: Union[dn.DynGraph, dn.DynDiGraph],
+    graph: dn.DynGraph | dn.DynDiGraph,
     snap_id: int,
     min_timestamp: int,
     time_window: int,
-) -> Union[nx.Graph, nx.DiGraph]:
+) -> nx.Graph | nx.DiGraph:
     """
     Get an nxGraph typed snapshot for the given snapshot id.
 
@@ -111,7 +101,7 @@ def get_nx_snapshot(
 
 def read_tpn(
     file_path: str, time_window: int, directed: bool = True
-) -> Dict[int, Union[nx.Graph, nx.DiGraph]]:
+) -> dict[int, nx.Graph | nx.DiGraph]:
     """
     Read temporal network from a text file for the TemporalNetwork class.
 
@@ -120,7 +110,7 @@ def read_tpn(
     """
     net_dict = {}
 
-    graph: Union[dn.DynGraph, dn.DynDiGraph] = dn.read_snapshots(
+    graph: dn.DynGraph | dn.DynDiGraph = dn.read_snapshots(
         file_path, directed=directed, nodetype=int, timestamptype=int
     )
     min_timestamp = min(graph.temporal_snapshots_ids())
@@ -146,4 +136,4 @@ def fix_random_seed(seed: int) -> None:
     np.random.seed(seed)
 
 
-NumericType = Union[int, float, np.number]
+NumericType = int | float | np.number

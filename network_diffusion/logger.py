@@ -1,19 +1,9 @@
-# Copyright 2022 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2022 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """Functions for logging experiment results."""
@@ -21,7 +11,7 @@
 # pylint: disable=W0141
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -48,13 +38,13 @@ class Logger:
         self._network_description = network_description
 
         # stores data of network global state in each epoch
-        self._global_stats: List[Dict[str, Any]] = []
-        self._global_stats_converted: Dict[str, Any] = {}
+        self._global_stats: list[dict[str, Any]] = []
+        self._global_stats_converted: dict[str, Any] = {}
 
         # stores data of each of nodes that changed their state in each epoch
-        self._local_stats: Dict[int, List[Dict[str, str]]] = {}
+        self._local_stats: dict[int, list[dict[str, str]]] = {}
 
-    def add_global_stat(self, log: Dict[str, Any]) -> None:
+    def add_global_stat(self, log: dict[str, Any]) -> None:
         """
         Add raw log from single epoch to the object.
 
@@ -63,12 +53,12 @@ class Logger:
         """
         self._global_stats.append(log)
 
-    def add_local_stat(self, epoch: int, stats: List[Dict[str, str]]) -> None:
+    def add_local_stat(self, epoch: int, stats: list[dict[str, str]]) -> None:
         """Add local log from single epoch to the object."""
         self._local_stats[epoch] = stats
 
     def convert_logs(
-        self, model_parameters: Dict[str, Tuple[str, ...]]
+        self, model_parameters: dict[str, tuple[str, ...]]
     ) -> None:
         """
         Convert raw logs into pandas dataframe.
@@ -96,12 +86,14 @@ class Logger:
 
         # change NaN values to 0 and all values to integers
         for layer, vals in self._global_stats_converted.items():
-            self._global_stats_converted[layer] = vals.fillna(0).astype(int)
+            self._global_stats_converted[layer] = (
+                vals.infer_objects().fillna(0).astype(int)
+            )
 
     def __str__(self) -> str:
         return str(self._global_stats_converted)
 
-    def plot(self, to_file: bool = False, path: Optional[str] = None) -> None:
+    def plot(self, to_file: bool = False, path: None | str = None) -> None:
         """
         Plot out visualisation of performed experiment.
 
@@ -133,7 +125,7 @@ class Logger:
     def report(
         self,
         visualisation: bool = False,
-        path: Optional[str] = None,
+        path: None | str = None,
     ) -> None:
         """
         Create report of experiment.
@@ -186,10 +178,10 @@ class Logger:
             if visualisation:
                 self.plot()
 
-    def get_aggragated_logs(self) -> List[Dict[str, Any]]:
+    def get_aggragated_logs(self) -> list[dict[str, Any]]:
         """Get aggregated logs from the experiment as a list of dicts."""
         return self._global_stats
 
-    def get_detailed_logs(self) -> Dict[int, List[Dict[str, str]]]:
+    def get_detailed_logs(self) -> dict[int, list[dict[str, str]]]:
         """Get detailed logs from the experiment as a dict of list of dicts."""
         return self._local_stats

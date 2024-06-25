@@ -1,24 +1,12 @@
-# Copyright 2022 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2022 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """Multilayer Linear Threshold Model class."""
-
-from typing import Dict, List, Tuple
 
 import networkx as nx
 import numpy as np
@@ -48,7 +36,7 @@ class MLTModel(BaseModel):
 
     def __init__(  # pylint: disable=R0913
         self,
-        seeding_budget: Tuple[NumericType, NumericType],
+        seeding_budget: tuple[NumericType, NumericType],
         seed_selector: BaseSeedSelector,
         protocol: str,
         mi_value: float,
@@ -100,7 +88,7 @@ class MLTModel(BaseModel):
 
     def _create_compartments(
         self,
-        seeding_budget: Tuple[NumericType, NumericType],
+        seeding_budget: tuple[NumericType, NumericType],
         mi_value: float,
     ) -> CompartmentalGraph:
         """
@@ -135,18 +123,18 @@ class MLTModel(BaseModel):
         return compart_graph
 
     @staticmethod
-    def _protocol_or(inputs: Dict[str, str]) -> bool:
+    def _protocol_or(inputs: dict[str, str]) -> bool:
         """Protocol OR for actor activation basing on layer inpulses."""
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.any())
 
     @staticmethod
-    def _protocol_and(inputs: Dict[str, str]) -> bool:
+    def _protocol_and(inputs: dict[str, str]) -> bool:
         """Protocol AND for actor activation basing on layer inpulses."""
         inputs_bool = np.array([bool(int(input)) for input in inputs.values()])
         return bool(inputs_bool.all())
 
-    def determine_initial_states(self, net: MLNetwork) -> List[NUBuff]:
+    def determine_initial_states(self, net: MLNetwork) -> list[NUBuff]:
         """
         Determine initial states in the net according to seed selection method.
 
@@ -157,7 +145,7 @@ class MLTModel(BaseModel):
         budget = self._compartmental_graph.get_seeding_budget_for_network(
             net=net, actorwise=True
         )
-        initial_states: List[NUBuff] = []
+        initial_states: list[NUBuff] = []
 
         for idx, actor in enumerate(self._seed_selector.actorwise(net=net)):
 
@@ -218,14 +206,14 @@ class MLTModel(BaseModel):
             return self.ACTIVE_STATE
         return current_state
 
-    def network_evaluation_step(self, net: MLNetwork) -> List[NUBuff]:
+    def network_evaluation_step(self, net: MLNetwork) -> list[NUBuff]:
         """
         Evaluate the network at one time stamp with MLTModel.
 
         :param network: a network to evaluate
         :return: list of nodes that changed state after the evaluation
         """
-        activated_nodes: List[NUBuff] = []
+        activated_nodes: list[NUBuff] = []
 
         # iterate through all actors
         for actor in net.get_actors(shuffle=True):
@@ -261,7 +249,7 @@ class MLTModel(BaseModel):
 
         return activated_nodes
 
-    def get_allowed_states(self, net: MLNetwork) -> Dict[str, Tuple[str, ...]]:
+    def get_allowed_states(self, net: MLNetwork) -> dict[str, tuple[str, ...]]:
         """
         Return dict with allowed states in each layer of net if applied model.
 

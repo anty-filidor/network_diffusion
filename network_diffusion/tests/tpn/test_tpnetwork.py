@@ -1,5 +1,3 @@
-"""Tests for the network_diffusion.tpn.tpnetwork."""
-
 import unittest
 
 import numpy as np

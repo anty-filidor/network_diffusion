@@ -1,24 +1,14 @@
-# Copyright 2023 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2023 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """Script with functions of NetworkX extended to multilayer networks."""
 
-from typing import Any, Callable, Dict, Iterator, List, Optional
+from typing import Any, Callable, Iterator
 
 import networkx as nx
 
@@ -26,11 +16,11 @@ from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
-def betweenness(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
+def betweenness(net: MultilayerNetwork) -> dict[MLNetworkActor, float]:
     """Return value of mean betweennes centrality for actors layers."""
-    bet_mean: Dict[MLNetworkActor, float] = {}
-    bet: List = []
-    b_graph: Dict[str, Dict] = {}
+    bet_mean: dict[MLNetworkActor, float] = {}
+    bet: list = []
+    b_graph: dict[str, dict] = {}
 
     for l_name in net.layers:
         grap: nx.Graph = net.layers[l_name]
@@ -43,11 +33,11 @@ def betweenness(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
     return bet_mean
 
 
-def closeness(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
+def closeness(net: MultilayerNetwork) -> dict[MLNetworkActor, float]:
     """Return value of mean closeness centrality for actors layers."""
-    close_mean: Dict[MLNetworkActor, float] = {}
-    c_graph: Dict[str, Dict] = {}
-    close: List = []
+    close_mean: dict[MLNetworkActor, float] = {}
+    c_graph: dict[str, dict] = {}
+    close: list = []
     for l_name in net.layers:
         grap: nx.Graph = net.layers[l_name]  # site of choosing layer
         c_graph[l_name] = nx.closeness_centrality(
@@ -61,11 +51,11 @@ def closeness(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
     return close_mean
 
 
-def katz(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
+def katz(net: MultilayerNetwork) -> dict[MLNetworkActor, float]:
     """Return value of mean Katz centrality for actors layers."""
-    katz_mean: Dict[MLNetworkActor, float] = {}
-    k_graph: Dict[str, Dict] = {}
-    kat: List = []
+    katz_mean: dict[MLNetworkActor, float] = {}
+    k_graph: dict[str, dict] = {}
+    kat: list = []
     for l_name in net.layers:
         grap: nx.Graph = net.layers[l_name]  # site of choosing layer
         k_graph[l_name] = nx.katz_centrality(
@@ -79,9 +69,9 @@ def katz(net: MultilayerNetwork) -> Dict[MLNetworkActor, float]:
     return katz_mean
 
 
-def degree(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
+def degree(net: MultilayerNetwork) -> dict[MLNetworkActor, int]:
     """Return number of connecting links per all actors from the network."""
-    degrees: Dict[MLNetworkActor, int] = {}
+    degrees: dict[MLNetworkActor, int] = {}
     for actor in net.get_actors():
         a_neighbours = 0
         for l_name in actor.layers:
@@ -92,7 +82,7 @@ def degree(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
 
 def _ns_helper(
     net: MultilayerNetwork, actor: MLNetworkActor, hop: int = 1
-) -> List[Any]:
+) -> list[Any]:
     # first obtain a set of one hop far away actors
     one_hop_nbrs = [
         list(net.layers[l_name].adj[actor.actor_id].keys())
@@ -114,9 +104,9 @@ def _ns_helper(
 
 def neighbourhood_size(
     net: MultilayerNetwork, connection_hop: int = 1
-) -> Dict[MLNetworkActor, int]:
+) -> dict[MLNetworkActor, int]:
     """Return n-hop neighbourhood sizes of all actors from the network."""
-    neighbourhood_sizes: Dict[MLNetworkActor, int] = {}
+    neighbourhood_sizes: dict[MLNetworkActor, int] = {}
     for actor in net.get_actors():
         raw_list = _ns_helper(net, actor, connection_hop)
         neighbourhood_sizes[actor] = len(
@@ -187,7 +177,7 @@ def all_neighbors(
     return iter([net.get_actor(i) for i in set(neighbours)])
 
 
-def core_number(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
+def core_number(net: MultilayerNetwork) -> dict[MLNetworkActor, int]:
     """
     Return the core number for each actor.
 
@@ -235,8 +225,8 @@ def core_number(net: MultilayerNetwork) -> Dict[MLNetworkActor, int]:
 def _core_subgraph(
     net: MultilayerNetwork,
     k_filter: Callable,
-    k: Optional[int] = None,
-    core: Optional[Dict[MLNetworkActor, int]] = None,
+    k: int | None = None,
+    core: dict[MLNetworkActor, int] | None = None,
 ) -> MultilayerNetwork:
     """
     Return the subgraph induced by nodes passing filter `k_filter`.
@@ -264,8 +254,8 @@ def _core_subgraph(
 
 def k_shell_mln(
     net: MultilayerNetwork,
-    k: Optional[int] = None,
-    core_number: Optional[Dict[MLNetworkActor, int]] = None,
+    k: int | None = None,
+    core_number: dict[MLNetworkActor, int] | None = None,
 ) -> MultilayerNetwork:
     """
     Return the k-shell of net with degree computed actorwise.
@@ -286,8 +276,8 @@ def k_shell_mln(
 
 
 def voterank_actorwise(
-    net: MultilayerNetwork, number_of_actors: Optional[int] = None
-) -> List[MLNetworkActor]:
+    net: MultilayerNetwork, number_of_actors: int | None = None
+) -> list[MLNetworkActor]:
     """
     Select a list of influential ACTORS in a graph using VoteRank algorithm.
 
@@ -308,7 +298,7 @@ def voterank_actorwise(
             "Voterank for directed networks is not implemented!"
         )
 
-    influential_actors: List[MLNetworkActor] = []
+    influential_actors: list[MLNetworkActor] = []
     if len(net) == 0:
         return influential_actors
     if number_of_actors is None or number_of_actors > len(net):

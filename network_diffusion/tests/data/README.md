@@ -1,4 +1,4 @@
-This directory provides two types of networks,
+This directory provides two types of networks:
 
 1. multi-layered networks
 

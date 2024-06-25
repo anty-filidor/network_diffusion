@@ -1,19 +1,9 @@
-# Copyright 2024 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2023 by Michał Czuba, Damian Dąbrowski, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """Community based influence maximization algorithm."""
@@ -21,7 +11,7 @@
 # pylint: disable=C0103, C3001
 
 import warnings
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 import networkx as nx
 import numpy as np
@@ -98,7 +88,7 @@ def _psi(gamma: float, theta: float) -> float:
 def _merging_index(
     G: nx.Graph,
     community: list[Any],
-    weight_attr: Optional[str] = None,
+    weight_attr: str | None = None,
 ) -> float:
     """Calculate merging index for the given community of the graph."""
     visited_nodes = []
@@ -142,7 +132,7 @@ def _get_extreme_val(
 
 
 def _initialise_communities_in_component(
-    G: nx.Graph, debug: bool, weight_attr: Optional[str] = None
+    G: nx.Graph, debug: bool, weight_attr: str | None = None
 ) -> list[list[Any]]:
     """
     Phase 1 - Initial communities detection.
@@ -212,7 +202,7 @@ def _consolide_communities_in_component(
     G: nx.Graph,
     delta: float,
     debug: bool,
-    weight_attr: Optional[str] = None,
+    weight_attr: str | None = None,
 ) -> list[list[Any]]:
     """
     Phase 2 - Community consolidation.
@@ -310,7 +300,7 @@ def detect_communities(
     net: nx.Graph,
     merging_idx_threshold: float,
     debug: bool = False,
-    weight_attr: Optional[str] = None,
+    weight_attr: str | None = None,
 ) -> list[list[Any]]:
     """
     Detect communities according to the CBIM algorithm.
@@ -366,7 +356,7 @@ def detect_communities(
 def _compute_katz_centralities(
     G: nx.Graph,
     communities: list[list[Any]],
-    weight_attr: Optional[str] = None,
+    weight_attr: str | None = None,
 ) -> list[list[dict[str, Any]]]:
     """Calculate Katz centrality for each node in each community."""
     katz_centralities = []
@@ -421,7 +411,7 @@ def cbim_seed_selection(
     num_seeds: int,
     merging_idx_threshold: float,
     debug: bool = False,
-    weight_attr: Optional[str] = None,
+    weight_attr: str | None = None,
 ) -> set[Any]:
     """
     Select <num_seeds> from <G> according to CBIM algorithm.
@@ -465,7 +455,7 @@ def cbim_seed_ranking(
     net: nx.Graph,
     merging_idx_threshold: float,
     debug: bool = False,
-    weight_attr: Optional[str] = None,
+    weight_attr: str | None = None,
 ) -> list[Any]:
     """
     Rank all nodes from <net> according to CBIM algorithm.

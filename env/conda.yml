@@ -1,0 +1,9 @@
+name: network-diffusion2
+channels:
+  - defaults
+dependencies:
+  - pip=24.0
+  - python=3.12.3
+  - pip:
+      - -r pip_prod.txt
+      - -r pip_dev.txt

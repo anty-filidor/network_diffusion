@@ -1,26 +1,16 @@
-# Copyright 2024 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2024 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """Clique-based influence maximisation algorithm."""
 
 # pylint: disable=C0103
 
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any
 
 import networkx as nx
 
@@ -35,7 +25,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 def _cim_maximal_cliques(
     net: nx.Graph, filter_cliques: bool = True
-) -> List[Set[Any]]:
+) -> list[set[Any]]:
     """
     Get maximal cliques for given single-layered graph.
 
@@ -61,15 +51,15 @@ def _cim_maximal_cliques(
 
 
 def _sort_clique_by_degree(
-    clique: Set[Any], degrees: Dict[Any, int]
-) -> List[Any]:
+    clique: set[Any], degrees: dict[Any, int]
+) -> list[Any]:
     """Sort nodes in clique by their degrees."""
     return sorted(list(clique), key=lambda x: degrees[x], reverse=True)
 
 
 def _update_seed_set(
-    seed_set: List[Any], clique: List[Any], update_by: int
-) -> Tuple[List[Any], int]:
+    seed_set: list[Any], clique: list[Any], update_by: int
+) -> tuple[list[Any], int]:
     """
     Add <update_by> first nodes (without duplicates) from clique to seed_set.
 
@@ -85,7 +75,7 @@ def _update_seed_set(
 
 def clique_influence_maximization(
     G: nx.Graph, K: int, filter_cliques: bool = False
-) -> List[Any]:
+) -> list[Any]:
     """
     Clique-based influence maximisation algorithm.
 
@@ -113,7 +103,7 @@ def clique_influence_maximization(
     degrees = nx.degree(G)
 
     # output contaier
-    seeds: List[Any] = []
+    seeds: list[Any] = []
 
     # sort all the cliques in descending order based on size
     _mcs = [_sort_clique_by_degree(mc, degrees) for mc in max_cliques]
@@ -135,7 +125,7 @@ def clique_influence_maximization(
 class CIMSeedSelector(BaseSeedSelector):
     """Seed selector based on Clique-based influence maximisation algorithm."""
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """
         Create a ranking of nodes with Clique-based influence maximisation alg.
 
@@ -156,6 +146,6 @@ class CIMSeedSelector(BaseSeedSelector):
             f"\tClique-based Influence Maximisation\n{BOLD_UNDERLINE}\n"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Compute ranking for actors."""
         return node_to_actor_ranking(super().nodewise(net), net)

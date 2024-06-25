@@ -1,25 +1,15 @@
-# Copyright 2023 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2023 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """Randomised seed selector."""
 
 from random import shuffle
-from typing import Any, List
+from typing import Any
 
 import networkx as nx
 
@@ -32,7 +22,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 class RandomSeedSelector(BaseSeedSelector):
     """Randomised seed selector prepared mainly for DSAA algorithm."""
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """
         Create a random ranking of nodes.
 
@@ -50,6 +40,6 @@ class RandomSeedSelector(BaseSeedSelector):
             f"\tnodewise random choice\n{BOLD_UNDERLINE}\n"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Get actors randomly."""
         return net.get_actors(shuffle=True)

@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-# pylint: disable-all
-# type: ignore
-
-"""Tests for the network_diffusion.propagation_model."""
-
 import unittest
 
 import networkx as nx

@@ -1,23 +1,14 @@
-# Copyright 2023 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2023 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
+
 """Functions for the phenomena spreading definition."""
 
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import networkx as nx
 import numpy as np
@@ -47,6 +38,11 @@ class DSAAModel(BaseModel):
         """A method of selecting seed agents."""
         return self.__seed_selector
 
+    @property
+    def compartments(self) -> CompartmentalGraph:
+        """Return defined compartments and allowed transitions."""
+        return self._compartmental_graph
+
     def __str__(self) -> str:
         """Return string representation of the object."""
         descr = f"{BOLD_UNDERLINE}\nDSAA Model"
@@ -58,7 +54,7 @@ class DSAAModel(BaseModel):
 
     def determine_initial_states(
         self, net: MultilayerNetwork
-    ) -> List[NetworkUpdateBuffer]:
+    ) -> list[NetworkUpdateBuffer]:
         """
         Set initial states in the network according to seed selection method.
 
@@ -71,7 +67,7 @@ class DSAAModel(BaseModel):
             raise ValueError("This model works only with multiplex networks!")
 
         budget = self._compartmental_graph.get_seeding_budget_for_network(net)
-        seed_nodes: List[NetworkUpdateBuffer] = []
+        seed_nodes: list[NetworkUpdateBuffer] = []
 
         # set initial states in each layer of network
         for l_name, ranking in self._seed_selector.nodewise(net).items():
@@ -85,7 +81,7 @@ class DSAAModel(BaseModel):
             _rngs = [
                 sum(list(l_budget.values())[:x]) for x in range(len(l_budget))
             ] + [l_nodes_num]
-            ranges: List[Tuple[int, int]] = list(zip(_rngs[:-1], _rngs[1:]))
+            ranges: list[tuple[int, int]] = list(zip(_rngs[:-1], _rngs[1:]))
 
             # generate update buffer
             for i, _ in enumerate(ranges):
@@ -149,7 +145,7 @@ class DSAAModel(BaseModel):
 
     def network_evaluation_step(
         self, net: MultilayerNetwork
-    ) -> List[NetworkUpdateBuffer]:
+    ) -> list[NetworkUpdateBuffer]:
         """
         Evaluate the network at one time stamp according to the model.
 
@@ -160,7 +156,7 @@ class DSAAModel(BaseModel):
         :param network: a network to evaluate
         :return: list of nodes that changed state after the evaluation
         """
-        new_st: List[NetworkUpdateBuffer] = []
+        new_st: list[NetworkUpdateBuffer] = []
         for layer_name, layer_graph in net.layers.items():
             for node in layer_graph.nodes():
                 new_state = self.agent_evaluation_step(node, layer_name, net)
@@ -170,7 +166,7 @@ class DSAAModel(BaseModel):
 
     def get_allowed_states(
         self, net: MultilayerNetwork
-    ) -> Dict[str, Tuple[str, ...]]:
+    ) -> dict[str, tuple[str, ...]]:
         """
         Return dict with allowed states in each layer of net if applied model.
 

@@ -1,3 +1,10 @@
+// Copyright (c) 2023 by Mateusz Nurek, Radosław Michalski, Michał Czuba.
+//
+// This file is a part of Network Diffusion.
+//
+// Network Diffusion is licensed under the MIT License. You may obtain a copy
+// of the License at https://opensource.org/licenses/MIT
+//
 // Notes:
 // #1 when compiling using GCC, "-lm" compilation option is required
 // #2 all the events have to be in chronological order, otherwise CogSNet

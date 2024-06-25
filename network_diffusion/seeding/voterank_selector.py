@@ -1,24 +1,14 @@
-# Copyright 2023 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2023 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
 """A definition of the seed selectors based on Vote Rank algorithm."""
 
-from typing import Any, List
+from typing import Any
 
 import networkx as nx
 
@@ -35,7 +25,7 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 class VoteRankSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on Vote Rank algorithm."""
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """
         Create a ranking of nodes with Vote Rank algorithm.
 
@@ -54,7 +44,7 @@ class VoteRankSeedSelector(BaseSeedSelector):
             f"\tVoterank\n{BOLD_UNDERLINE}\n"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Compute ranking for actors."""
         return node_to_actor_ranking(super().nodewise(net), net)
 
@@ -62,7 +52,7 @@ class VoteRankSeedSelector(BaseSeedSelector):
 class VoteRankMLNSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on Vote Rank algorithm."""
 
-    def _calculate_ranking_list(self, graph: nx.Graph) -> List[Any]:
+    def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
             "Nodewise ranking list cannot be computed for this class!"
@@ -75,7 +65,7 @@ class VoteRankMLNSeedSelector(BaseSeedSelector):
             f"\tVoterank computed actorwise\n{BOLD_UNDERLINE}\n"
         )
 
-    def actorwise(self, net: MultilayerNetwork) -> List[MLNetworkActor]:
+    def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Compute ranking for actors."""
         elected_nodes = voterank_actorwise(net=net)
         unelected_nodes = set(net.get_actors()).difference(set(elected_nodes))

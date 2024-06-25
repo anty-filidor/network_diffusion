@@ -1,28 +1,19 @@
-# Copyright 2022 by Michał Czuba, Piotr Bródka. All Rights Reserved.
+# Copyright (c) 2022 by Michał Czuba, Piotr Bródka.
 #
-# This file is part of Network Diffusion.
+# This file is a part of Network Diffusion.
 #
-# Network Diffusion is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the Free
-# Software Foundation; either version 3 of the License, or (at your option) any
-# later version.
-#
-# Network Diffusion is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE. See the  GNU General Public License for
-# more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# Network Diffusion. If not, see <http://www.gnu.org/licenses/>.
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
-"""Functions for the propagation model definition."""
+
+"""A definition of class to model processes spread in the network."""
 
 # pylint: disable=W0141
 
 import itertools
 from random import choice
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import networkx as nx
 import numpy as np
@@ -32,22 +23,22 @@ from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, NumericType
 
 
 class CompartmentalGraph:
-    """Class which encapsulates model of processes speared in network."""
+    """Class which encapsulates model of processes spread in the network."""
 
     reserved_names = {"graph", "background_weight", "_seeding_budget"}
 
     def __init__(self) -> None:
         """Create empty object."""
-        self.graph: Dict[str, nx.Graph] = {}
+        self.graph: dict[str, nx.Graph] = {}
         self.background_weight: float = float("inf")
-        self._seeding_budget: Dict[str, Tuple[NumericType, ...]] = {}
+        self._seeding_budget: dict[str, tuple[NumericType, ...]] = {}
 
     def __str__(self) -> str:
         """Print out quickly properties of the graph."""
         return self._get_desctiprion_str()
 
     @property
-    def seeding_budget(self) -> Dict[str, Tuple[NumericType, ...]]:
+    def seeding_budget(self) -> dict[str, tuple[NumericType, ...]]:
         """
         Get seeding budget as % of the nodes in form of compartments as a dict.
 
@@ -59,7 +50,7 @@ class CompartmentalGraph:
 
     @seeding_budget.setter
     def seeding_budget(
-        self, proposed_is: Dict[str, Tuple[NumericType, ...]]
+        self, proposed_is: dict[str, tuple[NumericType, ...]]
     ) -> None:
         """Set seeding budget in each of compartments."""
         assert proposed_is.keys() == self.get_compartments().keys(), (
@@ -83,7 +74,7 @@ class CompartmentalGraph:
 
     def get_seeding_budget_for_network(
         self, net: MultilayerNetwork, actorwise: bool = False
-    ) -> Dict[str, Dict[Any, int]]:
+    ) -> dict[str, dict[Any, int]]:
         """
         Transform seeding budget from %s to numbers according to nodes/actors.
 
@@ -116,9 +107,9 @@ class CompartmentalGraph:
 
     @staticmethod
     def _int_to_bins(
-        bins: Tuple[NumericType, ...], base_num: int
-    ) -> List[int]:
-        binned_number: List[int] = []
+        bins: tuple[NumericType, ...], base_num: int
+    ) -> list[int]:
+        binned_number: list[int] = []
         for idx, percentage in enumerate(bins, 1):
             size_of_bin = int(percentage * base_num / 100)
             while sum(binned_number) + size_of_bin > base_num:
@@ -130,7 +121,7 @@ class CompartmentalGraph:
 
         return binned_number
 
-    def add(self, process_name: str, states: List[str]) -> None:
+    def add(self, process_name: str, states: list[str]) -> None:
         """
         Add process with allowed states to the compartmental graph.
 
@@ -183,7 +174,7 @@ class CompartmentalGraph:
 
         return global_info + transitions_info + BOLD_UNDERLINE + "\n"
 
-    def get_compartments(self) -> Dict[str, Tuple[str, ...]]:
+    def get_compartments(self) -> dict[str, tuple[str, ...]]:
         """
         Get model parameters, i.e. names of layers and states in each layer.
 
@@ -282,7 +273,7 @@ class CompartmentalGraph:
         self,
         initial_layer_attribute: str,
         final_layer_attribute: str,
-        constraint_attributes: Tuple[str, ...],
+        constraint_attributes: tuple[str, ...],
         weight: float,
     ) -> None:
         """
@@ -315,7 +306,7 @@ class CompartmentalGraph:
         ] = weight
 
     def set_transitions_in_random_edges(
-        self, weights: List[List[float]]
+        self, weights: list[list[float]]
     ) -> None:
         """
         Set out random transitions in propagation model using given weights.
@@ -347,8 +338,8 @@ class CompartmentalGraph:
                 self.set_transition_canonical(name, edge, wght)  # type: ignore
 
     def get_possible_transitions(
-        self, state: Tuple[str, ...], layer: str
-    ) -> Dict[str, float]:
+        self, state: tuple[str, ...], layer: str
+    ) -> dict[str, float]:
         """
         Return possible transitions from given state in given layer of model.
 
