@@ -241,7 +241,7 @@ class MultilayerNetwork:
         """Convert network to multiplex one by adding missing nodes."""
         if self.is_multiplex():
             warnings.warn("Network is already multiplex!", stacklevel=1)
-            return self.copy()
+            return self.copy(), {}
 
         actors = {a.actor_id for a in self.get_actors()}
         multiplexed_layers = {}
