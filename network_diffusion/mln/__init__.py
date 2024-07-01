@@ -16,6 +16,7 @@ from network_diffusion.mln import (
     driver_actors,
     functions,
     kppshell,
+    mlnetwork_torch,
 )
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
