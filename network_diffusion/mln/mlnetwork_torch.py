@@ -1,3 +1,11 @@
+# Copyright (c) 2024 by Michał Czuba.
+#
+# This file is a part of Network Diffusion.
+#
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
+# =============================================================================
+
 """A converter from `MultilayerNetwork` to the sparse repr. in PyTorch."""
 
 from dataclasses import dataclass
@@ -11,7 +19,7 @@ from bidict import bidict
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
-def prepare_mln_for_conversion(
+def _prepare_mln_for_conversion(
     net: MultilayerNetwork,
 ) -> tuple[MultilayerNetwork, bidict, dict[str, set[Any]] | None]:
     """
@@ -20,7 +28,7 @@ def prepare_mln_for_conversion(
     If network is not multiplex, then multiplicity actoss all layers will be
     imposed. Names of the actors will be converted to integers.
 
-    :param net: a multilayer network to prepare for conversion
+    :param net: a copy of the multilayer network prepared for conversion
     :return: a new instance of `MultilayerNetwork` prepared for conversion,
         a bi-directional map of the old and new actors' names, a dict of nodes'
         sets added to make the network multiplex
@@ -28,14 +36,16 @@ def prepare_mln_for_conversion(
     if not net.is_multiplex():
         net, added_nodes = net.to_multiplex()
     else:
-        net, added_nodes = net.copy(), None
+        net, added_nodes = net, None
     ac_map = {ac.actor_id: idx for idx, ac in enumerate(net.get_actors())}
-    for l_graph in net.layers.values():
-        nx.relabel_nodes(l_graph, mapping=ac_map, copy=False)
-    return net, bidict(ac_map), added_nodes
+    l_dict = {
+        l_name: nx.relabel_nodes(l_graph, mapping=ac_map, copy=True)
+        for l_name, l_graph in net.layers.items()
+    }
+    return MultilayerNetwork(l_dict), bidict(ac_map), added_nodes
 
 
-def coalesce_and_check(tensor_raw: torch.Tensor) -> torch.Tensor:
+def _coalesce_and_check(tensor_raw: torch.Tensor) -> torch.Tensor:
     """Coalesce tensor and check if anything chenged during that operation."""
     tensor_coalesced = tensor_raw.coalesce()
     assert torch.all(tensor_raw._indices() == tensor_coalesced._indices())
@@ -46,14 +56,14 @@ def coalesce_and_check(tensor_raw: torch.Tensor) -> torch.Tensor:
     return tensor_coalesced
 
 
-def mln_to_sparse(
+def _mln_to_sparse(
     net: MultilayerNetwork, actor_order: list[Any]
 ) -> tuple[torch.Tensor, list[str]]:
     """
     Converse `MultilayerNetwork` to an adjacency matrix as a tensor.
 
     :param net: `MultilayerNetwork` to be converted, must be multiplex and have
-        actors' ids as integers
+        actors' ids represented as integers
     :param actor_order: order of actors' ids to be used in the output adjacency
         tensor
     :return: an adjacency matrix as a sparse tensor and a list of layer names
@@ -73,10 +83,10 @@ def mln_to_sparse(
         )
         adj.append(lg_adj)
         layers.append(l_name)
-    return coalesce_and_check(torch.stack(adj)), layers
+    return _coalesce_and_check(torch.stack(adj)), layers
 
 
-def create_nodes_mask(
+def _create_nodes_mask(
     layers_order: list[str],
     actors_map: bidict,
     nodes_added: dict[str, set[Any]] | None,
@@ -133,9 +143,9 @@ class MultilayerNetworkTorch:
     @classmethod
     def from_mln(cls, net: MultilayerNetwork) -> "MultilayerNetworkTorch":
         """Represent net in a tensor notation."""
-        net_converted, ac_map, nodes_added = prepare_mln_for_conversion(net)
-        adj, l_order = mln_to_sparse(net_converted, list(ac_map.values()))
-        n_mask = create_nodes_mask(l_order, ac_map, nodes_added)
+        net_converted, ac_map, nodes_added = _prepare_mln_for_conversion(net)
+        adj, l_order = _mln_to_sparse(net_converted, list(ac_map.values()))
+        n_mask = _create_nodes_mask(l_order, ac_map, nodes_added)
         return cls(adj, l_order, ac_map, n_mask)
 
     def __repr__(self) -> str:

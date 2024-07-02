@@ -16,6 +16,7 @@ from network_diffusion import mln, models, seeding, tpn
 from network_diffusion.logger import Logger
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
+from network_diffusion.mln.mlnetwork_torch import MultilayerNetworkTorch
 from network_diffusion.simulator import Simulator
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
 
