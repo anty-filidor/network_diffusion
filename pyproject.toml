@@ -39,3 +39,6 @@ dynamic = ["dependencies", "readme"]
 Homepage = "https://github.com/anty-filidor/network_diffusion"
 Documentation = "https://network-diffusion.readthedocs.io/en/latest/"
 Issues = "https://github.com/anty-filidor/network_diffusion/issues"
+
+[tool.pytest.ini_options]
+filterwarnings = ["ignore::DeprecationWarning:torch.jit.frontend"]
