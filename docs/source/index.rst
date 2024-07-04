@@ -2,7 +2,7 @@
 .. mdinclude:: ../../README.md
 
 
-Reference guide
+Reference Guide
 =============================================
 
 .. toctree::
@@ -12,7 +12,7 @@ Reference guide
    module_examples
 
 
-Quick search
+Package Index
 =============================================
 
 * :ref:`genindex`
