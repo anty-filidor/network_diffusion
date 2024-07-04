@@ -13,7 +13,6 @@ from typing import Any
 
 import networkx as nx
 import torch
-import torch_geometric as pyg
 from bidict import bidict
 
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
@@ -45,6 +44,21 @@ def _prepare_mln_for_conversion(
     return MultilayerNetwork(l_dict), bidict(ac_map), added_nodes
 
 
+def _from_scipy_sparse(mat: Any) -> tuple[torch.Tensor, torch.Tensor]:
+    """
+    Convert a scipy sparse matrix to edge indices and edge attributes.
+
+    In order to reduce 3rd party dependencies, this method has been copied from
+    `pytorch_geometric` instead of using it directly from that library.
+    """
+    mat = mat.tocoo()
+    row = torch.from_numpy(mat.row).to(torch.long)
+    col = torch.from_numpy(mat.col).to(torch.long)
+    edge_index = torch.stack([row, col], dim=0)
+    edge_weight = torch.from_numpy(mat.data)
+    return edge_index, edge_weight
+
+
 def _mln_to_sparse(
     net: MultilayerNetwork, actor_order: list[Any]
 ) -> tuple[torch.Tensor, list[str]]:
@@ -60,9 +74,8 @@ def _mln_to_sparse(
     """
     adj, layers = [], []
     for l_name, l_graph in net.layers.items():
-        lg_idx, lg_val = pyg.utils.from_scipy_sparse_matrix(
-            nx.adjacency_matrix(G=l_graph, nodelist=actor_order, weight=None)
-        )
+        sparse_mat = nx.adjacency_matrix(G=l_graph, nodelist=actor_order)
+        lg_idx, lg_val = _from_scipy_sparse(sparse_mat)
         lg_adj = torch.sparse_coo_tensor(
             indices=lg_idx,
             values=lg_val,
