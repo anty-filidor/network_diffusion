@@ -531,7 +531,11 @@ def get_toy_network_cim() -> MultilayerNetwork:
 def draw_mln(net: MultilayerNetwork, dpi: int | None = None) -> None:
     """Draw briefly a given multilayer network."""
     if net.get_actors_num() > 100:
-        warnings.warn("Too large network (nb. of actors: {}). Visualisation can be crippled.", stacklevel=1)
+        warnings.warn(
+            f"Too large network ({net.get_actors_num()}). \
+                Visualisation can be crippled.",
+            stacklevel=1,
+        )
     pos = nx.drawing.shell_layout([a.actor_id for a in net.get_actors()])
     fig, axs = plt.subplots(nrows=1, ncols=len(net.layers))
     fig.set_dpi(dpi if dpi else 300)
