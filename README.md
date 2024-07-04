@@ -102,7 +102,7 @@ we encourage users to explore the repository. Another way to familiarise
 yourself with the operating principles of `network_diffusion` are projects
 which utilise it:
 
-- Generator of a dataset with actors' spreading potentials - _v0.14.4_ -
+- Generator of a dataset with actors' spreading potentials - _v0.16.0_ -
   [repo](https://github.com/network-science-lab/infmax-simulator-icm-mln)
 - Influence max. under LTM in multilayer networks - _v0.14.0 pre-release_ -
   [repo](https://github.com/anty-filidor/rank-refined-seeding-bc-infmax-mlnets-ltm)
