@@ -1,5 +1,3 @@
-import os
-
 import networkx as nx
 import pytest
 import torch
@@ -25,8 +23,24 @@ def network_florentine():
     )
 
 
+def network_t1():
+    return MultilayerNetwork(
+        {
+            "l1": nx.Graph([(0, 4), (1, 2), (1, 3), (1, 4), (2, 3)]),
+            "l2": nx.Graph([(0, 2), (1, 4), (2, 3)]),
+        }
+    )
+
+
+def network_t2():
+    net_base = network_t1()
+    net_base["l1"].add_node(5)
+    net_base["l2"].add_edge(0, 5)
+    return net_base
+
+
 @pytest.mark.parametrize(
-    "net_initial,exp_ac_map,exp_added_nodes",
+    "net_in,exp_ac_map,exp_ad_nodes",
     [
         (
             functions.get_toy_network_piotr(),
@@ -95,79 +109,77 @@ def network_florentine():
         ),
     ],
 )
-def test__prepare_mln_for_conversion(
-    net_initial, exp_ac_map, exp_added_nodes, set_up
-):
+def test__prepare_mln_for_conversion(net_in, exp_ac_map, exp_ad_nodes, set_up):
     obt_net, obt_actors, obt_added_nodes = (
-        mlnetwork_torch._prepare_mln_for_conversion(net_initial)
+        mlnetwork_torch._prepare_mln_for_conversion(net_in)
     )
     assert obt_net.is_multiplex()
-    assert obt_added_nodes == exp_added_nodes
+    assert obt_added_nodes == exp_ad_nodes
     assert obt_actors == exp_ac_map
 
 
-# @pytest.mark.parametrize(
-#         "tensor_raw,tensor_coalesced",
-#         [
-#             (),
-#         ]
-# )
-# def test__coalesce_raw_tensor(tensor_raw, tensor_coalesced):
-#     assert torch.all(tensor_raw._indices() == tensor_coalesced._indices())
-#     assert torch.all(tensor_raw._values() == tensor_coalesced._values())
-#     assert tensor_raw.size() == tensor_coalesced.size()
-#     assert tensor_raw._nnz() == tensor_coalesced._nnz()
-#     assert tensor_raw.layout == tensor_coalesced.layout
-
-
-# @pytest.mark.parametrize(
-#     "raw_tensor,exp_tensor",
-#     [
-#         (
-
-# torch.sparse_coo_tensor(
-#     indices=torch.Tensor(
-#         [[0, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 5, 6, 7, 7, 8, 8, 9],
-#         [1, 0, 2, 3, 4, 1, 3, 1, 2, 4, 5, 1, 3, 3, 7, 6, 8, 7, 9, 8]]
-#     ),
-#     values=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-#     size=(11, 11),
-#     is_coalesced=False,
-# )
-
-# torch.sparse_coo_tensor(
-#     indices=torch.Tensor(
-#         [[ 0, 1, 1, 2, 2, 2, 4, 4, 5, 5, 6, 6, 7, 7,8, 8, 9, 9, 9, 10, 10, 10],
-#         [2,  4,  5,  0,  6, 10,  1, 10,  1,  9,  2,  7,  6,  8, 7,  9,  5,  8, 10,  2,  4,  9]]
-#     ),
-#     values=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-#     size=(11, 11),
-#     is_coalesced=False,
-# )
-
-# torch.sparse_coo_tensor(
-#     indices=torch.Tensor(
-#         [[ 0,  1,  1,  1,  2,  2,  3,  3,  4,  4,  4,  4,  5,  5, 5,  6,  7,  7,  7,  9, 10, 10],
-#         [ 1,  0,  3,  4,  5,  7,  1,  4,  1,  3,  5, 10,  2,  4, 7,  7,  2,  5,  6, 10,  4,  9]]
-#     ),
-#     values=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-#     size=(11, 11),
-#     is_coalesced=False,
-# )
-
-#         )
-
-#     ]
-
-# def test__mln_to_sparse():
-#     net = functions.get_toy_network_piotr()
-#     net_converted, ac_map, nodes_added = mlnetwork_torch._prepare_mln_for_conversion(net)
-#     mlnetwork_torch._mln_to_sparse(net_converted, list(ac_map.values()))
-#     assert True
+@pytest.mark.parametrize(
+    "net_in,ac_order,net_exp,l_exp",
+    [
+        (
+            network_t1(),
+            [0, 1, 2, 3, 4],
+            torch.sparse_coo_tensor(
+                indices=torch.Tensor(
+                    [
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                        [0, 1, 1, 1, 2, 2, 3, 3, 4, 4, 0, 1, 2, 2, 3, 4],
+                        [4, 2, 3, 4, 1, 3, 1, 2, 0, 1, 2, 4, 0, 3, 2, 1],
+                    ]
+                ),
+                values=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ),
+            ["l1", "l2"],
+        ),
+        (
+            network_t2(),
+            [0, 1, 2, 3, 4, 5],
+            torch.sparse_coo_tensor(
+                indices=torch.Tensor(
+                    [
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                        [0, 1, 1, 1, 2, 2, 3, 3, 4, 4, 0, 0, 1, 2, 2, 3, 4, 5],
+                        [4, 2, 3, 4, 1, 3, 1, 2, 0, 1, 2, 5, 4, 0, 3, 2, 1, 0],
+                    ]
+                ),
+                values=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ),
+            ["l1", "l2"],
+        ),
+        (
+            network_t2(),
+            [5, 3, 1, 0, 2, 4],
+            torch.sparse_coo_tensor(
+                indices=torch.Tensor(
+                    [
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                        [1, 1, 2, 2, 2, 3, 4, 4, 5, 5, 0, 1, 2, 3, 3, 4, 4, 5],
+                        [2, 4, 1, 4, 5, 5, 1, 2, 2, 3, 3, 4, 5, 0, 4, 1, 3, 2],
+                    ]
+                ),
+                values=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ),
+            ["l1", "l2"],
+        ),
+    ],
+)
+def test__mln_to_sparse(net_in, ac_order, net_exp, l_exp):
+    net_obtained, l_names = mlnetwork_torch._mln_to_sparse(net_in, ac_order)
+    assert l_exp == l_names
+    assert torch.all(net_exp._indices() == net_obtained._indices())
+    assert torch.all(net_exp._values() == net_obtained._values())
+    assert net_exp.size() == net_obtained.size()
+    assert net_exp._nnz() == net_obtained._nnz()
+    assert net_exp.layout == net_obtained.layout
 
 
 @pytest.mark.parametrize(
-    "layers_order,actors_map,nodes_added,exp_output",
+    "l_order,ac_map,nodes_added,exp_output",
     [
         (
             ["l1", "l2"],
@@ -195,11 +207,9 @@ def test__prepare_mln_for_conversion(
         ),
     ],
 )
-def test__create_nodes_mask(
-    layers_order, actors_map, nodes_added, exp_output, set_up
-):
+def test__create_nodes_mask(l_order, ac_map, nodes_added, exp_output, set_up):
     obtained_mask = mlnetwork_torch._create_nodes_mask(
-        layers_order, actors_map, nodes_added, True
+        l_order, ac_map, nodes_added, True
     )
     assert torch.equal(exp_output, obtained_mask)
 

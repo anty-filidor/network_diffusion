@@ -45,12 +45,6 @@ def _prepare_mln_for_conversion(
     return MultilayerNetwork(l_dict), bidict(ac_map), added_nodes
 
 
-def _coalesce_raw_tensor(tensor_raw: torch.Tensor) -> torch.Tensor:
-    """Coalesc raw sparse tensor."""
-    tensor_coalesced = tensor_raw.coalesce()
-    return tensor_coalesced
-
-
 def _mln_to_sparse(
     net: MultilayerNetwork, actor_order: list[Any]
 ) -> tuple[torch.Tensor, list[str]]:
@@ -79,7 +73,7 @@ def _mln_to_sparse(
         adj.append(lg_adj)
         layers.append(l_name)
     print(adj)
-    return _coalesce_raw_tensor(torch.stack(adj)), layers
+    return torch.stack(adj).coalesce(), layers
 
 
 def _create_nodes_mask(
