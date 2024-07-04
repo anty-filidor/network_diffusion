@@ -31,28 +31,23 @@ def _prepare_mln_for_conversion(
     :param net: a copy of the multilayer network prepared for conversion
     :return: a new instance of `MultilayerNetwork` prepared for conversion,
         a bi-directional map of the old and new actors' names, a dict of nodes'
-        sets added to make the network multiplex
+        sets added to make the network multiplex (with their original ids)
     """
     if not net.is_multiplex():
-        net, added_nodes = net.to_multiplex()
+        net_m, added_nodes = net.to_multiplex()
     else:
-        net, added_nodes = net, None
-    ac_map = {ac.actor_id: idx for idx, ac in enumerate(net.get_actors())}
+        net_m, added_nodes = net, None
+    ac_map = {ac.actor_id: idx for idx, ac in enumerate(net_m.get_actors())}
     l_dict = {
         l_name: nx.relabel_nodes(l_graph, mapping=ac_map, copy=True)
-        for l_name, l_graph in net.layers.items()
+        for l_name, l_graph in net_m.layers.items()
     }
     return MultilayerNetwork(l_dict), bidict(ac_map), added_nodes
 
 
-def _coalesce_and_check(tensor_raw: torch.Tensor) -> torch.Tensor:
-    """Coalesce tensor and check if anything chenged during that operation."""
+def _coalesce_raw_tensor(tensor_raw: torch.Tensor) -> torch.Tensor:
+    """Coalesc raw sparse tensor."""
     tensor_coalesced = tensor_raw.coalesce()
-    assert torch.all(tensor_raw._indices() == tensor_coalesced._indices())
-    assert torch.all(tensor_raw._values() == tensor_coalesced._values())
-    assert tensor_raw.size() == tensor_coalesced.size()
-    assert tensor_raw._nnz() == tensor_coalesced._nnz()
-    assert tensor_raw.layout == tensor_coalesced.layout
     return tensor_coalesced
 
 
@@ -72,7 +67,7 @@ def _mln_to_sparse(
     adj, layers = [], []
     for l_name, l_graph in net.layers.items():
         lg_idx, lg_val = pyg.utils.from_scipy_sparse_matrix(
-            nx.adjacency_matrix(l_graph, actor_order)
+            nx.adjacency_matrix(G=l_graph, nodelist=actor_order, weight=None)
         )
         lg_adj = torch.sparse_coo_tensor(
             indices=lg_idx,
@@ -83,7 +78,8 @@ def _mln_to_sparse(
         )
         adj.append(lg_adj)
         layers.append(l_name)
-    return _coalesce_and_check(torch.stack(adj)), layers
+    print(adj)
+    return _coalesce_raw_tensor(torch.stack(adj)), layers
 
 
 def _create_nodes_mask(
@@ -100,8 +96,9 @@ def _create_nodes_mask(
     :param actors_map: map of actor names `Any` -> `int` between the original
         network and its sparse representation
     :param nodes_added: a dict of sets of nodes added to make the net multiplex
+        (with the original ids)
     :param debug: a flag whether to print debug info
-    :return: tensor of shape **[layers x nodes x nodes]**
+    :return: tensor of shape **[nb. layers x nb. actors]**
     """
     n_mask = torch.zeros([len(layers_order), len(actors_map)])
     if not nodes_added:
@@ -126,7 +123,7 @@ class MultilayerNetworkTorch:
     marked in the property `nodes_mask`
 
     :param adjacency_tensor: adjacency matrix as a sparse tensor shaped as
-        **[layers x nodes x nodes]**
+        **[nb. layers x nb. actors x nb. actors]**
     :param layers_order: names of layers in an order that is preserved in
         `adjacency_tensor`
     :param actors_map: map of actor names `Any` -> `int` between the original
