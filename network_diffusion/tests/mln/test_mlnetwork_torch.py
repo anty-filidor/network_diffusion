@@ -36,7 +36,13 @@ def network_t2():
     net_base = network_t1()
     net_base["l1"].add_node(5)
     net_base["l2"].add_edge(0, 5)
-    return net_base
+    return MultilayerNetwork({"l1": net_base["l1"], "l2": net_base["l2"]})
+
+
+def network_t2_hard():
+    net_base = network_t1()
+    net_base["l2"].add_edge(0, 5)
+    return MultilayerNetwork({"l1": net_base["l1"], "l2": net_base["l2"]})
 
 
 @pytest.mark.parametrize(
@@ -214,22 +220,80 @@ def test__create_nodes_mask(l_order, ac_map, nodes_added, exp_output, set_up):
     assert torch.equal(exp_output, obtained_mask)
 
 
-# class TestMultilayerNetworkTorch:
-
-#     @pytest.mark.parametrize(
-#         "network,exp_output",
-#         [
-#             (
-#                 functions.get_toy_network_piotr(),
-#                 # bidict({1:0, 2:1, 3:2, 4:3}),
-#                 # {"l1": {}, "l2": {1, 2}},
-#                 torch.Tensor([[0., 0., 0., 0.], [1., 1., 0., 0.]])
-#             ),
-#         ]
-#     )
-#     def test_from_mln(self, network, exp_output):
-#         net_tensor = MultilayerNetworkTorch.from_mln(network)
-#         assert True
-
-#     def test___repr__(self):
-#         assert True
+@pytest.mark.parametrize(
+    "net_raw,exp_adt,exp_l_order,exp_ac_map,exp_n_mask",
+    [
+        (
+            network_t1(),
+            torch.sparse_coo_tensor(
+                indices=torch.Tensor(
+                    [
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+                        [0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 0, 1, 2, 3, 3, 4],
+                        [1, 0, 2, 1, 3, 4, 2, 4, 2, 3, 3, 2, 1, 0, 4, 3],
+                    ]
+                ),
+                values=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ),
+            ["l1", "l2"],
+            bidict({0: 0, 4: 1, 1: 2, 2: 3, 3: 4}),
+            torch.Tensor(
+                [[0.0, 0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0, 0.0]]
+            ),
+        ),
+        (
+            network_t2(),
+            torch.sparse_coo_tensor(
+                indices=torch.Tensor(
+                    [
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                        [0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 0, 0, 1, 2, 3, 3, 4, 5],
+                        [1, 0, 2, 1, 3, 4, 2, 4, 2, 3, 3, 5, 2, 1, 0, 4, 3, 0],
+                    ]
+                ),
+                values=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ),
+            ["l1", "l2"],
+            bidict({0: 0, 4: 1, 1: 2, 2: 3, 3: 4, 5: 5}),
+            torch.Tensor(
+                [
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                ]
+            ),
+        ),
+        (
+            network_t2_hard(),
+            torch.sparse_coo_tensor(
+                indices=torch.Tensor(
+                    [
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                        [0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 0, 0, 1, 2, 3, 3, 4, 5],
+                        [1, 0, 2, 1, 3, 4, 2, 4, 2, 3, 3, 5, 2, 1, 0, 4, 3, 0],
+                    ]
+                ),
+                values=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ),
+            ["l1", "l2"],
+            bidict({0: 0, 4: 1, 1: 2, 2: 3, 3: 4, 5: 5}),
+            torch.Tensor(
+                [
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                ]
+            ),
+        ),
+    ],
+)
+def test_MultilayerNetworkTorch_from_mln(
+    net_raw, exp_adt, exp_l_order, exp_ac_map, exp_n_mask
+):
+    net_t = MultilayerNetworkTorch.from_mln(net_raw)
+    assert torch.all(exp_adt._indices() == net_t.adjacency_tensor._indices())
+    assert torch.all(exp_adt._values() == net_t.adjacency_tensor._values())
+    assert exp_adt.size() == net_t.adjacency_tensor.size()
+    assert exp_adt._nnz() == net_t.adjacency_tensor._nnz()
+    assert exp_adt.layout == net_t.adjacency_tensor.layout
+    assert net_t.layers_order == exp_l_order
+    assert net_t.actors_map == exp_ac_map
+    assert torch.all(net_t.nodes_mask == exp_n_mask)
