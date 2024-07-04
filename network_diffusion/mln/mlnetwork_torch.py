@@ -72,7 +72,6 @@ def _mln_to_sparse(
         )
         adj.append(lg_adj)
         layers.append(l_name)
-    print(adj)
     return torch.stack(adj).coalesce(), layers
 
 
