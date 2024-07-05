@@ -156,8 +156,8 @@ class MultilayerNetworkTorch:
     @device.setter
     def device(self, new_device: str) -> None:
         """Copy tensor-members of the object into a `new_device`."""
-        self.adjacency_tensor.to(new_device)
-        self.nodes_mask.to(new_device)
+        self.adjacency_tensor = self.adjacency_tensor.to(new_device)
+        self.nodes_mask = self.nodes_mask.to(new_device)
 
     @classmethod
     def from_mln(
