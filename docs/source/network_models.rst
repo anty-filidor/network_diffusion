@@ -44,6 +44,13 @@ Implemented in ``network_diffusion.mln.functions``.
 .. automodule:: network_diffusion.mln.kppshell
    :members:
 
+Class ``MultilayerNetworkTorch``
+++++++++++++++++++++++++++++++++
+
+Implemented in ``network_diffusion.mln.mlnetwork_torch``.
+
+.. autoclass:: network_diffusion.mln.mlnetwork_torch.MultilayerNetworkTorch
+   :members:
 
 Operations on temporal networks
 =================================

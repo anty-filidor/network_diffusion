@@ -237,20 +237,22 @@ class MultilayerNetwork:
                 return False
         return True
 
-    def to_multiplex(self) -> "MultilayerNetwork":
+    def to_multiplex(self) -> tuple["MultilayerNetwork", dict[str, set[Any]]]:
         """Convert network to multiplex one by adding missing nodes."""
         if self.is_multiplex():
             warnings.warn("Network is already multiplex!", stacklevel=1)
-            return self.copy()
+            return self.copy(), {}
 
         actors = {a.actor_id for a in self.get_actors()}
         multiplexed_layers = {}
+        added_nodes = {}
         for layer in self.layers:
             missing_nodes = actors.difference(self[layer])
             updated_layer = self[layer].copy(as_view=False)
             updated_layer.add_nodes_from(missing_nodes)
             multiplexed_layers[layer] = updated_layer
-        return MultilayerNetwork(multiplexed_layers)
+            added_nodes[layer] = missing_nodes
+        return MultilayerNetwork(multiplexed_layers), added_nodes
 
     def get_actors(self, shuffle: bool = False) -> list[MLNetworkActor]:
         """

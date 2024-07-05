@@ -139,10 +139,14 @@ class TestMultilayerNetwork(unittest.TestCase):
         )
 
     def test_to_multiplex(self):
-        multiplexed_net = self.network.to_multiplex()
+        multiplexed_net, added_nodes = self.network.to_multiplex()
         all_actors_ids = {a.actor_id for a in multiplexed_net.get_actors()}
         for layer in multiplexed_net.layers:
             assert set(multiplexed_net[layer].nodes) == all_actors_ids
+        assert added_nodes == {
+            "marriage": set(),
+            "business": {"Ridolfi", "Albizzi", "Acciaiuoli", "Strozzi"},
+        }
 
 
 if __name__ == "__main__":
