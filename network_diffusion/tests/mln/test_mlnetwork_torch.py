@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 import networkx as nx
 import pytest
 import torch
@@ -15,6 +17,16 @@ from network_diffusion.mln import (
 @pytest.fixture
 def set_up():
     utils.fix_random_seed(42)
+
+
+class MockTensor(MagicMock):
+    def __init__(self, device="cpu"):
+        super().__init__()
+        self.device = device
+
+    def to(self, device):
+        self.device = device
+        return self
 
 
 def network_florentine():
@@ -288,7 +300,7 @@ def test__create_nodes_mask(l_order, ac_map, nodes_added, exp_output, set_up):
 def test_MultilayerNetworkTorch_from_mln(
     net_raw, exp_adt, exp_l_order, exp_ac_map, exp_n_mask
 ):
-    net_t = MultilayerNetworkTorch.from_mln(net_raw)
+    net_t = MultilayerNetworkTorch.from_mln(net_raw, "cpu")
     assert torch.all(exp_adt._indices() == net_t.adjacency_tensor._indices())
     assert torch.all(exp_adt._values() == net_t.adjacency_tensor._values())
     assert exp_adt.size() == net_t.adjacency_tensor.size()
@@ -297,3 +309,19 @@ def test_MultilayerNetworkTorch_from_mln(
     assert net_t.layers_order == exp_l_order
     assert net_t.actors_map == exp_ac_map
     assert torch.all(net_t.nodes_mask == exp_n_mask)
+    print(net_t.device)
+
+
+def test_MultilayerNetworkTorch_device_get_exception():
+    net_t = MultilayerNetworkTorch.from_mln(functions.get_toy_network_piotr())
+    net_t.adjacency_tensor = MockTensor("cuda:0")
+    with pytest.raises(ValueError):
+        net_t.device
+
+
+def test_MultilayerNetworkTorch_device_get():
+    net_t = MultilayerNetworkTorch.from_mln(functions.get_toy_network_piotr())
+    net_t.adjacency_tensor = MockTensor()
+    net_t.nodes_mask = MockTensor()
+    net_t.device = "cuda:0"
+    assert net_t.device == "cuda:0"

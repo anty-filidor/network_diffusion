@@ -119,7 +119,7 @@ def _create_nodes_mask(
     return n_mask
 
 
-@dataclass(frozen=True)
+@dataclass
 class MultilayerNetworkTorch:
     """
     Representation of `MultilayerNetwork` in a tensor notation.
@@ -136,6 +136,7 @@ class MultilayerNetworkTorch:
         network and its sparse representation
     :param nodes_mask: mask of nodes added while making the network multiplex
         ordered in the same way as the nodes in `adjacency_tensor`
+    :param device: a device where tensor-members of the object are stored in
     """
 
     adjacency_tensor: torch.Tensor
@@ -143,13 +144,32 @@ class MultilayerNetworkTorch:
     actors_map: bidict
     nodes_mask: torch.Tensor
 
+    @property
+    def device(self) -> str:
+        """Get a `device` where the object's data is stored."""
+        if self.adjacency_tensor.device != self.nodes_mask.device:
+            raise ValueError(
+                "Inconsistent device across tensor-members of the object!"
+            )
+        return self.adjacency_tensor.device
+
+    @device.setter
+    def device(self, new_device: str) -> None:
+        """Copy tensor-members of the object into a `new_device`."""
+        self.adjacency_tensor.to(new_device)
+        self.nodes_mask.to(new_device)
+
     @classmethod
-    def from_mln(cls, net: MultilayerNetwork) -> "MultilayerNetworkTorch":
+    def from_mln(
+        cls, net: MultilayerNetwork, device: str = "cpu"
+    ) -> "MultilayerNetworkTorch":
         """Represent net in a tensor notation."""
         net_converted, ac_map, nodes_added = _prepare_mln_for_conversion(net)
         adj, l_order = _mln_to_sparse(net_converted, list(ac_map.values()))
         n_mask = _create_nodes_mask(l_order, ac_map, nodes_added)
-        return cls(adj, l_order, ac_map, n_mask)
+        new_obj = cls(adj, l_order, ac_map, n_mask)
+        new_obj.device = device
+        return new_obj
 
     def __repr__(self) -> str:
         return (
@@ -158,4 +178,5 @@ class MultilayerNetworkTorch:
             f"layers_order: {self.layers_order}\n"
             f"actors map: {self.actors_map}\n"
             f"nodes_mask: {self.nodes_mask}\n"
+            f"device: {self.device}\n"
         )
