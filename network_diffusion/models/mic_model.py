@@ -40,15 +40,15 @@ class MICModel(BaseModel):
         """
         Create the object.
 
-        :param seeding_budget: a proportion of INACTIVE, ACTIVE and ACTIVATED
-            nodes in each layer
+        :param seeding_budget: a proportion of `INACTIVE`, `A`CTIVE` and
+            `ACTIVATED` nodes in each layer
         :param seed_selector: class that selects initial seeds for simulation
         :param protocol: logical operator that determines how to activate actor
-            can be OR (then actor gets activated if it gets positive input in
-            one layer) or AND (then actor gets activated if it gets positive
+            can be `OR` (then actor gets activated if it gets positive input in
+            one layer) or `AND` (then actor gets activated if it gets positive
             input in all layers)
         :param probability: threshold parameter which activate actor (a random
-             variable must be greater than this param to result in activation)
+             variable must be lesser than this param to result in activation)
         """
         assert 0 <= probability <= 1, f"incorrect probability: {probability}!"
         self.probability = probability
@@ -199,8 +199,8 @@ class MICModel(BaseModel):
             # if neighbour is active, it can send signal to activation of actor
             if l_graph.nodes[neighbour]["status"] == self.ACTIVE_NODE:
 
-                # if a tossed number from unif. distr. > threshold, activ. node
-                if random.random() >= self.probability:
+                # if a tossed number from unif. distr. < threshold, activ. node
+                if random.random() < self.probability:
                     return self.ACTIVE_NODE
 
         return current_state

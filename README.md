@@ -72,10 +72,14 @@ logs.report(visualisation=True, path="my_experiment")
   measures specifically designed for multilayer networks. These measures can be
   valuable for selecting influential seed nodes in diffusion processes.
 
-- **NetworkX Compatible**: Last but not least, the package is built on top of
-  NetworkX, ensuring seamless compatibility with this popular Python library
-  for network analysis. You can easily integrate it into your existing
-  NetworkX-based workflows.
+- **NetworkX Compatible**: The package is built on top of NetworkX, ensuring
+  seamless compatibility with this popular Python library for network analysis.
+  You can easily integrate it into your existing NetworkX-based workflows.
+
+- **PyTorch representation**: Last but not least, Network Diffusion offers a
+  plausible converter of the multilayer network to PyTorch sparse
+  representation. That feature can help in deep-learning experiments utilising
+  complex networks (e.g. GNNs).
 
 ## Package installation
 

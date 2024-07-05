@@ -57,6 +57,14 @@ def network_t2_hard():
     return MultilayerNetwork({"l1": net_base["l1"], "l2": net_base["l2"]})
 
 
+def compare_sparse_tensors(t1, t2):
+    assert torch.all(t1._indices() == t2._indices())
+    assert torch.all(t1._values() == t2._values())
+    assert t1.size() == t2.size()
+    assert t1._nnz() == t2._nnz()
+    assert t1.layout == t2.layout
+
+
 @pytest.mark.parametrize(
     "net_in,exp_ac_map,exp_ad_nodes",
     [
@@ -189,11 +197,7 @@ def test__prepare_mln_for_conversion(net_in, exp_ac_map, exp_ad_nodes, set_up):
 def test__mln_to_sparse(net_in, ac_order, net_exp, l_exp):
     net_obtained, l_names = mlnetwork_torch._mln_to_sparse(net_in, ac_order)
     assert l_exp == l_names
-    assert torch.all(net_exp._indices() == net_obtained._indices())
-    assert torch.all(net_exp._values() == net_obtained._values())
-    assert net_exp.size() == net_obtained.size()
-    assert net_exp._nnz() == net_obtained._nnz()
-    assert net_exp.layout == net_obtained.layout
+    compare_sparse_tensors(net_exp, net_obtained)
 
 
 @pytest.mark.parametrize(
@@ -301,11 +305,7 @@ def test_MultilayerNetworkTorch_from_mln(
     net_raw, exp_adt, exp_l_order, exp_ac_map, exp_n_mask
 ):
     net_t = MultilayerNetworkTorch.from_mln(net_raw, "cpu")
-    assert torch.all(exp_adt._indices() == net_t.adjacency_tensor._indices())
-    assert torch.all(exp_adt._values() == net_t.adjacency_tensor._values())
-    assert exp_adt.size() == net_t.adjacency_tensor.size()
-    assert exp_adt._nnz() == net_t.adjacency_tensor._nnz()
-    assert exp_adt.layout == net_t.adjacency_tensor.layout
+    compare_sparse_tensors(net_t.adjacency_tensor, exp_adt)
     assert net_t.layers_order == exp_l_order
     assert net_t.actors_map == exp_ac_map
     assert torch.all(net_t.nodes_mask == exp_n_mask)
@@ -325,3 +325,25 @@ def test_MultilayerNetworkTorch_device_get():
     net_t.nodes_mask = MockTensor()
     net_t.device = "cuda:0"
     assert net_t.device == "cuda:0"
+
+
+def test_MultilayerNetworkTorch_copy():
+    net_0 = MultilayerNetworkTorch.from_mln(network_florentine())
+    net_1 = net_0.copy()
+
+    for attr in [
+        "adjacency_tensor",
+        "layers_order",
+        "actors_map",
+        "nodes_mask",
+        "device",
+    ]:
+        attr_0 = net_0.__getattribute__(attr)
+        attr_1 = net_1.__getattribute__(attr)
+        assert id(attr_0) != id(attr_1)
+
+    assert net_0.layers_order == net_1.layers_order
+    assert net_0.actors_map == net_1.actors_map
+    assert net_0.device == net_1.device
+    assert torch.all(net_0.nodes_mask == net_1.nodes_mask)
+    compare_sparse_tensors(net_0.adjacency_tensor, net_1.adjacency_tensor)

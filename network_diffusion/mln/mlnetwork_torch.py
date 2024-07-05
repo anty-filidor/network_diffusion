@@ -129,7 +129,7 @@ class MultilayerNetworkTorch:
     marked in the property `nodes_mask`
 
     :param adjacency_tensor: adjacency matrix as a sparse tensor shaped as
-        **[nb. layers x nb. actors x nb. actors]**
+        `[nb. layers x nb. actors x nb. actors]`
     :param layers_order: names of layers in an order that is preserved in
         `adjacency_tensor`
     :param actors_map: map of actor names `Any` -> `int` between the original
@@ -179,4 +179,17 @@ class MultilayerNetworkTorch:
             f"actors map: {self.actors_map}\n"
             f"nodes_mask: {self.nodes_mask}\n"
             f"device: {self.device}\n"
+        )
+
+    def copy(self) -> "MultilayerNetworkTorch":
+        """Crete a copy of the object."""
+        new_adjt = self.adjacency_tensor.detach().clone().to(self.device)
+        new_layers_order = self.layers_order.copy()
+        new_actors_map = self.actors_map.copy()
+        new_nodes_mask = self.nodes_mask.detach().clone().to(self.device)
+        return MultilayerNetworkTorch(
+            adjacency_tensor=new_adjt,
+            layers_order=new_layers_order,
+            actors_map=new_actors_map,
+            nodes_mask=new_nodes_mask,
         )
