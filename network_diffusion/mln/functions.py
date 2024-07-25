@@ -528,7 +528,7 @@ def get_toy_network_cim() -> MultilayerNetwork:
     )
 
 
-def draw_mln(net: MultilayerNetwork, dpi: int | None = None) -> None:
+def draw_mln(net: MultilayerNetwork, dpi: int = 300) -> None:
     """Draw briefly a given multilayer network."""
     if net.get_actors_num() > 100:
         warnings.warn(
@@ -538,7 +538,7 @@ def draw_mln(net: MultilayerNetwork, dpi: int | None = None) -> None:
         )
     pos = nx.drawing.shell_layout([a.actor_id for a in net.get_actors()])
     fig, axs = plt.subplots(nrows=1, ncols=len(net.layers))
-    fig.set_dpi(dpi if dpi else 300)
+    fig.set_dpi(dpi)
     for idx, (layer_name, layer_graph) in enumerate(net.layers.items()):
         axs[idx].set_title(layer_name)
         nx.draw(layer_graph, ax=axs[idx], pos=pos)

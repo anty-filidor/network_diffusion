@@ -24,7 +24,7 @@ def _prepare_mln_for_conversion(
     """
     Prepare `MultilayerNetwork` for conversion to torch representation.
 
-    If network is not multiplex, then multiplicity actoss all layers will be
+    If network is not multiplex, then multiplicity across all layers will be
     imposed. Names of the actors will be converted to integers.
 
     :param net: a copy of the multilayer network prepared for conversion
