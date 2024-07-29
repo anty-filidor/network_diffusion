@@ -8,8 +8,10 @@
 
 """Script with functions of NetworkX extended to multilayer networks."""
 
+import warnings
 from typing import Any, Callable, Iterator
 
+import matplotlib.pyplot as plt
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
@@ -524,3 +526,21 @@ def get_toy_network_cim() -> MultilayerNetwork:
     return MultilayerNetwork.from_nx_layers(
         [layer_1, layer_2, layer_3], ["l1", "l2", "l3"]
     )
+
+
+def draw_mln(net: MultilayerNetwork, dpi: int = 300) -> None:
+    """Draw briefly a given multilayer network."""
+    if net.get_actors_num() > 100:
+        warnings.warn(
+            f"Too large network ({net.get_actors_num()}). \
+                Visualisation can be crippled.",
+            stacklevel=1,
+        )
+    pos = nx.drawing.shell_layout([a.actor_id for a in net.get_actors()])
+    fig, axs = plt.subplots(nrows=1, ncols=len(net.layers))
+    fig.set_dpi(dpi)
+    for idx, (layer_name, layer_graph) in enumerate(net.layers.items()):
+        axs[idx].set_title(layer_name)
+        nx.draw(layer_graph, ax=axs[idx], pos=pos)
+        nx.drawing.draw_networkx_labels(layer_graph, ax=axs[idx], pos=pos)
+    plt.show()

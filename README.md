@@ -72,10 +72,14 @@ logs.report(visualisation=True, path="my_experiment")
   measures specifically designed for multilayer networks. These measures can be
   valuable for selecting influential seed nodes in diffusion processes.
 
-- **NetworkX Compatible**: Last but not least, the package is built on top of
-  NetworkX, ensuring seamless compatibility with this popular Python library
-  for network analysis. You can easily integrate it into your existing
-  NetworkX-based workflows.
+- **NetworkX Compatible**: The package is built on top of NetworkX, ensuring
+  seamless compatibility with this popular Python library for network analysis.
+  You can easily integrate it into your existing NetworkX-based workflows.
+
+- **PyTorch representation**: Last but not least, Network Diffusion offers a
+  plausible converter of the multilayer network to PyTorch sparse
+  representation. That feature can help in deep-learning experiments utilising
+  complex networks (e.g. GNNs).
 
 ## Package installation
 
@@ -102,7 +106,7 @@ we encourage users to explore the repository. Another way to familiarise
 yourself with the operating principles of `network_diffusion` are projects
 which utilise it:
 
-- Generator of a dataset with actors' spreading potentials - _v0.14.4_ -
+- Generator of a dataset with actors' spreading potentials - _v0.16.0_ -
   [repo](https://github.com/network-science-lab/infmax-simulator-icm-mln)
 - Influence max. under LTM in multilayer networks - _v0.14.0 pre-release_ -
   [repo](https://github.com/anty-filidor/rank-refined-seeding-bc-infmax-mlnets-ltm)
