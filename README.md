@@ -13,7 +13,7 @@ This Python library provides a versatile toolkit for simulating diffusion
 processes in complex networks. It offers support for various types of models,
 including temporal models, multilayer models, and combinations of both.
 
-## A Short Example
+## Short Example
 
 ```python
 import network_diffusion as nd
@@ -81,7 +81,7 @@ logs.report(visualisation=True, path="my_experiment")
   representation. That feature can help in deep-learning experiments utilising
   complex networks (e.g. GNNs).
 
-## Package installation
+## Package Installation
 
 To install the package, run this command: `pip install network_diffusion`.
 Please note that we currently support Linux, MacOS, and Windows, but the
@@ -117,7 +117,7 @@ which utilise it:
 - Modelling coexisting spreading phenomena - _v0.6_ -
   [repo](https://github.com/anty-filidor/network_diffusion_examples)
 
-## Citing us
+## Citing the Library
 
 If you used the package, please consider citing us:
 
@@ -160,13 +160,13 @@ in complex networks, please add the following reference:
 }
 ```
 
-## Reporting bugs
+## Reporting Bugs
 
 Please report bugs on
 [this](https://github.com/anty-filidor/network_diffusion/issues) board or by
 sending a direct [e-mail](https://github.com/anty-filidor) to the main author.
 
-## About us
+## About Us
 
 This library is developed and maintained by
 [Network Science Lab](https://networks.pwr.edu.pl/) from Politechnika
