@@ -133,6 +133,12 @@ EXP_NODE_ATTRS = {
 }
 
 
+EXP_EDGE_ATTRS = {
+    "ego": {"weight"},
+    "course": {"direction", "intensity", "lang_usage"},
+}
+
+
 @pytest.mark.parametrize(
     "snap_idx, directed, exp_l_names, exp_nb_actors, exp_nb_nodes, exp_nb_edges, exp_avg_deg, exp_cc",
     [
@@ -231,12 +237,25 @@ def test_node_features():
     net = l2_course_net.get_l2_course_net(
         node_features=True,
         edge_features=False,
-        directed=True,
+        directed=False,
     )
-    for snap_idx, snap in enumerate(net.snaps):
+    for s_idx, snap in enumerate(net.snaps):
         for l_name, l_graph in snap.layers.items():
             for node, attrs in list(l_graph.nodes(data=True)):
                 assert (
-                    set(attrs.keys()) == EXP_NODE_ATTRS,
-                    f"error in snap {snap_idx}, layer {l_name}, node {node}",
-                )
+                    set(attrs.keys()) == EXP_NODE_ATTRS
+                ), f"error in snap {s_idx}, layer {l_name}, node {node}"
+
+
+def test_edge_features():
+    net = l2_course_net.get_l2_course_net(
+        node_features=False,
+        edge_features=True,
+        directed=True,
+    )
+    for s_idx, snap in enumerate(net.snaps):
+        for l_name in snap.get_layer_names():
+            for n_a, n_b, attrs in list(snap[l_name].edges(data=True)):
+                assert (
+                    set(attrs.keys()) == EXP_EDGE_ATTRS[l_name]
+                ), f"error in snap {s_idx}, layer {l_name}, edge {n_a}, {n_b}"
