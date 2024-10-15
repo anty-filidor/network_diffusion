@@ -82,7 +82,10 @@ class Simulator:
         for epoch in range(1, n_epochs + 1):
             actors_epoch = {a.actor_id for a in net[epoch].get_actors()}
             if len(actors_epoch.symmetric_difference(actors_0)):
-                raise ValueError("Net should have one actors set in snaps!")
+                raise ValueError(
+                    "Temporal network shall consist of snapshots with the"
+                    "same set of actors!"
+                )
 
     def perform_propagation(
         self, n_epochs: int, patience: int | None = None
