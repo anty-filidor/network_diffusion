@@ -1,4 +1,4 @@
-# Network Diffusion - spreading models in networks
+# Network Diffusion - Spreading Models in Networks
 
 [![Licence](https://img.shields.io/github/license/anty-filidor/network_diffusion)](https://opensource.org/license/mit)
 [![PyPI version](https://badge.fury.io/py/network-diffusion.svg)](https://badge.fury.io/py/network-diffusion)
@@ -76,10 +76,9 @@ logs.report(visualisation=True, path="my_experiment")
   seamless compatibility with this popular Python library for network analysis.
   You can easily integrate it into your existing NetworkX-based workflows.
 
-- **PyTorch representation**: Last but not least, Network Diffusion offers a
-  plausible converter of the multilayer network to PyTorch sparse
-  representation. That feature can help in deep-learning experiments utilising
-  complex networks (e.g. GNNs).
+- **PyTorch representation**: Network Diffusion offers a plausible converter of
+  the multilayer network to PyTorch sparse representation. That feature can
+  help in deep-learning experiments utilising complex networks (e.g. GNNs).
 
 ## Package Installation
 
@@ -123,16 +122,16 @@ If you used the package, please consider citing us:
 
 ```bibtex
 @article{czuba2024networkdiffusion,
-  title={Network Diffusion – Framework to Simulate Spreading Processes in Complex Networks},
+  title={Network Diffusion Framework to Simulate Spreading Processes in Complex Networks},
   author={
       Czuba, Micha{\l} and Nurek, Mateusz and Serwata, Damian and Qi, Yu-Xuan
       and Jia, Mingshan and Musial, Katarzyna and Michalski, Rados{\l}aw
       and Br{\'o}dka, Piotr
     },
   journal={Big Data Mining And Analytics},
-  volume={},
-  number={},
-  pages={1-13},
+  volume={7},
+  number={3},
+  pages={637-654},
   year={2024},
   publisher={IEEE},
   doi = {10.26599/BDMA.2024.9020010},
