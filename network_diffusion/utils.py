@@ -11,8 +11,6 @@
 import math
 import pathlib
 import random
-import string
-from typing import Any
 
 import dynetx as dn
 import networkx as nx
@@ -22,56 +20,6 @@ BOLD_UNDERLINE = "============================================"
 THIN_UNDERLINE = "--------------------------------------------"
 
 
-def read_mpx(file_path: str) -> dict[str, list[Any]]:
-    """
-    Handle MPX file for the MultilayerNetwork class.
-
-    :param file_path: path to file
-
-    :return: a dictionary with network to create class
-    """
-    # initialise empty containers
-    net_dict = {}
-    tab: list[Any] = []
-    name = "foo"
-
-    with open(file=file_path, mode="r", encoding="utf-8") as file:
-        line = file.readline()
-
-        # omit trash
-        while line and line[0] != "#":
-            line = file.readline()
-
-        # read pure data
-        while line:
-            # if line contains title of new division
-            if line[0] == "#":
-                # if this is a special line - type
-                if "#TYPE".lower() in line.lower():
-                    net_dict.update(
-                        {"type": [line[6:-1]]}
-                    )  # '6:-1' to save the name of type
-                # else if it is a normal division
-                else:
-                    net_dict.update({name: tab})
-                    name = line[1:-1].lower()  # omitting '#' and '\n'
-                    tab = []
-            line = file.readline()
-            # don't save line with only whitespaces or if line contains a
-            # title of new division
-            if not line.isspace() and "#" not in line:
-                line = line.translate(
-                    {ord(char): None for char in string.whitespace}
-                )
-                tab.append(line.split(","))
-
-        # append last line to dictionary
-        net_dict.update({name: tab[:-1]})
-    del net_dict["foo"]
-
-    return net_dict
-
-
 def get_nx_snapshot(
     graph: dn.DynGraph | dn.DynDiGraph,
     snap_id: int,
@@ -79,7 +27,7 @@ def get_nx_snapshot(
     time_window: int,
 ) -> nx.Graph | nx.DiGraph:
     """
-    Get an nxGraph typed snapshot for the given snapshot id.
+    Get an `nx.Graph` typed snapshot for the given snapshot id.
 
     :param graph: the dynamic graph
     :param snap_id: the snapshot id

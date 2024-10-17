@@ -15,19 +15,27 @@ from typing import Any
 
 import networkx as nx
 import numpy as np
+from uunet import multinet
 
 from network_diffusion.mln.actor import MLNetworkActor
-from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE, read_mpx
+from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
 
 
 class MultilayerNetwork:
-    """Container for multilayer network."""
+    """
+    A basic container for the multilayer network.
+
+    Multilayer network is represented as a dictionary of `networkx` graphs.
+    """
 
     def __init__(self, layers: dict[str, nx.Graph]) -> None:
         """
         Create an object.
 
-        :param layers: a layers of the multilayer networks as graphs.
+        Please note, that all nodes will have initialised "status" attribute to
+        make the network ready for simulations of spreading phenomena.
+
+        :param layers: a layers as `networkx` graphs.
         """
         prepared_layers = self._prepare_nodes_attribute(layers)
         self.layers = prepared_layers
@@ -35,41 +43,16 @@ class MultilayerNetwork:
     @classmethod
     def from_mpx(cls, file_path: str) -> "MultilayerNetwork":
         """
-        Load multilayer network from mpx file.
+        Load multilayer network from a `mpx` file.
 
-        Note, that is omits some non-important attributes of network defined in
-        the file, i.e. node attributes.
+        `mpx` is a standard provided by `multinet` library mainatined by
+        Uppsala University Information Laboratory: https://github.com/uuinfolab
 
         :param file_path: path to the file
         """
-        raw_data = read_mpx(file_path)
-
-        # create layers
-        layers: dict[str, nx.Graph] = {}
-        if "layers" in raw_data:
-            for layer_name, layer_type in raw_data["layers"]:
-                if layer_type == "DIRECTED":
-                    layers[layer_name] = nx.DiGraph()
-                elif layer_type == "UNDIRECTED":
-                    layers[layer_name] = nx.Graph()
-                else:
-                    raise ResourceWarning(f"unrecognised layer: {layer_name}")
-        else:
-            raise ResourceWarning("file corrupted - no layers defined")
-
-        # import nodes
-        if "vertices" in raw_data:
-            for vertex in raw_data["vertices"]:
-                layers[vertex[1]].add_node(vertex[0])
-
-        # import edges
-        if "edges" in raw_data:
-            for edge in raw_data["edges"]:
-                # if edge definition is not corrupted read it
-                if len(edge) >= 3 and edge[2] in layers:
-                    layers[edge[2]].add_edge(edge[0], edge[1])
-
-        return cls(layers)
+        uu_net = multinet.read(file_path)
+        nx_net = multinet.to_nx_dict(uu_net)
+        return cls(nx_net)
 
     @classmethod
     def from_nx_layers(
@@ -120,7 +103,7 @@ class MultilayerNetwork:
     def _prepare_nodes_attribute(
         layers: dict[str, nx.Graph]
     ) -> dict[str, nx.Graph]:
-        """Prepare network to the experiment."""
+        """Prepare network for the experiment."""
         for layer in layers.values():
             status_dict = {n: None for n in layer.nodes()}
             nx.set_node_attributes(layer, status_dict, "status")
