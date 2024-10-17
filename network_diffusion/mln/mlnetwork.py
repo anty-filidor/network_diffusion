@@ -47,6 +47,8 @@ class MultilayerNetwork:
 
         `mpx` is a standard provided by `multinet` library mainatined by
         Uppsala University Information Laboratory: https://github.com/uuinfolab
+        Pleas note that `multinet` is mostly written in C/C++ and it is not
+        possible to control its random numger generator.
 
         :param file_path: path to the file
         """
