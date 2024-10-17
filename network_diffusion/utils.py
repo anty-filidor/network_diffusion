@@ -9,12 +9,14 @@
 """Functions for the auxiliary operations."""
 
 import math
+import os
 import pathlib
 import random
 
 import dynetx as dn
 import networkx as nx
 import numpy as np
+import torch
 
 BOLD_UNDERLINE = "============================================"
 THIN_UNDERLINE = "--------------------------------------------"
@@ -82,6 +84,8 @@ def fix_random_seed(seed: int) -> None:
     """Fix pseudo-random number generator seed for reproducible tests."""
     random.seed(seed)
     np.random.seed(seed)
+    torch.manual_seed(seed)
+    os.environ["RANDOM_SEED"] = str(seed)
 
 
 NumericType = int | float | np.number
