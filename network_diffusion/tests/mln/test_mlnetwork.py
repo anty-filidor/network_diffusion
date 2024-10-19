@@ -18,25 +18,60 @@ def copy_helper(original_network, copied_network):
         assert nx.utils.graphs_equal(copied_layer, orig_layer) is True
 
 
+exp_actors = {
+    "Pazzi",
+    "Tornabuoni",
+    "Peruzzi",
+    "Salviati",
+    "Medici",
+    "Lamberteschi",
+    "Guadagni",
+    "Ginori",
+    "Castellani",
+    "Bischeri",
+    "Barbadori",
+    "Ridolfi",
+    "Strozzi",
+    "Albizzi",
+    "Acciaiuoli",
+}
+exp_layers = {"business", "marriage"}
+
+
 class TestMultilayerNetwork(unittest.TestCase):
     """Test MultilayerNetwork class."""
 
     def setUp(self):
         """Set up most common testing parameters."""
-        self.network = MultilayerNetwork.from_mpx(
+        self.florentine = MultilayerNetwork.from_mpx(
             os.path.join(
                 utils.get_absolute_path(), "tests/data/florentine.mpx"
             )
         )
-
-    def test_from_mpx(self):
-        """Tests loading network from mpx file."""
-        network = MultilayerNetwork.from_mpx(
+        self.bankwiring = MultilayerNetwork.from_mpx(
             os.path.join(
                 utils.get_absolute_path(), "tests/data/bankwiring.mpx"
             )
         )
 
+    def test_from_mpx_f(self):
+
+        assert 15 == self.florentine.get_actors_num()
+        assert exp_actors == {a.actor_id for a in self.florentine.get_actors()}
+        assert exp_layers == set(self.florentine.get_layer_names())
+
+        b_graph = self.florentine["business"]
+        assert isinstance(b_graph, nx.Graph)
+        assert len(b_graph.nodes()) == 11
+        assert len(b_graph.edges()) == 15
+
+        b_graph = self.florentine["marriage"]
+        assert isinstance(b_graph, nx.Graph)
+        assert len(b_graph.nodes()) == 15
+        assert len(b_graph.edges()) == 20
+
+    def test_from_mpx_b(self):
+        """Tests loading network from mpx file."""
         exp_layers = {
             "horseplay",
             "arguments",
@@ -45,15 +80,14 @@ class TestMultilayerNetwork(unittest.TestCase):
             "help",
             "job_trading",
         }
-        real_layers = set(network.layers.keys())
+        real_layers = set(self.bankwiring.layers.keys())
         self.assertEqual(
             real_layers,
             exp_layers,
             f"Layers should be equal ({real_layers} !={exp_layers})",
         )
-
         self.assertEqual(
-            network.layers["horseplay"].nodes["W1"]["status"],
+            self.bankwiring.layers["horseplay"].nodes["W1"]["status"],
             None,
             "Node should have None in status attr",
         )
@@ -107,28 +141,28 @@ class TestMultilayerNetwork(unittest.TestCase):
     def test_get_layer_names(self):
         """Tests if layer names are read correctly."""
         self.assertEqual(
-            self.network.get_layer_names(),
-            ["marriage", "business"],
+            set(self.florentine.get_layer_names()),
+            {"business", "marriage"},
             "Incorrect layer names",
         )
 
     def test_get_actor(self):
         self.assertEqual(
-            self.network.get_actor("Ridolfi"),
+            self.florentine.get_actor("Ridolfi"),
             MLNetworkActor("Ridolfi", {"marriage": None}),
         )
 
     def test_copy(self):
-        return copy_helper(self.network, self.network.copy())
+        return copy_helper(self.florentine, self.florentine.copy())
 
     def test___copy__(self):
-        return copy_helper(self.network, copy.copy(self.network))
+        return copy_helper(self.florentine, copy.copy(self.florentine))
 
     def test___deepcopy__(self):
-        return copy_helper(self.network, copy.deepcopy(self.network))
+        return copy_helper(self.florentine, copy.deepcopy(self.florentine))
 
     def test_is_multiplex_negative(self):
-        assert self.network.is_multiplex() is False
+        assert self.florentine.is_multiplex() is False
 
     def test_is_multiplex_positive(self):
         assert (
@@ -139,7 +173,7 @@ class TestMultilayerNetwork(unittest.TestCase):
         )
 
     def test_to_multiplex(self):
-        multiplexed_net, added_nodes = self.network.to_multiplex()
+        multiplexed_net, added_nodes = self.florentine.to_multiplex()
         all_actors_ids = {a.actor_id for a in multiplexed_net.get_actors()}
         for layer in multiplexed_net.layers:
             assert set(multiplexed_net[layer].nodes) == all_actors_ids
