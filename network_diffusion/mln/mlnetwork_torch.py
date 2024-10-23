@@ -126,7 +126,8 @@ class MultilayerNetworkTorch:
 
     Note, that in order to provide consistency between channels of an adjacency
     matrix, the network is converted to multiplex with nodes added artifically
-    marked in the property `nodes_mask`
+    marked in the property `nodes_mask`. Features of edges and actors are not
+    preserved.
 
     :param adjacency_tensor: adjacency matrix as a sparse tensor shaped as
         `[nb. layers x nb. actors x nb. actors]`
