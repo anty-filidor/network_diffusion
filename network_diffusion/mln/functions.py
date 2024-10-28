@@ -549,3 +549,12 @@ def draw_mln(net: MultilayerNetwork, dpi: int = 300) -> None:
         nx.draw(layer_graph, ax=axs[idx], pos=pos)
         nx.drawing.draw_networkx_labels(layer_graph, ax=axs[idx], pos=pos)
     plt.show()
+
+
+def remove_selfloop_edges(net: MultilayerNetwork) -> MultilayerNetwork:
+    """Remove selfloop edges from the network."""
+    for l_name in net.layers:
+        selfloop_edges = list(nx.selfloop_edges(net.layers[l_name]))
+        net.layers[l_name].remove_edges_from(selfloop_edges)
+        
+    return net
