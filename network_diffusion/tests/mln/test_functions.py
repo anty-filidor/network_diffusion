@@ -10,6 +10,7 @@ from network_diffusion.mln.functions import (
     get_toy_network_piotr,
     multiplexing_coefficient,
     neighbourhood_size,
+    remove_selfloop_edges,
 )
 
 DEGREE_NET_1 = {
@@ -125,6 +126,15 @@ class TestFunctions(unittest.TestCase):
             raw_nss = neighbourhood_size(network)
             filtered_nss = {a.actor_id: d for a, d in raw_nss.items()}
             self.assertEqual(filtered_nss, exp_neighbourhood_size)
+    
+    def test_remove_selfloop_edges(self):
+        self.network_1["business"].add_edge('Medici', 'Medici')
+        self.network_1["marriage"].add_edge('Ridolfi', 'Ridolfi')
+        
+        self.network_1 = remove_selfloop_edges(self.network_1)
+        
+        for l_name in self.network_1.layers:
+            self.assertEqual(list(nx.selfloop_edges(self.network_1[l_name])), [])
 
 
 if __name__ == "__main__":
