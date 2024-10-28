@@ -128,13 +128,15 @@ class TestFunctions(unittest.TestCase):
             self.assertEqual(filtered_nss, exp_neighbourhood_size)
 
     def test_remove_selfloop_edges(self):
-        self.network_1["business"].add_edge('Medici', 'Medici')
-        self.network_1["marriage"].add_edge('Ridolfi', 'Ridolfi')
+        self.network_1["business"].add_edge("Medici", "Medici")
+        self.network_1["marriage"].add_edge("Ridolfi", "Ridolfi")
 
         self.network_1 = remove_selfloop_edges(self.network_1)
 
         for l_name in self.network_1.layers:
-            self.assertEqual(list(nx.selfloop_edges(self.network_1[l_name])), [])
+            self.assertEqual(
+                list(nx.selfloop_edges(self.network_1[l_name])), []
+            )
 
 
 if __name__ == "__main__":
