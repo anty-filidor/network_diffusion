@@ -10,4 +10,5 @@
 
 # flake8: noqa
 
+from network_diffusion.tpn.l2_course_net import get_l2_course_net
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
