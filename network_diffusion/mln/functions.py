@@ -19,7 +19,7 @@ from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
 def betweenness(net: MultilayerNetwork) -> dict[MLNetworkActor, float]:
-    """Return value of mean betweennes centrality for actors layers."""
+    """Return value of mean betweennes centrality for actors."""
     bet_mean: dict[MLNetworkActor, float] = {}
     bet: list = []
     b_graph: dict[str, dict] = {}
@@ -36,7 +36,7 @@ def betweenness(net: MultilayerNetwork) -> dict[MLNetworkActor, float]:
 
 
 def closeness(net: MultilayerNetwork) -> dict[MLNetworkActor, float]:
-    """Return value of mean closeness centrality for actors layers."""
+    """Return value of mean closeness centrality for actors."""
     close_mean: dict[MLNetworkActor, float] = {}
     c_graph: dict[str, dict] = {}
     close: list = []
@@ -54,7 +54,7 @@ def closeness(net: MultilayerNetwork) -> dict[MLNetworkActor, float]:
 
 
 def katz(net: MultilayerNetwork) -> dict[MLNetworkActor, float]:
-    """Return value of mean Katz centrality for actors layers."""
+    """Return value of mean Katz centrality for actors."""
     katz_mean: dict[MLNetworkActor, float] = {}
     k_graph: dict[str, dict] = {}
     kat: list = []
@@ -72,7 +72,7 @@ def katz(net: MultilayerNetwork) -> dict[MLNetworkActor, float]:
 
 
 def degree(net: MultilayerNetwork) -> dict[MLNetworkActor, int]:
-    """Return number of connecting links per all actors from the network."""
+    """Return number of links connecting each actor in total on all layers."""
     degrees: dict[MLNetworkActor, int] = {}
     for actor in net.get_actors():
         a_neighbours = 0
@@ -107,7 +107,12 @@ def _ns_helper(
 def neighbourhood_size(
     net: MultilayerNetwork, connection_hop: int = 1
 ) -> dict[MLNetworkActor, int]:
-    """Return n-hop neighbourhood sizes of all actors from the network."""
+    """
+    Return n-hop neighbourhood size for each actor from the network.
+
+    Neighbourhood size is the number of actors connected (by n-hop
+    neighbourhood) to the given actor regardless of layers.
+    """
     neighbourhood_sizes: dict[MLNetworkActor, int] = {}
     for actor in net.get_actors():
         raw_list = _ns_helper(net, actor, connection_hop)
@@ -544,3 +549,12 @@ def draw_mln(net: MultilayerNetwork, dpi: int = 300) -> None:
         nx.draw(layer_graph, ax=axs[idx], pos=pos)
         nx.drawing.draw_networkx_labels(layer_graph, ax=axs[idx], pos=pos)
     plt.show()
+
+
+def remove_selfloop_edges(net: MultilayerNetwork) -> MultilayerNetwork:
+    """Remove selfloop edges from the network."""
+    for l_name in net.layers:
+        selfloop_edges = list(nx.selfloop_edges(net.layers[l_name]))
+        net.layers[l_name].remove_edges_from(selfloop_edges)
+
+    return net
