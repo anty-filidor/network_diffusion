@@ -351,21 +351,32 @@ def voterank_actorwise(
     return influential_actors
 
 
-def squeeze_by_neighbourhood(net: MultilayerNetwork) -> nx.Graph:
+def squeeze_by_neighbourhood(
+    net: MultilayerNetwork, preserve_mlnetworkactor_objects: bool = True
+) -> nx.Graph:
     """
-    Squeeze multilayer network to single layer by neighbourhood of actors.
+    Squeeze multilayer network to a single layer `nx.Graph`.
 
     All actors are preserved, links are produced according to naighbourhood
     between actors regardless layers.
 
     :param net: a multilayer network to be squeezed
+    :param preserve_mlnetworkactor_objects: a flag indicating how to represent
+        nodes - by `MLNetworkActor` or primitive types like `str`, `int` etc.
     :return: a networkx.Graph representing `net`
     """
     squeezed_net = nx.Graph()
     for actor in net.get_actors():
         for neighbour in all_neighbors(net, actor):
-            squeezed_net.add_edge(actor, neighbour)
-        squeezed_net.add_node(actor)
+            edge = (
+                (actor, neighbour)
+                if preserve_mlnetworkactor_objects
+                else (actor.actor_id, neighbour.actor_id)
+            )
+            squeezed_net.add_edge(*edge)
+        squeezed_net.add_node(
+            actor if preserve_mlnetworkactor_objects else actor.actor_id
+        )
     assert net.get_actors_num() == len(squeezed_net)
     return squeezed_net
 
