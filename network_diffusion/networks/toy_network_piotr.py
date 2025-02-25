@@ -1,3 +1,11 @@
+# Copyright (c) 2025 by Michał Czuba, Piotr Bródka.
+#
+# This file is a part of Network Diffusion.
+#
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
+# =============================================================================
+
 """A three-layered network with 11 actors made up by Piotr."""
 
 import networkx as nx
