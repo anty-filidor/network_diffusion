@@ -1,3 +1,11 @@
+# Copyright (c) 2025 by Michał Czuba, Piotr Bródka.
+#
+# This file is a part of Network Diffusion.
+#
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
+# =============================================================================
+
 """Loader of the l2_course_net network."""
 
 from pathlib import Path
