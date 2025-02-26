@@ -1,8 +1,4 @@
-"""
-Generators of multilayer networks with Preferential Attachment or Erdos-Renyi models.
-
-TODO: use nd based script once it gets updated to the current form!
-"""
+"""Generators of random multilayer networks."""
 
 import abc
 from typing import Literal
@@ -11,7 +7,8 @@ import numpy as np
 import uunet.multinet as ml
 from uunet._multinet import PyEvolutionModel, PyMLNetwork
 
-import network_diffusion as nd
+from network_diffusion.mln import centralities, functions
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
 class MultilayerBaseGenerator(abc.ABC):
@@ -24,7 +21,8 @@ class MultilayerBaseGenerator(abc.ABC):
 
         :param nb_layers: number of layers of the generated network
         :param nb_actors: number of actors in the network
-        :param nb_steps: number of steps of the generative algorithm which builds the network
+        :param nb_steps: number of steps of the generative algorithm which
+            builds the network
         """
         self.nb_layers = nb_layers
         self.nb_actors = nb_actors
@@ -43,7 +41,8 @@ class MultilayerBaseGenerator(abc.ABC):
         """
         Create a dependency matrix for the network generator.
 
-        :return: matrix shaped: [nb_layers, nb_layers] with 0s in diagonal and 1/nb_layers otherwise
+        :return: matrix shaped: [nb_layers, nb_layers] with 0s in diagonal
+            and 1/nb_layers otherwise
         """
         dep = np.full(
             fill_value=(1 / self.nb_layers),
@@ -75,7 +74,7 @@ class MultilayerBaseGenerator(abc.ABC):
 
 
 class MultilayerERGenerator(MultilayerBaseGenerator):
-    """Class which generates multilayer network with Erdos-Renyi algorithm."""
+    """Erdos-Renyi multilayer networks generator."""
 
     def __init__(
         self, nb_layers: int, nb_actors: int, nb_steps: int, std_nodes: int
@@ -85,9 +84,10 @@ class MultilayerERGenerator(MultilayerBaseGenerator):
 
         :param nb_layers: number of layers of the generated network
         :param nb_actors: number of actors in the network
-        :param nb_steps: number of steps of the generative algorithm which builds the network
-        :param std_nodes: standard deviation of the number of nodes in each layer (expected value
-            is a number of actors)
+        :param nb_steps: number of steps of the generative algorithm which
+            builds the network
+        :param std_nodes: standard deviation of the number of nodes in each
+            layer (expected value is a number of actors)
         """
         super().__init__(
             nb_layers=nb_layers, nb_actors=nb_actors, nb_steps=nb_steps
@@ -99,7 +99,9 @@ class MultilayerERGenerator(MultilayerBaseGenerator):
 
     def get_models(self) -> list[PyEvolutionModel]:
         """
-        Get evolutionary models for each layer with num nodes drawn from a standard distribution.
+        Get the the evolutionary  model.
+
+        For each layer with num nodes drawn from a standard distribution.
 
         :return: list of Erdos-Renyi generators
         """
@@ -116,7 +118,7 @@ class MultilayerERGenerator(MultilayerBaseGenerator):
 
 
 class MultilayerPAGenerator(MultilayerBaseGenerator):
-    """Class which generates multilayer network with Preferential Attachment algorithm."""
+    """Preferential Attachment multilayer networks generator."""
 
     def __init__(
         self, nb_layers: int, nb_actors: int, nb_steps: int, nb_hubs: int
@@ -126,8 +128,10 @@ class MultilayerPAGenerator(MultilayerBaseGenerator):
 
         :param nb_layers: number of layers of the generated network
         :param nb_actors: number of actors in the network
-        :param nb_steps: number of steps of the generative algorithm which builds the network
-        :param nb_seeds: number of seeds in each layer and a number of egdes from each new vertex
+        :param nb_steps: number of steps of the generative algorithm which
+            builds the network
+        :param nb_seeds: number of seeds in each layer and a number of egdes
+            from each new vertex
         """
         super().__init__(
             nb_layers=nb_layers, nb_actors=nb_actors, nb_steps=nb_steps
@@ -147,8 +151,8 @@ class MultilayerPAGenerator(MultilayerBaseGenerator):
 
 def generate(
     model: Literal["PA", "ER"], nb_actors: int, nb_layers: int
-) -> None:
-    """Generate a random multilayer Erdos-Renyi or Preferential-Attachement network."""
+) -> MultilayerNetwork:
+    """Generate a multilayer Erdos-Renyi or Preferential-Attachement net."""
     if model == "ER":
         std_nodes = int(0.1 * nb_actors)
         net_uu = MultilayerERGenerator(
@@ -172,13 +176,13 @@ def generate(
     net_nx = ml.to_nx_dict(net_uu)
 
     # convert networkx representation to network_diffusion
-    net_nd = nd.MultilayerNetwork(layers=net_nx)
+    net_nd = MultilayerNetwork(layers=net_nx)
 
     # remove selfloops from the network and actors with no connetcions
-    net_nd = nd.mln.functions.remove_selfloop_edges(net_nd)
+    net_nd = functions.remove_selfloop_edges(net_nd)
     actors_to_remove = [
         ac.actor_id
-        for ac, nghb in nd.mln.functions.neighbourhood_size(net_nd).items()
+        for ac, nghb in centralities.neighbourhood_size(net_nd).items()
         if nghb == 0
     ]
     for l_graph in net_nd.layers.values():

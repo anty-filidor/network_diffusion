@@ -12,7 +12,11 @@ from network_diffusion.mln import (
     functions,
     mlnetwork_torch,
 )
-from network_diffusion.tpn import get_l2_course_net
+from network_diffusion.nets import (
+    get_l2_course_net,
+    get_toy_network_cim,
+    get_toy_network_piotr,
+)
 
 
 @pytest.fixture
@@ -70,7 +74,7 @@ def compare_sparse_tensors(t1, t2):
     "net_in,exp_ac_map,exp_ad_nodes",
     [
         (
-            functions.get_toy_network_piotr(),
+            get_toy_network_piotr(),
             bidict(
                 {
                     1: 0,
@@ -89,7 +93,7 @@ def compare_sparse_tensors(t1, t2):
             {"l1": {11}, "l2": {3}, "l3": {8}},
         ),
         (
-            functions.get_toy_network_cim(),
+            get_toy_network_cim(),
             bidict(
                 {
                     1: 0,
@@ -337,14 +341,14 @@ def test_MultilayerNetworkTorch_from_mln(
 
 
 def test_MultilayerNetworkTorch_device_get_exception():
-    net_t = MultilayerNetworkTorch.from_mln(functions.get_toy_network_piotr())
+    net_t = MultilayerNetworkTorch.from_mln(get_toy_network_piotr())
     net_t.adjacency_tensor = MockTensor("cuda:0")
     with pytest.raises(ValueError):
         net_t.device
 
 
 def test_MultilayerNetworkTorch_device_get():
-    net_t = MultilayerNetworkTorch.from_mln(functions.get_toy_network_piotr())
+    net_t = MultilayerNetworkTorch.from_mln(get_toy_network_piotr())
     net_t.adjacency_tensor = MockTensor()
     net_t.nodes_mask = MockTensor()
     net_t.device = "cuda:0"

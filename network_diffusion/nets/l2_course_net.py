@@ -160,6 +160,3 @@ if __name__ == "__main__":
     for snap in l2_course_net.snaps:
         print(snap)
         draw_mln(snap)
-
-
-# TODO: add sphinx docs

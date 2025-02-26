@@ -34,9 +34,12 @@ Implemented in ``network_diffusion.mln.mlnetwork``.
 Auxiliary functions for operations on ``MultilayerNetwork``
 -----------------------------------------------------------
 
-Implemented in ``network_diffusion.mln.functions``.
+Implemented in ``network_diffusion.mln``.
 
 .. automodule:: network_diffusion.mln.cbim
+   :members:
+
+.. automodule:: network_diffusion.mln.centralities
    :members:
 
 .. automodule:: network_diffusion.mln.centrality_discount
@@ -77,14 +80,4 @@ Class ``TemporalNetwork``
 Implemented in ``network_diffusion.tpn``.
 
 .. autoclass:: network_diffusion.tpn.tpnetwork.TemporalNetwork
-   :members:
-
-.. _aux-tpn-label:
-
-Module ``l2_course_net``
-++++++++++++++++++++++++
-
-Implemented in ``network_diffusion.tpn.l2_course_net``.
-
-.. automodule:: network_diffusion.tpn.l2_course_net
    :members:
