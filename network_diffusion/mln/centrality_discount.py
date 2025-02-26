@@ -13,11 +13,8 @@ from typing import Any
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
-from network_diffusion.mln.functions import (
-    all_neighbors,
-    degree,
-    neighbourhood_size,
-)
+from network_diffusion.mln.centralities import degree, neighbourhood_size
+from network_diffusion.mln.functions import all_neighbours
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
@@ -80,7 +77,7 @@ def _centrality_discount_mln(
         max_centr_actor = _argmax_centrality_dict(centr_dict)[0]
         seed_list.append(max_centr_actor)
         del centr_dict[max_centr_actor]
-        for neighbour in all_neighbors(net=net, actor=max_centr_actor):
+        for neighbour in all_neighbours(net=net, actor=max_centr_actor):
             if centr_dict.get(neighbour):
                 centr_dict[neighbour] -= 1
     assert len(seed_list) == k

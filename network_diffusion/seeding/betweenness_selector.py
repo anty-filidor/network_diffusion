@@ -13,7 +13,7 @@ from typing import Any
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
-from network_diffusion.mln.functions import betweenness
+from network_diffusion.mln.centralities import mean_centrality
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.utils import BOLD_UNDERLINE, THIN_UNDERLINE
@@ -40,7 +40,11 @@ class BetweennessSelector(BaseSeedSelector):
         ranking_list: list[MLNetworkActor] = []
         # sorted by value of dictonaries
         for dc_val, _ in sorted(
-            betweenness(net=net).items(), reverse=True, key=lambda x: x[1]
+            mean_centrality(
+                net=net, centrality_function=nx.betweenness_centrality
+            ).items(),
+            reverse=True,
+            key=lambda x: x[1],
         ):
             # Adding actor to list
             ranking_list.append(dc_val)

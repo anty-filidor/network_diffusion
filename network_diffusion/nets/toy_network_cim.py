@@ -122,6 +122,3 @@ def get_toy_network_cim() -> MultilayerNetwork:
     return MultilayerNetwork.from_nx_layers(
         [layer_1, layer_2, layer_3], ["l1", "l2", "l3"]
     )
-
-
-# TODO: add sphinx docs
