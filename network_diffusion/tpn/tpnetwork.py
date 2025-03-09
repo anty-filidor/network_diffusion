@@ -1,4 +1,4 @@
-# Copyright (c) 2023 by Yuxuan Qiu, Michał Czuba.
+# Copyright (c) 2025 by Yuxuan Qiu, Michał Czuba.
 #
 # This file is a part of Network Diffusion.
 #
@@ -16,7 +16,7 @@ import pandas as pd
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.tpn.cogsnet_lib import _cogsnet  # pylint: disable=E0611
-from network_diffusion.utils import read_tpn
+from network_diffusion.tpn.dynamic_loader import read_tpn
 
 
 def cogsnet_snap_to_nxgraph(cogsnet_snap: list[list[float]]) -> nx.DiGraph:

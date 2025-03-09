@@ -83,7 +83,7 @@ class TestFunctions(unittest.TestCase):
         """Set up most common testing parameters."""
         self.network_1 = MultilayerNetwork.from_mpx(
             os.path.join(
-                utils.get_absolute_path(), "tests/data/florentine.mpx"
+                utils._get_absolute_path(), "tests/data/florentine.mpx"
             )
         )
         self.network_2 = get_toy_network_piotr()

@@ -1,4 +1,4 @@
-# Copyright (c) 2024 by Michał Czuba.
+# Copyright (c) 2025 by Michał Czuba.
 #
 # This file is a part of Network Diffusion.
 #

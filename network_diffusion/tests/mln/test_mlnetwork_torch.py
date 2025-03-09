@@ -36,7 +36,7 @@ class MockTensor(MagicMock):
 
 def network_florentine():
     return MultilayerNetwork.from_mpx(
-        f"{utils.get_absolute_path()}/tests/data/florentine.mpx"
+        f"{utils._get_absolute_path()}/tests/data/florentine.mpx"
     )
 
 
