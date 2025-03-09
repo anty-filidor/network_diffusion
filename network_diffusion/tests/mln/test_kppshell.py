@@ -1,6 +1,5 @@
 import unittest
 
-from network_diffusion.mln.functions import get_toy_network_cim
 from network_diffusion.mln.kppshell import (
     compute_seed_quotas,
     get_toy_network_kppshell,
@@ -8,6 +7,7 @@ from network_diffusion.mln.kppshell import (
     kppshell_seed_ranking,
     kppshell_seed_selection,
 )
+from network_diffusion.nets import get_toy_network_cim
 
 KPP_SEED_SETS = [
     {"seed_num": 1, "exp_seed_set": {1}},

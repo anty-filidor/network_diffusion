@@ -1,4 +1,4 @@
-# Copyright (c) 2023 by Michał Czuba, Damian Dąbrowski, Piotr Bródka.
+# Copyright (c) 2025 by Michał Czuba, Damian Dąbrowski, Piotr Bródka.
 #
 # This file is a part of Network Diffusion.
 #
@@ -21,7 +21,7 @@ from networkx import PowerIterationFailedConvergence
 from network_diffusion.mln.kppshell import compute_seed_quotas
 
 
-def get_toy_network_cbim() -> nx.DiGraph:
+def _get_toy_network_cbim() -> nx.DiGraph:
     """
     Get a toy network.
 

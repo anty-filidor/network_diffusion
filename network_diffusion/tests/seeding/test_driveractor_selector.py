@@ -1,6 +1,6 @@
 import unittest
 
-from network_diffusion.mln.functions import get_toy_network_piotr
+from network_diffusion.nets import get_toy_network_piotr
 from network_diffusion.seeding import (
     BetweennessSelector,
     ClosenessSelector,
