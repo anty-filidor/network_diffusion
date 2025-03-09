@@ -1,4 +1,4 @@
-# Copyright (c) 2023 by Damian Serwata, Michał Czuba.
+# Copyright (c) 2025 by Damian Serwata, Michał Czuba.
 #
 # This file is a part of Network Diffusion.
 #

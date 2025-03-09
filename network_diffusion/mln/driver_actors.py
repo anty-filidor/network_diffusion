@@ -1,4 +1,4 @@
-# Copyright (c) 2023 by Yu-Xuan Qi, Mingshan Jia, Katarzyna Musial, Michał
+# Copyright (c) 2025 by Yu-Xuan Qi, Mingshan Jia, Katarzyna Musial, Michał
 # Czuba.
 #
 # This file is a part of Network Diffusion.

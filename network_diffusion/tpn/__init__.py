@@ -1,4 +1,4 @@
-# Copyright (c) 2023 by Mateusz Nurek, Radosław Michalski, Michał Czuba.
+# Copyright (c) 2025 by Mateusz Nurek, Radosław Michalski, Michał Czuba.
 #
 # This file is a part of Network Diffusion.
 #

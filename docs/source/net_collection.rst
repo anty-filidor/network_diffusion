@@ -9,10 +9,6 @@ Preferential attachement models.
 Networks shipped with the library
 +++++++++++++++++++++++++++++++++
 
-.. autoclass:: network_diffusion.models.base_model.BaseModel
-    :members:
-    :private-members:
-
 .. automodule:: network_diffusion.nets.toy_network_cim
    :members:
 
@@ -33,5 +29,4 @@ Generators of artificial networks
 .. autoclass:: network_diffusion.nets.mln_generator.MultilayerPAGenerator
    :members:
 
-.. automodule:: network_diffusion.nets.mln_generator
-    generate
+.. autofunction:: network_diffusion.nets.mln_generator.generate

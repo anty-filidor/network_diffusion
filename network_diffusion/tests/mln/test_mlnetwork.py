@@ -45,12 +45,12 @@ class TestMultilayerNetwork(unittest.TestCase):
         """Set up most common testing parameters."""
         self.florentine = MultilayerNetwork.from_mpx(
             os.path.join(
-                utils.get_absolute_path(), "tests/data/florentine.mpx"
+                utils._get_absolute_path(), "tests/data/florentine.mpx"
             )
         )
         self.bankwiring = MultilayerNetwork.from_mpx(
             os.path.join(
-                utils.get_absolute_path(), "tests/data/bankwiring.mpx"
+                utils._get_absolute_path(), "tests/data/bankwiring.mpx"
             )
         )
 

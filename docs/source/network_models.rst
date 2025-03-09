@@ -72,7 +72,7 @@ Please bear in mind that to perform simulations on ``TemporalNetwork`` objects, 
 the same set of actors on each snapshot!
 
 The library is equipped with an exemplar temporal-multilayer network: ``l2_course_net``
-(:ref:`aux-tpn-label`).
+(:ref:aux-tpn-label).
 
 Class ``TemporalNetwork``
 +++++++++++++++++++++++++
@@ -80,4 +80,7 @@ Class ``TemporalNetwork``
 Implemented in ``network_diffusion.tpn``.
 
 .. autoclass:: network_diffusion.tpn.tpnetwork.TemporalNetwork
+   :members:
+
+.. automodule:: network_diffusion.tpn.dynamic_loader
    :members:

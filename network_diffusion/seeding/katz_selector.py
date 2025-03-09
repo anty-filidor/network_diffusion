@@ -1,4 +1,4 @@
-# Copyright (c) 2023 by Damian Dąbrowski, Michał Czuba, Piotr Bródka.
+# Copyright (c) 2025 by Damian Dąbrowski, Michał Czuba, Piotr Bródka.
 #
 # This file is a part of Network Diffusion.
 #
