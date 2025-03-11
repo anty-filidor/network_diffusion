@@ -1,4 +1,4 @@
-# Copyright (c) 2023 by Mateusz Nurek, Radosław Michalski, Michał Czuba.
+# Copyright (c) 2025 by Mateusz Nurek, Radosław Michalski, Michał Czuba.
 #
 # This file is a part of Network Diffusion.
 #
@@ -10,5 +10,4 @@
 
 # flake8: noqa
 
-from network_diffusion.tpn.l2_course_net import get_l2_course_net
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
