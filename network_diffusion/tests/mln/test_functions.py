@@ -5,13 +5,13 @@ import networkx as nx
 
 from network_diffusion import utils
 from network_diffusion.mln import MultilayerNetwork
-from network_diffusion.mln.functions import (
+from network_diffusion.mln.centralities import (
     degree,
-    get_toy_network_piotr,
     multiplexing_coefficient,
     neighbourhood_size,
-    remove_selfloop_edges,
 )
+from network_diffusion.mln.functions import remove_selfloop_edges
+from network_diffusion.nets import get_toy_network_piotr
 
 DEGREE_NET_1 = {
     "Ridolfi": 3,
@@ -83,7 +83,7 @@ class TestFunctions(unittest.TestCase):
         """Set up most common testing parameters."""
         self.network_1 = MultilayerNetwork.from_mpx(
             os.path.join(
-                utils.get_absolute_path(), "tests/data/florentine.mpx"
+                utils._get_absolute_path(), "tests/data/florentine.mpx"
             )
         )
         self.network_2 = get_toy_network_piotr()

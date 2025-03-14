@@ -5,10 +5,8 @@ from network_diffusion.mln.centrality_discount import (
     degree_discount_networkx,
     neighbourhood_size_discount,
 )
-from network_diffusion.mln.functions import (
-    MultilayerNetwork,
-    get_toy_network_cim,
-)
+from network_diffusion.mln.functions import MultilayerNetwork
+from network_diffusion.nets import get_toy_network_cim
 
 DEGREE_DISCOUNT_NETWORKX = {
     "l1_nx": [7, 4, 3, 9, 11, 10, 1, 2, 6, 5, 8, 12],
