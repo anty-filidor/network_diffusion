@@ -21,7 +21,7 @@ from network_diffusion.nets import (
 
 @pytest.fixture
 def set_up():
-    utils.fix_random_seed(42)
+    utils.set_rng_seed(42)
 
 
 class MockTensor(MagicMock):

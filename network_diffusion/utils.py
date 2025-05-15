@@ -8,7 +8,6 @@
 
 """Functions for the auxiliary operations."""
 
-import os
 import pathlib
 import random
 
@@ -24,12 +23,12 @@ def _get_absolute_path() -> str:
     return str(pathlib.Path(__file__).parent)
 
 
-def fix_random_seed(seed: int) -> None:
+def set_rng_seed(seed: int) -> None:
     """Fix pseudo-random number generator seed for reproducible tests."""
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    os.environ["RANDOM_SEED"] = str(seed)
+    # os.environ["RANDOM_SEED"] = str(seed)
 
 
 NumericType = int | float | np.number

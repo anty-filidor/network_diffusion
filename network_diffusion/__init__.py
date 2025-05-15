@@ -19,5 +19,6 @@ from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.mln.mlnetwork_torch import MultilayerNetworkTorch
 from network_diffusion.simulator import Simulator
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
+from network_diffusion.utils import set_rng_seed
 
 __version__ = importlib.metadata.version("network_diffusion")
