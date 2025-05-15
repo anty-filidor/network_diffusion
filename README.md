@@ -105,6 +105,8 @@ we encourage users to explore the repository. Another way to familiarise
 yourself with the operating principles of `network_diffusion` are projects
 which utilise it:
 
+- Assessment of using control methods for influence maximisation - _v0.17.0_ -
+  [repo](https://github.com/network-science-lab/infmax-mds-ltm-mln)
 - Generator of a dataset with actors' spreading potentials - _v0.16.0_ -
   [repo](https://github.com/network-science-lab/infmax-simulator-icm-mln)
 - Influence max. under LTM in multilayer networks - _v0.14.0 pre-release_ -
