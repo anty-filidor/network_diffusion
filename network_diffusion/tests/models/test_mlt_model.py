@@ -4,7 +4,7 @@ from network_diffusion.models import MLTModel
 from network_diffusion.nets import get_toy_network_piotr
 from network_diffusion.seeding.mocking_selector import MockingActorSelector
 from network_diffusion.simulator import Simulator
-from network_diffusion.utils import fix_random_seed
+from network_diffusion.utils import set_rng_seed
 
 SPREADING_PARAMETERS = [
     {
@@ -75,7 +75,7 @@ class TestMLTModel(unittest.TestCase):
 
     def setUp(self) -> None:
 
-        fix_random_seed(42)
+        set_rng_seed(42)
 
         self.network = get_toy_network_piotr()
 
