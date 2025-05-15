@@ -91,12 +91,16 @@ class Simulator:
         self, n_epochs: int, patience: int | None = None
     ) -> Logger:
         """
-        Perform experiment on given network and given model.
+        Perform experiment on a given network and model.
 
         It saves logs in Logger object which can be used for further
         analysis.
 
-        :param n_epochs: number of epochs to do experiment
+        :param n_epochs: number of simulation steps to perform experiment for;
+            note, that for temporal networks simulation steps are executed on
+            consecutive snapshots, therefore if one needs to simulate spreading
+            for a longer "time" than number of snapshots, he/she needs to
+            upsample the temporal network first.
         :param patience: if provided experiment will be stopped when in
             "patience" (e.g. 4) consecutive epoch there was no propagation
         :return: logs of experiment stored in special object
