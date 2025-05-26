@@ -42,4 +42,7 @@ class RandomSeedSelector(BaseSeedSelector):
 
     def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Get actors randomly."""
-        return net.get_actors(shuffle=True)
+        actors = net.get_actors(shuffle=False)
+        sorted_actors = sorted(actors, key=lambda x: x.actor_id)
+        shuffle(sorted_actors)
+        return sorted_actors
