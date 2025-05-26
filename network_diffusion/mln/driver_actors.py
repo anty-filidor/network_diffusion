@@ -1,4 +1,4 @@
-# Copyright (c) 2023 by Yu-Xuan Qi, Mingshan Jia, Katarzyna Musial, Michał
+# Copyright (c) 2025 by Yu-Xuan Qi, Mingshan Jia, Katarzyna Musial, Michał
 # Czuba.
 #
 # This file is a part of Network Diffusion.
@@ -7,7 +7,11 @@
 # of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
-"""Script with functions for driver actor selections."""
+"""
+Script with functions for driver actor selections.
+
+TODO: refresh this code with local improvement routine!
+"""
 
 from copy import deepcopy
 from typing import Any

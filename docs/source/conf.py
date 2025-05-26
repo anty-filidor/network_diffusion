@@ -33,6 +33,13 @@ extensions = [
     "m2r",
 ]
 # autosummary_generate = True
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "special-members": "__init__",
+    "show-inheritance": True,
+}
+
 
 # Remove full paths in function signatures
 add_module_names = False

@@ -1,7 +1,7 @@
 import unittest
 
 from network_diffusion.mln.driver_actors import compute_driver_actors
-from network_diffusion.mln.functions import get_toy_network_piotr
+from network_diffusion.nets import get_toy_network_piotr
 
 
 class TestDriverActors(unittest.TestCase):

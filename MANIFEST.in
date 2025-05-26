@@ -1,6 +1,6 @@
 include LICENSE
 include env/pip_prod.txt
-include network_diffusion/tpn/data/*.csv
+include network_diffusion/nets/data/*.csv
 recursive-include c_modules *.*
 prune */__pycache__
 global-exclude *.o *.so *.dylib *.a .git *.pyc
