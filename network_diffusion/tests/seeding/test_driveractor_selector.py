@@ -34,7 +34,7 @@ SUBSELECTORS = (
     (NeighbourhoodSizeSelector(), [2, 4, 3, 9, 11, 8, 6, 5, 10, 1, 7]),
     (PageRankMLNSeedSelector(), [2, 4, 9, 3, 11, 8, 6, 5, 10, 7, 1]),
     (PageRankSeedSelector(), [11, 3, 4, 9, 8, 2, 5, 10, 7, 6, 1]),
-    (RandomSeedSelector(), [11, 4, 8, 3, 9, 2, 5, 1, 6, 7, 10]),
+    (RandomSeedSelector(), [11, 2, 9, 4, 8, 3, 5, 1, 6, 7, 10]),
     (VoteRankSeedSelector(), [4, 9, 11, 3, 8, 2, 5, 1, 6, 10, 7]),
 )
 
