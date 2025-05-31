@@ -1,32 +1,42 @@
-"""Contents copied from network_diffusion 0.17.0 and modified with actor-shuffling step."""
+# Copyright (c) 2025 by Yu-Xuan Qi, Mingshan Jia, Michał Czuba.
+#
+# This file is a part of Network Diffusion.
+#
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
+# =============================================================================
+
+"""Script with functions for driver actor selection with greedy approach."""
 
 import random
 from copy import deepcopy
 from typing import Any
 
-import network_diffusion as nd
+from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
-def get_mds_greedy(net: nd.MultilayerNetwork) -> list[nd.MLNetworkActor]:
-    """Return driver actors for a given network aka compute_driver_actors in nd."""
+def get_mds_greedy(net: MultilayerNetwork) -> list[MLNetworkActor]:
+    """Get driver actors for a network a.k.a. compute_driver_actors in nd."""
     min_dominating_set: set[Any] = set()
     for layer in net.layers:
-        min_dominating_set = minimum_dominating_set_with_initial(
+        min_dominating_set = _minimum_dominating_set_with_initial(
             net, layer, min_dominating_set
         )
 
     return [net.get_actor(actor_id) for actor_id in min_dominating_set]
 
 
-def minimum_dominating_set_with_initial(
-    net: nd.MultilayerNetwork, layer: str, initial_set: set[Any]
-) -> set[int]:
+def _minimum_dominating_set_with_initial(
+    net: MultilayerNetwork, layer: str, initial_set: set[Any]
+) -> set[Any]:
     """
     Return a dominating set that includes the initial set.
 
-    net: MultilayerNetwork
-    layer: layer name
-    initial_set: set of nodes
+    :param net: multilayer network
+    :param layer: name of the layer to find dominating set for
+    :param initial_set: initially found dominating set
+    :return: `initial_set` enhanced by dominating nodes from the current layer
     """
     actor_ids = [x.actor_id for x in net.get_actors()]
     random.shuffle(actor_ids)
@@ -52,7 +62,8 @@ def minimum_dominating_set_with_initial(
             x: len(set(net_layer[x]) - dominated) for x in layer_nodes
         }
 
-        # If current dominated set cannot be enhanced anymore and there're still nondominated nodes
+        # if current dominated set cannot be enhanced anymore and there're still
+        # nondominated nodes
         if sum(node_dominate_nb.values()) == 0:
             to_dominate = set(net[layer].nodes).difference(dominated)
             return dominating_set.union(to_dominate)

@@ -1,4 +1,12 @@
-"""Script with functions for driver actor selections with local improvement."""
+# Copyright (c) 2025 by Mingshan Jia, Michał Czuba.
+#
+# This file is a part of Network Diffusion.
+#
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
+# =============================================================================
+
+"""Script with functions for driver actor selection with local improvement."""
 
 import multiprocessing
 import multiprocessing.managers
@@ -7,10 +15,12 @@ import random
 import time
 from typing import Any
 
-from src.models.mds.greedy_search import minimum_dominating_set_with_initial
-from src.models.mds.utils import ShareableListManager
-
-import network_diffusion as nd
+from network_diffusion.mln.actor import MLNetworkActor
+from network_diffusion.mln.mds.greedy_search import (
+    _minimum_dominating_set_with_initial,
+)
+from network_diffusion.mln.mds.utils import ShareableListManager
+from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 # try:
 #     import sys
@@ -22,13 +32,13 @@ import network_diffusion as nd
 
 
 def get_mds_locimpr(
-    net: nd.MultilayerNetwork, timeout: int = None, debug: bool = False
-) -> list[nd.MLNetworkActor]:
+    net: MultilayerNetwork, timeout: int = None, debug: bool = False
+) -> list[MLNetworkActor]:
     """Return driver actors for a given network using MDS and local improvement."""
     # step 1: compute initial Minimum Dominating Set
     initial_dominating_set: set[Any] = set()
     for layer in net.layers:
-        initial_dominating_set = minimum_dominating_set_with_initial(
+        initial_dominating_set = _minimum_dominating_set_with_initial(
             net, layer, initial_dominating_set
         )
 
@@ -48,8 +58,8 @@ class LocalImprovement:
     """A class to prune initial Dominating Set."""
 
     def __init__(
-        self, net: nd.MultilayerNetwork, timeout: float, debug: bool = False
-    ):
+        self, net: MultilayerNetwork, timeout: float, debug: bool = False
+    ) -> None:
         self.net = net
         self.actors = net.get_actors()
         self.timeout = timeout
@@ -216,7 +226,7 @@ class LocalImprovement:
                 return False
         return True
 
-    def _remove_redundant_vertices(self, dominating_set: set[Any]) -> set[any]:
+    def _remove_redundant_vertices(self, dominating_set: set[Any]) -> set[Any]:
         """
         Try to remove redundant vertices from the dominating_set without losing feasibility.
 
