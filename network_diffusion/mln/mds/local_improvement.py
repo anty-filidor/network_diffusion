@@ -6,14 +6,12 @@
 # of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
-"""Script with functions for driver actor selection with local improvement."""
+"""A script with functions for driver actor selection with local improvement."""
 
 import multiprocessing
 import multiprocessing.managers
-import multiprocessing.shared_memory
 import random
-import time
-from typing import Any
+from typing import Any, Optional
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mds.greedy_search import (
@@ -22,36 +20,35 @@ from network_diffusion.mln.mds.greedy_search import (
 from network_diffusion.mln.mds.utils import ShareableListManager
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
-# try:
-#     import sys
-#     from pathlib import Path
-#     import src
-# except:
-#     sys.path.append(str(Path(__file__).parent.parent.parent.parent))
-#     print(sys.path)
-
 
 def get_mds_locimpr(
-    net: MultilayerNetwork, timeout: int = None, debug: bool = False
+    net: MultilayerNetwork, timeout: Optional[int] = None, debug: bool = False
 ) -> list[MLNetworkActor]:
-    """Return driver actors for a given network using MDS and local improvement."""
-    # step 1: compute initial Minimum Dominating Set
-    initial_dominating_set: set[Any] = set()
+    """
+    Get driver actors for a network using greedy-based local improvement algo.
+
+    The routine works as follows: (1) get the initial solution with
+    `get_mds_greedy`, (2) try to improve the solution by iteratively trying to
+    prune it.
+
+    This method is inspired by a work by A Casado et al. "An iterated greedy
+    algorithm for finding the minimum dominating set in graphs
+    (https://doi.org/10.1016/j.matcom.2022.12.018) which was published in
+    "Mathematics and Computers in Simulation", 2023, Volume 207.
+
+    :param net: network to obtain minimal dominating set for
+    :param timeout: a timeout for bigger networks, if none then it will be set
+        in proportion of 5 minutes per 1000 actors
+    :param debug: if true print debug statements
+    :return: (sub)minimal dominating set
+    """
+    init_ds: set[Any] = set()
     for layer in net.layers:
-        initial_dominating_set = _minimum_dominating_set_with_initial(
-            net, layer, initial_dominating_set
-        )
-
-    # step 2: apply Local Improvement to enhance the Dominating Set
+        init_ds = _minimum_dominating_set_with_initial(net, layer, init_ds)
     if not timeout:
-        timeout = (
-            net.get_actors_num() * 300 // 1000
-        )  # proportion is 5 minutes per 1000 actors
-    improved_dominating_set = LocalImprovement(net, timeout, debug)(
-        initial_dominating_set
-    )
-
-    return [net.get_actor(actor_id) for actor_id in improved_dominating_set]
+        timeout = net.get_actors_num() * 300 // 1000
+    improv_ds = LocalImprovement(net, timeout, debug)(init_ds)
+    return [net.get_actor(actor_id) for actor_id in improv_ds]
 
 
 class LocalImprovement:
@@ -68,7 +65,7 @@ class LocalImprovement:
     def __call__(self, initial_set: set[Any]) -> set[Any]:
         with multiprocessing.managers.SharedMemoryManager() as smm:
             slm = ShareableListManager(smm, len(initial_set))
-            slm.sl = list(initial_set)
+            slm.update_sl(list(initial_set))
             proc = multiprocessing.Process(
                 target=self._local_improvement, args=(initial_set, slm)
             )
@@ -123,7 +120,7 @@ class LocalImprovement:
 
                             # if so update domination and break
                             curr_dominating_set = reduced_set
-                            final_set.sl = list(curr_dominating_set)
+                            final_set.update_sl(list(curr_dominating_set))
                             domination = self._compute_domination(
                                 curr_dominating_set
                             )
@@ -152,7 +149,7 @@ class LocalImprovement:
         Return a dictionary where keys are layer names and values are dictionaries mapping node IDs
         to sets of dominators in that layer.
         """
-        domination_map = {
+        domination_map: dict[str, dict[Any, set[Any]]] = {
             layer: {actor.actor_id: set() for actor in self.actors}
             for layer in self.net.layers
         }
@@ -247,29 +244,3 @@ class LocalImprovement:
                     under_improvement = True
                     break  # break to re-check from scratch after every removal
         return improved_set
-
-
-if __name__ == "__main__":
-    from src.loaders.net_loader import load_network
-    from src.models.mds.greedy_search import get_mds_greedy
-    from utils import is_dominating_set
-
-    # net = load_network("sf2", as_tensor=False)
-    net = load_network("ckm_physicians", as_tensor=False)
-
-    start_time = time.time()
-    mds = get_mds_locimpr(net, debug=True)
-    # mds = get_mds_greedy(net)
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print(f"Execution time: {elapsed_time:.2f} seconds")
-
-    # mds.pop()
-    if is_dominating_set(candidate_ds=mds, network=net):
-        print(
-            f"A {len(mds)}-length set: {set(ac.actor_id for ac in mds)} is dominating!"
-        )
-    else:
-        print(
-            f"A {len(mds)}-length set: {set(ac.actor_id for ac in mds)} is not dominating!"
-        )

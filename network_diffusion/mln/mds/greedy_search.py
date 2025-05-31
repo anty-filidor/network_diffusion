@@ -17,7 +17,16 @@ from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
 def get_mds_greedy(net: MultilayerNetwork) -> set[MLNetworkActor]:
-    """Get driver actors for a network a.k.a. compute_driver_actors in nd."""
+    """
+    Get driver actors for a network a.k.a. a minimal dominating set.
+
+    The dominating set gets minimised before it gets returned, but it is not a
+    minimal one. For more precise, but more time-consuming approach see
+    `get_mds_locimpr`.
+
+    :param net: network to obtain minimal dominating set for
+    :return: (sub)minimal dominating set
+    """
     min_dominating_set: set[Any] = set()
     for layer in net.layers:
         min_dominating_set = _minimum_dominating_set_with_initial(

@@ -1,3 +1,13 @@
+# Copyright (c) 2025 by Mingshan Jia, Michał Czuba.
+#
+# This file is a part of Network Diffusion.
+#
+# Network Diffusion is licensed under the MIT License. You may obtain a copy
+# of the License at https://opensource.org/licenses/MIT
+# =============================================================================
+
+"""A script with auxiliary functions for driver actor selection."""
+
 import warnings
 from multiprocessing.managers import SharedMemoryManager
 from multiprocessing.shared_memory import ShareableList
@@ -13,14 +23,21 @@ class ShareableListManager:
     placeholder_token = None
 
     def __init__(self, smm: SharedMemoryManager, length: int) -> None:
+        """
+        Initialise the object.
+
+        :param smm: shared memory manager to store the list in
+        :param length: desired length of the list
+        """
         self._sl = smm.ShareableList([self.placeholder_token] * length)
 
     @property
     def sl(self) -> ShareableList:
+        """Get the list."""
         return self._sl
 
-    @sl.setter
-    def sl(self, data: list[Any]) -> None:
+    def update_sl(self, data: list[Any]) -> None:
+        """Update the list."""
         for idx in range(len(self._sl)):
             if idx < len(data):
                 self._sl[idx] = data[idx]
@@ -28,14 +45,20 @@ class ShareableListManager:
                 self._sl[idx] = self.placeholder_token
 
     def get_as_pruned_set(self) -> set[Any]:
-        return set(item for item in self._sl if item != self.placeholder_token)
+        """Return the list as a pruned set (i.e. skip placeholder_token)."""
+        return set(
+            item
+            for item in self._sl  # type: ignore
+            if item != self.placeholder_token
+        )
 
 
 def is_dominating_set(
     candidate_ds: set[MLNetworkActor], network: MultilayerNetwork
 ) -> bool:
-    """Check whether provided candidate dominating set is in fact a dominating set."""
-    # initialise a dictionary with nodes to dominate - start from putting there all nodes
+    """Check whether candidate dominating set is in fact a dominating set."""
+    # initialise a dictionary with nodes to dominate
+    # start from putting there all nodes
     nodes_to_dominate = {
         l_name: {node for node in l_graph.nodes()}
         for l_name, l_graph in network.layers.items()
@@ -46,17 +69,20 @@ def is_dominating_set(
             for ca_neighbour in network.layers[l_name].neighbors(
                 candidate_actor.actor_id
             ):
-                # if the neighbour of `candidate_actor` on layer `l_name` is still in the set of
-                # nodes to be dominated remove it from there
+                # if the neighbour of `candidate_actor` on layer `l_name` is
+                # still in the set of nodes to be dominated remove it
                 if ca_neighbour in nodes_to_dominate[l_name]:
                     nodes_to_dominate[l_name].remove(ca_neighbour)
-    # check if in the set of undominated nodes are other nodes than these repres. dominating actors
+    # check if in the set of undominated nodes are other nodes than these
+    # repres. dominating actors
     ca_ids = {ca.actor_id for ca in candidate_ds}
     for l_name in network.layers.keys():
         non_dominated_nodes = nodes_to_dominate[l_name].difference(ca_ids)
         if len(non_dominated_nodes) != 0:
             warnings.warn(
-                f"Given set is not dominating - in {l_name} {non_dominated_nodes} are non-dominated"
+                f"Given set is not dominating - in {l_name}"
+                + f"{non_dominated_nodes} are non-dominated",
+                stacklevel=1,
             )
             return False
     return True

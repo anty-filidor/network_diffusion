@@ -175,3 +175,5 @@ Wrocławska / Wrocław University of Science and Technology / Technische
 Universität Breslau and external partners. For more information and updates,
 please visit our [website](https://networks.pwr.edu.pl/) or
 [GitHub](https://github.com/network-science-lab) page.
+
+# TODO: include mds in the docs, add unittests for local_improvement

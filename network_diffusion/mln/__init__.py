@@ -21,5 +21,3 @@ from network_diffusion.mln import (
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.mln.mlnetwork_torch import MultilayerNetworkTorch
-
-# TODO: add the improved MDS algorithm
