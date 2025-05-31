@@ -16,7 +16,7 @@ from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
-def get_mds_greedy(net: MultilayerNetwork) -> list[MLNetworkActor]:
+def get_mds_greedy(net: MultilayerNetwork) -> set[MLNetworkActor]:
     """Get driver actors for a network a.k.a. compute_driver_actors in nd."""
     min_dominating_set: set[Any] = set()
     for layer in net.layers:
@@ -24,7 +24,7 @@ def get_mds_greedy(net: MultilayerNetwork) -> list[MLNetworkActor]:
             net, layer, min_dominating_set
         )
 
-    return [net.get_actor(actor_id) for actor_id in min_dominating_set]
+    return {net.get_actor(actor_id) for actor_id in min_dominating_set}
 
 
 def _minimum_dominating_set_with_initial(
@@ -62,8 +62,8 @@ def _minimum_dominating_set_with_initial(
             x: len(set(net_layer[x]) - dominated) for x in layer_nodes
         }
 
-        # if current dominated set cannot be enhanced anymore and there're still
-        # nondominated nodes
+        # if current dominated set cannot be enhanced anymore and there're
+        # still nondominated nodes
         if sum(node_dominate_nb.values()) == 0:
             to_dominate = set(net[layer].nodes).difference(dominated)
             return dominating_set.union(to_dominate)
@@ -77,23 +77,3 @@ def _minimum_dominating_set_with_initial(
         dominated.update(net_layer[node_u])
 
     return dominating_set
-
-
-if __name__ == "__main__":
-    from utils import is_dominating_set
-
-    l2c_1 = nd.tpn.get_l2_course_net(
-        node_features=False, edge_features=False, directed=False
-    )[0]
-    # mds = nd.mln.driver_actors.compute_driver_actors(l2c_1)
-    mds = get_mds_greedy(l2c_1)
-    # mds = set(l2c_1.get_actors())
-    # mds.pop()
-    if is_dominating_set(candidate_ds=mds, network=l2c_1):
-        print(
-            f"Given set: {set(ac.actor_id for ac in mds)} dominates the network!"
-        )
-    else:
-        print(
-            f"Given set: {set(ac.actor_id for ac in mds)} does not dominate the network!"
-        )
