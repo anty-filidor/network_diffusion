@@ -9,5 +9,6 @@ Reference guide
    guide/net_collection
    guide/spreading_models
    guide/seed_selection
+   guide/mds
    guide/performing_experiments
    guide/aux_code

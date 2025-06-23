@@ -21,7 +21,7 @@ def get_mds_greedy(net: MultilayerNetwork) -> set[MLNetworkActor]:
     Get driver actors for a network a.k.a. a minimal dominating set.
 
     The dominating set gets minimised before it gets returned, but it is not a
-    minimal one. For more precise, but more time-consuming approach see
+    minimum one. For more precise, but more time-consuming approach see
     `get_mds_locimpr`.
 
     :param net: network to obtain minimal dominating set for

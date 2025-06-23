@@ -111,8 +111,8 @@ that make use of it:
   [repo](https://github.com/network-science-lab/infmax-simulator-icm-mln)
 - Influence max. under LTM in multilayer networks - _v0.14_ -
   [repo](https://github.com/anty-filidor/rank-refined-seeding-bc-infmax-mlnets-ltm)
-- Modelling of concurrent spreading and diffusion in temporal networks - _v0.13_ -
-  [repo](https://github.com/anty-filidor/bdma-experiments)
+- Modelling of concurrent spreading and a diffusion in temporal networks -
+  _v0.13_ - [repo](https://github.com/anty-filidor/bdma-experiments)
 - Seed selection methods for ICM in multilayer networks - _v0.10_ -
   [repo](https://github.com/damian4060/Independent_Cascade_Model)
 
@@ -174,4 +174,4 @@ Universität Breslau and external partners. For more information and updates,
 please visit our [website](https://networks.pwr.edu.pl/) or
 [GitHub](https://github.com/network-science-lab) page.
 
-# TODO: include mds in the docs, add unittests for local_improvement
+# TODO: add unittests for local_improvement
