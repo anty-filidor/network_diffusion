@@ -159,19 +159,9 @@ in complex networks, please add the following reference:
 }
 ```
 
-## Reporting Bugs
-
-Please report bugs on
-[this](https://github.com/anty-filidor/network_diffusion/issues) board or by
-sending a direct [e-mail](https://github.com/anty-filidor) to the main author.
-
 ## About Us
 
-This library is developed and maintained by
-[Network Science Lab](https://networks.pwr.edu.pl/) from Politechnika
-Wrocławska / Wrocław University of Science and Technology / Technische
-Universität Breslau and external partners. For more information and updates,
-please visit our [website](https://networks.pwr.edu.pl/) or
+This library is developed and maintained by Network Science Lab from Wroclaw
+University of Science and Technology. For more information and updates, please
+visit our [website](https://networks.pwr.edu.pl/) or
 [GitHub](https://github.com/network-science-lab) page.
-
-# TODO: add unittests for local_improvement
