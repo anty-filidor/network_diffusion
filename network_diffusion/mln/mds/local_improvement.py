@@ -6,7 +6,7 @@
 # of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
-"""A script with functions for driver actor selection with local improvement."""
+"""Functions for driver actor selection with local improvement."""
 
 import multiprocessing
 import multiprocessing.managers
@@ -22,8 +22,10 @@ from network_diffusion.mln.mlnetwork import MultilayerNetwork
 
 
 def get_mds_locimpr(
-    net: MultilayerNetwork, timeout: Optional[int] = None, debug: bool = False
-) -> list[MLNetworkActor]:
+    net: MultilayerNetwork,
+    timeout: Optional[float] = None,
+    debug: bool = False,
+) -> set[MLNetworkActor]:
     """
     Get driver actors for a network using greedy-based local improvement algo.
 
@@ -48,7 +50,7 @@ def get_mds_locimpr(
     if not timeout:
         timeout = net.get_actors_num() * 300 // 1000
     improv_ds = LocalImprovement(net, timeout, debug)(init_ds)
-    return [net.get_actor(actor_id) for actor_id in improv_ds]
+    return {net.get_actor(actor_id) for actor_id in improv_ds}
 
 
 class LocalImprovement:
@@ -57,12 +59,25 @@ class LocalImprovement:
     def __init__(
         self, net: MultilayerNetwork, timeout: float, debug: bool = False
     ) -> None:
+        """Initialise an object."""
         self.net = net
         self.actors = net.get_actors()
         self.timeout = timeout
         self.debug = debug
 
     def __call__(self, initial_set: set[Any]) -> set[Any]:
+        """
+        Perform the local improvement operation.
+
+        The method uses a `ShareableListManager` to meet a timeout requirement.
+        Namely, it tried to prune the `initial_set` for a given period of time
+        and stores loccaly optimised solutions in the instance of a
+        `ShareableListManager` class.
+
+        :param initial_set: initial dominating set obtained with the greedy
+            routine
+        :return: pruned dominating set
+        """
         with multiprocessing.managers.SharedMemoryManager() as smm:
             slm = ShareableListManager(smm, len(initial_set))
             slm.update_sl(list(initial_set))
@@ -79,7 +94,6 @@ class LocalImprovement:
     def _local_improvement(
         self, initial_set: set[Any], final_set: ShareableListManager
     ) -> None:
-        """Perform local improvement on the initial DS using the First Improvement strategy."""
         curr_dominating_set = set(initial_set)
         domination = self._compute_domination(curr_dominating_set)
         if self.debug:
@@ -95,7 +109,8 @@ class LocalImprovement:
 
             for u in curr_dominating_list:
 
-                # identify candidate replacements only which lead to a feasible solution
+                # identify candidate replacements only which lead to a feasible
+                # solution
                 candidates_v = self._find_replacement_candidates(
                     u, curr_dominating_set, domination
                 )
@@ -103,7 +118,8 @@ class LocalImprovement:
 
                 for v in candidates_v:
 
-                    # store old solution for rollback if no improvement after checking
+                    # store old solution for rollback if no improvement after
+                    # checking
                     old_dominating_set = set(curr_dominating_set)
 
                     # attempt the exchange move
@@ -115,7 +131,8 @@ class LocalImprovement:
                             new_dominating_set
                         )
 
-                        # check if we actually improved (reduced the size of the solution)
+                        # check if we actually improved DS (i.e., reduced the
+                        # size of the solution)
                         if len(reduced_set) < len(old_dominating_set):
 
                             # if so update domination and break
@@ -127,16 +144,15 @@ class LocalImprovement:
                             improvement = True
                             break
 
-                        # if no improvement after redundancy removal, revert to old solution
-                        else:
-                            curr_dominating_set = old_dominating_set
+                        # if no improvement after redundancy removal, revert to
+                        # the old solution
+                        curr_dominating_set = old_dominating_set
 
                         if self.debug:
-                            print(
-                                f"Current length of MDS: {len(curr_dominating_set)}"
-                            )
+                            print(f"Curr MDS len: {len(curr_dominating_set)}")
 
-                # restart the outer loop after finding the first improvement, otherwise exit funct.
+                # restart the outer loop after finding the first improvement,
+                # otherwise exit the function.
                 if improvement:
                     break
 
@@ -146,8 +162,8 @@ class LocalImprovement:
         """
         Compute the domination map for the current dominating set per layer.
 
-        Return a dictionary where keys are layer names and values are dictionaries mapping node IDs
-        to sets of dominators in that layer.
+        Return a dictionary where keys are layer names and values are
+        dictionaries mapping node IDs to sets of dominators in that layer.
         """
         domination_map: dict[str, dict[Any, set[Any]]] = {
             layer: {actor.actor_id: set() for actor in self.actors}
@@ -166,7 +182,7 @@ class LocalImprovement:
     def _get_excusevely_dominated_by_u(
         self, u: Any, domination: dict[str, dict[Any, set[Any]]]
     ) -> dict[str, set[Any]]:
-        """Get nodes that are exclusevely dominated by node u in the network."""
+        """Get nodes that are exclusevely dominated by `u` in the network."""
         ed = {}
         for layer, net_layer in self.net.layers.items():
             if u in net_layer:
@@ -175,10 +191,8 @@ class LocalImprovement:
                     for w in set(net_layer[u]) | {u}
                     if domination[layer][w] == {u}
                 }
-            else:
-                ed[layer] = (
-                    set()
-                )  # nNo nodes exclusively dominated by u in this layer
+            else:  # no nodes are exclusively dominated by u in this layer
+                ed[layer] = set()
         return ed
 
     def _find_replacement_candidates(
@@ -188,11 +202,13 @@ class LocalImprovement:
         domination: dict[str, dict[Any, set[Any]]],
     ) -> list[Any]:
         """
-        Find candidate nodes v that can replace u in the dominating set, ensuring that all layers
-        remain dominated.
+        Find candidate nodes v that can replace u in the dominating set.
+
+        Also ensure that all layers remain dominated.
         """
         exclusively_dominated = self._get_excusevely_dominated_by_u(
-            u, domination
+            u=u,
+            domination=domination,
         )
 
         # find valid replacement candidates
@@ -201,7 +217,8 @@ class LocalImprovement:
             if v in dominating_set:
                 continue
 
-            # ensure v exists in all layers where exclusively dominated nodes are expected
+            # ensure v exists in all layers where exclusively dominated
+            # nodes are expected
             if all(
                 v in self.net.layers[layer]
                 and nodes.issubset(set(self.net.layers[layer][v]) | {v})
@@ -225,13 +242,14 @@ class LocalImprovement:
 
     def _remove_redundant_vertices(self, dominating_set: set[Any]) -> set[Any]:
         """
-        Try to remove redundant vertices from the dominating_set without losing feasibility.
+        Try to remove redundant vertices from DS without losing feasibility.
 
         A vertex is redundant if removing it still leaves all nodes dominated.
-        Returns a new dominating set with as many redundant vertices removed as possible.
-        We'll attempt to remove vertices one by one. A simple (although not necessarily minimum)
-        approach is to try removing each vertex and see if the set remains feasible. If yes,
-        permanently remove it.
+        Returns a new dominating set with as many redundant vertices removed as
+        possible. We'll attempt to remove vertices one by one. A simple
+        (although not necessarily minimum) approach is to try removing each
+        vertex and see if the set remains feasible. If yes, then permanently
+        remove it.
         """
         improved_set = set(dominating_set)
         under_improvement = True

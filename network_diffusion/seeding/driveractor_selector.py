@@ -14,7 +14,7 @@ from typing import Any
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
-from network_diffusion.mln.mds import get_mds_greedy as compute_driver_actors
+from network_diffusion.mln.mds import get_mds_locimpr
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import BaseSeedSelector
 from network_diffusion.tpn.tpnetwork import TemporalNetwork
@@ -55,7 +55,7 @@ class DriverActorSelector(BaseSeedSelector):
     # TODO: other methods and parameters?
     def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Return a list of driver actors for a multilayer network."""
-        driver_actors_list = compute_driver_actors(net)
+        driver_actors_list = get_mds_locimpr(net)
 
         if self.selector is None:
             return self._reorder_seeds(driver_actors_list, net.get_actors())
@@ -73,17 +73,13 @@ class DriverActorSelector(BaseSeedSelector):
 
     @staticmethod
     def _reorder_seeds(
-        driver_actors: list[MLNetworkActor],
+        driver_actors: set[MLNetworkActor],
         all_actors: list[MLNetworkActor],
     ) -> list[MLNetworkActor]:
         """Return a list of actor ids, where driver actors in the first."""
         result = []
-
-        driver_ac_set = set(driver_actors)
-
-        result.extend([item for item in all_actors if item in driver_ac_set])
+        result.extend([item for item in all_actors if item in driver_actors])
         result.extend(
-            [item for item in all_actors if item not in driver_ac_set]
+            [item for item in all_actors if item not in driver_actors]
         )
-
         return result

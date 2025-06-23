@@ -38,7 +38,7 @@ class ShareableListManager:
 
     def update_sl(self, data: list[Any]) -> None:
         """Update the list."""
-        for idx in range(len(self._sl)):
+        for idx in range(len(self._sl)):  # pylint: disable=C0200
             if idx < len(data):
                 self._sl[idx] = data[idx]
             else:
@@ -60,7 +60,7 @@ def is_dominating_set(
     # initialise a dictionary with nodes to dominate
     # start from putting there all nodes
     nodes_to_dominate = {
-        l_name: {node for node in l_graph.nodes()}
+        l_name: {node for node in l_graph.nodes()}  # pylint: disable=R1721
         for l_name, l_graph in network.layers.items()
     }
     # iterate through all actors in the candidate dominating set

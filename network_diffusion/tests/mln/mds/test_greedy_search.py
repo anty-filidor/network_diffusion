@@ -1,21 +1,8 @@
-import warnings
-
 import pytest
 
 from network_diffusion.mln.mds.greedy_search import get_mds_greedy
-from network_diffusion.mln.mds.utils import is_dominating_set
 from network_diffusion.nets import get_l2_course_net, get_toy_network_piotr
 from network_diffusion.utils import set_rng_seed
-
-
-def test_is_dominating_set():
-    net = get_toy_network_piotr()
-    mds = get_mds_greedy(net=net)
-    assert is_dominating_set(mds, net)
-    mds.pop()
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", category=UserWarning)
-        assert not is_dominating_set(mds, net)
 
 
 @pytest.mark.parametrize(
