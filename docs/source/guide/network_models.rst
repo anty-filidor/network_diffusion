@@ -45,9 +45,6 @@ Implemented in ``network_diffusion.mln``.
 .. automodule:: network_diffusion.mln.centrality_discount
    :members:
 
-.. automodule:: network_diffusion.mln.driver_actors
-   :members:
-
 .. automodule:: network_diffusion.mln.functions
    :members:
 
