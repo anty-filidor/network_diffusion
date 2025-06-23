@@ -99,24 +99,22 @@ pip install -e .
 
 <p align="center"> <b>Reference guide</b> is available <a href="https://network-diffusion.readthedocs.io/en/latest/">here</a>! </p>
 
-Please bear in mind that **this project is still in development**, so the API
-usually differs between versions. Nonetheless, the code is documented well, so
-we encourage users to explore the repository. Another way to familiarise
-yourself with the operating principles of `network_diffusion` are projects
-which utilise it:
+Please note that **this project is still under development**, and the API may
+vary between versions. Nevertheless, the code is thoroughly commented and the
+documentation is kept up to date. Another way to become familiar with the
+operating principles of `network_diffusion` is to explore some example projects
+that make use of it:
 
-- Assessment of using control methods for influence maximisation - _v0.17.0_ -
+- Assessment of using control methods for influence maximisation - _v0.17_ -
   [repo](https://github.com/network-science-lab/infmax-mds-ltm-mln)
-- Generator of a dataset with actors' spreading potentials - _v0.16.0_ -
+- Generator of a dataset with actors' spreading potentials - _v0.16_ -
   [repo](https://github.com/network-science-lab/infmax-simulator-icm-mln)
-- Influence max. under LTM in multilayer networks - _v0.14.0 pre-release_ -
+- Influence max. under LTM in multilayer networks - _v0.14_ -
   [repo](https://github.com/anty-filidor/rank-refined-seeding-bc-infmax-mlnets-ltm)
-- Comparison of spreading in various temporal network models - _v0.13.0_ -
+- Modelling of concurrent spreading and diffusion in temporal networks - _v0.13_ -
   [repo](https://github.com/anty-filidor/bdma-experiments)
-- Seed selection methods for ICM in multilayer networks - _v0.10.0_ -
+- Seed selection methods for ICM in multilayer networks - _v0.10_ -
   [repo](https://github.com/damian4060/Independent_Cascade_Model)
-- Modelling coexisting spreading phenomena - _v0.6_ -
-  [repo](https://github.com/anty-filidor/network_diffusion_examples)
 
 ## Citing the Library
 
