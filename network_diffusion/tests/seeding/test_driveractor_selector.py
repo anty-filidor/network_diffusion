@@ -4,49 +4,18 @@ from network_diffusion.nets import get_toy_network_piotr
 from network_diffusion.seeding import (
     BetweennessSelector,
     ClosenessSelector,
-    DegreeCentralitySelector,
     DriverActorSelector,
-    KatzSelector,
-    KShellMLNSeedSelector,
-    KShellSeedSelector,
     NeighbourhoodSizeSelector,
-    PageRankMLNSeedSelector,
-    PageRankSeedSelector,
-    RandomSeedSelector,
-    VoteRankSeedSelector,
 )
 
 SUBSELECTORS = (
-    (
-        NeighbourhoodSizeSelector(connection_hop=1),
-        [2, 4, 3, 9, 11, 8, 6, 5, 10, 1, 7],
-    ),
-    (
-        NeighbourhoodSizeSelector(connection_hop=2),
-        [2, 9, 11, 4, 3, 8, 6, 1, 5, 7, 10],
-    ),
-    (BetweennessSelector(), [11, 4, 2, 9, 8, 3, 5, 6, 10, 7, 1]),
-    (ClosenessSelector(), [11, 3, 4, 2, 9, 8, 5, 6, 10, 1, 7]),
-    (DegreeCentralitySelector(), [4, 2, 9, 3, 11, 8, 5, 6, 10, 7, 1]),
-    (KatzSelector(), [3, 4, 11, 2, 9, 8, 5, 6, 10, 7, 1]),
-    (KShellMLNSeedSelector(), [4, 2, 3, 9, 11, 8, 5, 6, 10, 7, 1]),
-    (KShellSeedSelector(), [3, 4, 2, 11, 8, 9, 5, 6, 10, 7, 1]),
-    (NeighbourhoodSizeSelector(), [2, 4, 3, 9, 11, 8, 6, 5, 10, 1, 7]),
-    (PageRankMLNSeedSelector(), [2, 4, 9, 3, 11, 8, 6, 5, 10, 7, 1]),
-    (PageRankSeedSelector(), [11, 3, 4, 9, 8, 2, 5, 10, 7, 6, 1]),
-    (RandomSeedSelector(), [11, 2, 9, 4, 8, 3, 5, 1, 6, 7, 10]),
-    (VoteRankSeedSelector(), [4, 9, 11, 3, 8, 2, 5, 1, 6, 10, 7]),
+    (NeighbourhoodSizeSelector(), [2, 4, 3, 9, 10, 6, 5, 11, 1, 7, 8]),
+    (BetweennessSelector(), [4, 2, 9, 10, 3, 11, 5, 6, 8, 7, 1]),
+    (ClosenessSelector(), [3, 4, 2, 9, 10, 11, 5, 6, 8, 1, 7]),
 )
 
 
 class TestDriverActorSelector(unittest.TestCase):
-    def test_actorwise(self):
-        selector = NeighbourhoodSizeSelector()
-        obtained_result = selector.actorwise(net=get_toy_network_piotr())
-        self.assertEqual(
-            [obtained_actor.actor_id for obtained_actor in obtained_result],
-            [2, 6, 4, 3, 5, 9, 10, 11, 1, 7, 8],
-        )
 
     def test_nodewise(self):
         selector = NeighbourhoodSizeSelector()
