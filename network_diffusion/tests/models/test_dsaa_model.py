@@ -6,7 +6,7 @@ from network_diffusion.mln import MultilayerNetwork
 from network_diffusion.models import DSAAModel
 from network_diffusion.models.utils.compartmental import CompartmentalGraph
 from network_diffusion.simulator import Simulator
-from network_diffusion.utils import fix_random_seed
+from network_diffusion.utils import set_rng_seed
 
 EXPECTED_SPREADING_OUTCOME = [
     {
@@ -76,7 +76,7 @@ class TestDSAAModel(unittest.TestCase):
 
     def setUp(self) -> None:
 
-        fix_random_seed(42)
+        set_rng_seed(42)
 
         compartments, phenomena = prepare_compartments()
         self.phenomena = phenomena

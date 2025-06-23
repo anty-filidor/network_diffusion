@@ -129,7 +129,7 @@ The logs contain:
 * a capture of states of every single node at the end of each simulation step (JSON file),
 * a brief visualisation of propagation.
 
-.. figure:: images/experiment_vis.png
+.. figure:: experiment_vis.png
     :width: 600
 
 In case of need to process the results directly in the Python, one can extract them with two

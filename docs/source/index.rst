@@ -8,8 +8,8 @@ Reference Guide
 .. toctree::
    :maxdepth: 2
 
-   reference_guide
-   module_examples
+   guide
+   examples
 
 
 Package Index
