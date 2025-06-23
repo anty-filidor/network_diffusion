@@ -34,7 +34,7 @@ states):
 
 This can be easily visualised by a following graph:
 
-.. figure:: images/propagation.png
+.. figure:: propagation.png
     :align: center
     :width: 250
 
