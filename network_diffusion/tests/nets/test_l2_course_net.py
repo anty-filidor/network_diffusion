@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
-from network_diffusion.tpn import l2_course_net
+from network_diffusion.nets import l2_course_net
 
 EXP_NODE_ATTRS = {
     "202conv",
@@ -215,7 +215,7 @@ def test_read_snapshot_undirected(
     exp_cc,
 ):
     snap_net: MultilayerNetwork = l2_course_net._read_snapshot(
-        src_path=Path(__file__).parent.parent.parent / "tpn/data",
+        src_path=Path(__file__).parent.parent.parent / "nets/data",
         s_idx=snap_idx,
         node_features=False,
         edge_features=False,

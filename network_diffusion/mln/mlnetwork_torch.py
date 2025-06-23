@@ -1,4 +1,4 @@
-# Copyright (c) 2024 by Michał Czuba.
+# Copyright (c) 2025 by Michał Czuba.
 #
 # This file is a part of Network Diffusion.
 #
@@ -9,13 +9,39 @@
 """A converter from `MultilayerNetwork` to the sparse repr. in PyTorch."""
 
 from dataclasses import dataclass
-from typing import Any
+from functools import wraps
+from typing import Any, Callable
 
 import networkx as nx
 import torch
 from bidict import bidict
+from torch._tensor_str import PRINT_OPTS
 
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
+
+
+def _print_squeezed_tensors(repr_func: Callable) -> Callable:
+    """Decorate __repr__ to print tensors compactly if they are too big."""
+
+    @wraps(repr_func)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        precision = PRINT_OPTS.precision
+        threshold = PRINT_OPTS.threshold
+        edgeitems = PRINT_OPTS.edgeitems
+        linewidth = PRINT_OPTS.linewidth
+        sci_mode = PRINT_OPTS.sci_mode
+        torch.set_printoptions(threshold=200)
+        result = repr_func(*args, **kwargs)
+        torch.set_printoptions(
+            precision=precision,
+            threshold=threshold,
+            edgeitems=edgeitems,
+            linewidth=linewidth,
+            sci_mode=sci_mode,
+        )
+        return result
+
+    return wrapper
 
 
 def _prepare_mln_for_conversion(
@@ -126,7 +152,7 @@ class MultilayerNetworkTorch:
 
     Note, that in order to provide consistency between channels of an adjacency
     matrix, the network is converted to multiplex with nodes added artifically
-    marked in the property `nodes_mask`. Features of edges and actors are not
+    marked in the property `nodes_mask`. Features of edges and actors are NOT
     preserved.
 
     :param adjacency_tensor: adjacency matrix as a sparse tensor shaped as
@@ -152,7 +178,7 @@ class MultilayerNetworkTorch:
             raise ValueError(
                 "Inconsistent device across tensor-members of the object!"
             )
-        return self.adjacency_tensor.device
+        return str(self.adjacency_tensor.device)
 
     @device.setter
     def device(self, new_device: str) -> None:
@@ -172,14 +198,29 @@ class MultilayerNetworkTorch:
         new_obj.device = device
         return new_obj
 
+    @_print_squeezed_tensors
     def __repr__(self) -> str:
+        if len(self.actors_map) <= 25:
+            actors_map = f"actors map: {self.actors_map}\n"
+        else:
+            am_min = self.actors_map.inverse[0]
+            am_max = self.actors_map.inverse[len(self.actors_map) - 1]
+            actors_map = f"actors map: {len(self.actors_map)} element bidict("
+            actors_map += f"{{{self.actors_map[am_min]}: {am_min}, ..., "
+            actors_map += f"{self.actors_map[am_max]}: {am_max}}})\n"
+        if len(self.layers_order) <= 25:
+            layers_order = f"layers_order: {self.layers_order}\n"
+        else:
+            layers_order = f"layers_order: {len(self.layers_order)} element "
+            layers_order += f"list: [{self.layers_order[0]}, ..., "
+            layers_order += f"{self.layers_order[-1]}],\n"
         return (
             f"{self.__class__.__name__} at {id(self)}\n"
-            f"adjacency_tensor: {self.adjacency_tensor}\n"
-            f"layers_order: {self.layers_order}\n"
-            f"actors map: {self.actors_map}\n"
-            f"nodes_mask: {self.nodes_mask}\n"
-            f"device: {self.device}\n"
+            + f"adjacency_tensor: {self.adjacency_tensor}\n"
+            + layers_order
+            + actors_map
+            + f"nodes_mask: {self.nodes_mask}\n"
+            + f"device: {self.device}\n"
         )
 
     def copy(self) -> "MultilayerNetworkTorch":
