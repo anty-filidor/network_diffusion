@@ -13,7 +13,7 @@ from typing import Any
 import networkx as nx
 
 from network_diffusion.mln.actor import MLNetworkActor
-from network_diffusion.mln.centralities import voterank_actorwise
+from network_diffusion.mln.centralities import torch_voterank_actorwise
 from network_diffusion.mln.mlnetwork import MultilayerNetwork
 from network_diffusion.seeding.base_selector import (
     BaseSeedSelector,
@@ -52,6 +52,11 @@ class VoteRankSeedSelector(BaseSeedSelector):
 class VoteRankMLNSeedSelector(BaseSeedSelector):
     """Selector for MLTModel based on Vote Rank algorithm."""
 
+    def __init__(self, device: str | None = None, **kwargs: Any) -> None:
+        """Initialise the object."""
+        super().__init__(**kwargs)
+        self.device = device
+
     def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
         """Create nodewise ranking."""
         raise NotImplementedError(
@@ -67,7 +72,7 @@ class VoteRankMLNSeedSelector(BaseSeedSelector):
 
     def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
         """Compute ranking for actors."""
-        elected_nodes = voterank_actorwise(net=net)
+        elected_nodes = torch_voterank_actorwise(net=net, device=self.device)
         unelected_nodes = set(net.get_actors()).difference(set(elected_nodes))
         elected_nodes.extend(unelected_nodes)
         return elected_nodes

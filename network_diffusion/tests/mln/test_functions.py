@@ -9,6 +9,8 @@ from network_diffusion.mln.centralities import (
     degree,
     multiplexing_coefficient,
     neighbourhood_size,
+    torch_voterank_actorwise,
+    voterank_actorwise,
 )
 from network_diffusion.mln.functions import remove_selfloop_edges
 from network_diffusion.nets import get_toy_network_piotr
@@ -75,6 +77,15 @@ NEIGHBOURHOOD_SIZE_NET_2 = {
     11: 3,
 }
 
+VOTERANK_NET_1_TOP_5 = [
+    "Medici",
+    "Peruzzi",
+    "Guadagni",
+    "Strozzi",
+    "Barbadori",
+]
+VOTERANK_NET_2_TOP_5 = [2, 6, 10, 9, 4]
+
 
 class TestFunctions(unittest.TestCase):
     """Test functions."""
@@ -136,6 +147,45 @@ class TestFunctions(unittest.TestCase):
         for l_name in self.network_1.layers:
             self.assertEqual(
                 list(nx.selfloop_edges(self.network_1[l_name])), []
+            )
+
+    def test_voterank_consistency(self):
+        """Test that voterank_actorwise and torch_voterank_actorwise produce identical results."""
+        for network in [self.network_1, self.network_2]:
+            # Test with all actors
+            result_cpu = voterank_actorwise(network)
+            result_torch = torch_voterank_actorwise(network)
+            self.assertEqual(
+                [a.actor_id for a in result_cpu],
+                [a.actor_id for a in result_torch],
+                "VoteRank results should be identical for all actors",
+            )
+            # Test with limited number of actors
+            num_actors = min(5, len(network))
+            result_cpu_limited = voterank_actorwise(
+                network, number_of_actors=num_actors
+            )
+            result_torch_limited = torch_voterank_actorwise(
+                network, number_of_actors=num_actors
+            )
+            self.assertEqual(
+                [a.actor_id for a in result_cpu_limited],
+                [a.actor_id for a in result_torch_limited],
+                f"VoteRank results should be identical for {num_actors} actors",
+            )
+
+    def test_voterank_actorwise(self):
+        """Ensure VoteRank returns expected hardcoded actor sequences."""
+        for network, expected in zip(
+            [self.network_1, self.network_2],
+            [VOTERANK_NET_1_TOP_5, VOTERANK_NET_2_TOP_5],
+        ):
+            result = voterank_actorwise(network)
+            actor_ids = [a.actor_id for a in result[:5]]
+            self.assertEqual(
+                actor_ids,
+                expected,
+                "VoteRank output should match the hardcoded sequence",
             )
 
 
