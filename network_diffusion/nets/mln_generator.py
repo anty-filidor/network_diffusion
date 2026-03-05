@@ -45,7 +45,7 @@ class MultilayerBaseGenerator(abc.ABC):
             and 1/nb_layers otherwise
         """
         dep = np.full(
-            fill_value=(1 / self.nb_layers),
+            fill_value=(1 / (self.nb_layers - 1)),
             shape=(self.nb_layers, self.nb_layers),
         )
         np.fill_diagonal(dep, 0)

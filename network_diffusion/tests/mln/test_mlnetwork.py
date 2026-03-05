@@ -1,5 +1,6 @@
 import copy
 import os
+import tempfile
 import unittest
 
 import networkx as nx
@@ -181,6 +182,66 @@ class TestMultilayerNetwork(unittest.TestCase):
             "marriage": set(),
             "business": {"Ridolfi", "Albizzi", "Acciaiuoli", "Strozzi"},
         }
+
+    def test_save_creates_file(self):
+        """Test that save() method creates a file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test_network.mpx")
+            self.florentine.save(file_path)
+            self.assertTrue(
+                os.path.exists(file_path),
+                "Save method should create an MPX file",
+            )
+
+    def test_save_and_load_roundtrip(self):
+        """Test save and load roundtrip preserves network structure."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test_network.mpx")
+
+            # Save the network
+            self.florentine.save(file_path)
+
+            # Load it back
+            loaded_network = MultilayerNetwork.from_mpx(file_path)
+
+            # Verify basic properties are preserved
+            self.assertEqual(
+                set(self.florentine.get_layer_names()),
+                set(loaded_network.get_layer_names()),
+                "Layer names should be preserved after save/load",
+            )
+            self.assertEqual(
+                self.florentine.get_actors_num(),
+                loaded_network.get_actors_num(),
+                "Number of actors should be preserved after save/load",
+            )
+
+    def test_save_preserves_edges(self):
+        """Test that save() preserves edge information for each layer."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test_network.mpx")
+
+            # Get original edge counts per layer
+            original_edge_counts = {
+                l_name: len(self.florentine[l_name].edges())
+                for l_name in self.florentine.get_layer_names()
+            }
+
+            # Save and load
+            self.florentine.save(file_path)
+            loaded_network = MultilayerNetwork.from_mpx(file_path)
+
+            # Verify edge counts match
+            loaded_edge_counts = {
+                l_name: len(loaded_network[l_name].edges())
+                for l_name in loaded_network.get_layer_names()
+            }
+
+            self.assertEqual(
+                original_edge_counts,
+                loaded_edge_counts,
+                "Edge counts should be preserved in each layer",
+            )
 
 
 if __name__ == "__main__":
