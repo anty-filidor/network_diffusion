@@ -193,6 +193,13 @@ class MultilayerNetwork:
         )
         return copied_instance
 
+    def save(self, path: str) -> None:
+        """Save the multilayer network as an mpx file."""
+        dummy_net = multinet.empty()
+        for l_name in self.layers:
+            multinet.add_nx_layer(dummy_net, self[l_name], l_name)
+        multinet.write(dummy_net, path, "multilayer")
+
     def subgraph(self, actors: list[MLNetworkActor]) -> "MultilayerNetwork":
         """
         Return a subgraph of the network.
