@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "network_diffusion"
-version = "0.18.1"
+version = "0.19.0"
 requires-python = ">=3.12"
 authors = [
     {name = "Michał Czuba", email="michal.czuba@pwr.edu.pl"},

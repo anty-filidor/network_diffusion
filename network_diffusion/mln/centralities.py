@@ -11,6 +11,7 @@
 from typing import Any, Callable
 
 import networkx as nx
+import torch
 
 from network_diffusion.mln.actor import MLNetworkActor
 from network_diffusion.mln.functions import all_neighbours
@@ -308,5 +309,130 @@ def voterank_actorwise(
         for _, nbr in net.get_links(top_actor.actor_id):
             vote_rank[nbr][1] -= 1 / agv_nbs
             vote_rank[nbr][1] = max(vote_rank[nbr][1], 0)
+
+    return influential_actors
+
+
+def _build_edge_tensors(
+    net: MultilayerNetwork,
+    actor_to_idx: dict[MLNetworkActor, int],
+    device: torch.device,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """
+    Build undirected edge index tensors from a multilayer network.
+
+    Each edge (a, b) is represented twice — as (a→b) and (b→a) — so that
+    scatter-based aggregation covers both directions without special-casing.
+
+    :param net: multilayer network to extract edges from.
+    :param actor_to_idx: mapping from actor to its integer index.
+    :param device: torch device to place the resulting tensors on.
+    :return: tuple (edge_src, edge_dst), each a 1-D long tensor of length 2E,
+        where E is the number of undirected edges in the network.
+    """
+    links = list(net.get_links())
+
+    if not links:
+        empty = torch.empty(0, dtype=torch.long, device=device)
+        return empty, empty
+
+    src = torch.tensor([actor_to_idx[a] for a, _ in links], dtype=torch.long)
+    dst = torch.tensor([actor_to_idx[b] for _, b in links], dtype=torch.long)
+
+    edge_src = torch.cat([src, dst]).to(device)
+    edge_dst = torch.cat([dst, src]).to(device)
+
+    return edge_src, edge_dst
+
+
+def _get_device(device: str | None) -> torch.device:
+    """
+    Resolve device string to torch.device, auto-detecting if not provided.
+
+    :param device: device string (e.g. ``"cuda"``, ``"mps"``, ``"cpu"``,
+        ``"cuda:1"``), or ``None`` for auto-detection.
+    :return: resolved :class:`torch.device` instance.
+    """
+    if device:
+        return torch.device(device)
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+
+def torch_voterank_actorwise(
+    net: MultilayerNetwork,
+    number_of_actors: int | None = None,
+    device: str | None = None,
+) -> list[MLNetworkActor]:
+    """
+    Select a list of influential ACTORS in a graph using VoteRank algorithm.
+
+    VoteRank computes a ranking of the actors in a graph based on a voting
+    scheme. With VoteRank, all actors vote for each of its neighbours and the
+    actor with the highest votes is elected iteratively. The voting ability of
+    neighbors of elected actors is decreased in subsequent turns.
+
+    Optimized with PyTorch tensors — supports CUDA, MPS (float32), and CPU.
+
+    :param net: multilayer network.
+    :param number_of_actors: number of ranked actors to extract (default all).
+    :param device: torch device string e.g. "cuda", "mps", "cpu".
+        Auto-detected if not provided (CUDA > MPS > CPU).
+    :return: ordered list of computed seeds, only actors with positive number
+        of votes are returned.
+    """
+    if net.is_directed():
+        raise NotImplementedError(
+            "Voterank for directed networks is not implemented!"
+        )
+    if len(net) == 0:
+        return []
+
+    # Step 1 actors — snapshot once, single source of truth for ordering
+    actors: list[MLNetworkActor] = list(net.get_actors())
+    n = len(actors)
+    actor_to_idx = {a: i for i, a in enumerate(actors)}
+    number_of_actors = min(number_of_actors or n, n)
+    # Step 2 Build edge tensors
+    edge_src, edge_dst = _build_edge_tensors(
+        net=net,
+        actor_to_idx=actor_to_idx,
+        device=_get_device(device),
+    )
+
+    inv_avg_nbs = torch.tensor(
+        n / sum(neighbourhood_size(net=net).values()),
+        dtype=torch.float32,
+        device=edge_src.device,
+    )
+    # Step 3 VoteRank state
+    scores = torch.zeros(n, dtype=torch.float32, device=edge_src.device)
+    ability = torch.ones(n, dtype=torch.float32, device=edge_src.device)
+    elected = torch.zeros(n, dtype=torch.bool, device=edge_src.device)
+
+    influential_actors: list[MLNetworkActor] = []
+
+    for _ in range(number_of_actors):
+        scores.zero_()
+        scores.scatter_add_(0, edge_dst, ability[edge_src])
+        scores[elected] = 0.0
+
+        # Step 4 select top actor
+        top_idx = int(scores.argmax().item())
+        if scores[top_idx].item() == 0.0:
+            break
+
+        influential_actors.append(actors[top_idx])
+        elected[top_idx] = True
+        ability[top_idx] = 0.0
+
+        # Step 5 weaken neighbours of elected actor
+        neighbour_mask = edge_dst[edge_src == top_idx]
+        if neighbour_mask.numel() > 0:
+            ability[neighbour_mask] -= inv_avg_nbs
+            ability.clamp_(min=0.0)
 
     return influential_actors
