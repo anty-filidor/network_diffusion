@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "network_diffusion"
-version = "0.19.0"
+version = "0.19.1"
 requires-python = ">=3.12"
 authors = [
     {name = "Michał Czuba", email="michal.czuba@pwr.edu.pl"},
@@ -21,17 +21,25 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 keywords = [
+    "complex networks",
+    "complex systems",
+    "graphs",
+    "graph mining",
     "influence maximisation",
     "influence maximization",
     "multilayer networks",
+    "multiplex networks",
+    "multirelational systems",
     "networkx",
     "network science",
     "phenomena spreading",
+    "pyg",
     "simulation",
     "social influence",
     "social networks",
     "spreading",
     "temporal networks",
+    "torch_geometric",
 ]
 dynamic = ["dependencies", "readme"]
 
