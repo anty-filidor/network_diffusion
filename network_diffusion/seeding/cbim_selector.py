@@ -53,7 +53,7 @@ class CBIMSeedselector(BaseSeedSelector):
         )
 
     def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
-        """Create nodewise ranking.
+        """Create a per-node ranking.
 
         :param graph: single layer graph to compute ranking for
         :return: list of node-ids ordered descending by their ranking position

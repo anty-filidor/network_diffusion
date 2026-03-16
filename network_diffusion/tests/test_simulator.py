@@ -31,7 +31,7 @@ class TestSimulator(unittest.TestCase):
         }
 
     def test_perform_propagation(self):
-        """Check if perform_propagation returns correct values."""
+        """Check whether perform_propagation returns correct values."""
         experiment = Simulator(self.model, self.network)
         initial_states = (
             self.model._compartmental_graph.get_seeding_budget_for_network(

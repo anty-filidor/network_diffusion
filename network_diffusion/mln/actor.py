@@ -64,12 +64,12 @@ class MLNetworkActor:
 
     @property
     def layers(self) -> tuple[str, ...]:
-        """Get network layers where actor exists."""
+        """Retrieve network layers in which an actor exists."""
         return tuple(self._layers_states.keys())
 
     @property
     def states(self) -> dict[str, str]:
-        """Get actor's states for where actitor exists."""
+        """Retrieve an actor's states where the actor exists."""
         return self._layers_states
 
     @states.setter

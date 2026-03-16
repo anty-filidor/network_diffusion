@@ -61,7 +61,7 @@ class BaseSeedSelector(ABC):
         """Create actorwise ranking."""
 
     def nodewise(self, net: MultilayerNetwork) -> dict[str, list[Any]]:
-        """Create nodewise ranking."""
+        """Create a per-node ranking."""
         nodes_ranking = {}
         for l_name, l_graph in net.layers.items():
             seeds_in_layer = self._calculate_ranking_list(l_graph)

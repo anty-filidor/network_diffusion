@@ -23,7 +23,7 @@ def mean_centrality(
     centrality_function: Callable,
 ) -> dict[MLNetworkActor, float]:
     """
-    Return value of mean centrality for actors.
+    Return the mean centrality value for actors.
 
     This function computes a given centraliry (e.g.
     `nx.betweenness_centrality`, `nx.closeness_centrality', or
@@ -253,7 +253,7 @@ def voterank_actorwise(
     VoteRank computes a ranking of the actors in a graph based on a voting
     scheme. With VoteRank, all actors vote for each of its neighbours and the
     actor with the highest votes is elected iteratively. The voting ability of
-    neighbors of elected actors is decreased in subsequent turns. Overloads
+    neighbours of elected actors is decreased in subsequent turns. Overloads
     networkx.algorithms.core.k_shell.
 
     :param net: multilayer network
@@ -373,9 +373,9 @@ def torch_voterank_actorwise(
     VoteRank computes a ranking of the actors in a graph based on a voting
     scheme. With VoteRank, all actors vote for each of its neighbours and the
     actor with the highest votes is elected iteratively. The voting ability of
-    neighbors of elected actors is decreased in subsequent turns.
+    neighbours of elected actors is decreased in subsequent turns.
 
-    Optimized with PyTorch tensors — supports CUDA, MPS (float32), and CPU.
+    Optimised with PyTorch tensors — supports CUDA, MPS (float32), and CPU.
 
     :param net: multilayer network.
     :param number_of_actors: number of ranked actors to extract (default all).

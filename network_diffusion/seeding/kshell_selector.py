@@ -89,7 +89,7 @@ class KShellMLNSeedSelector(BaseSeedSelector):
     """
 
     def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
-        """Create nodewise ranking."""
+        """Create a per-node ranking."""
         raise NotImplementedError(
             "Nodewise ranking list cannot be computed for this class!"
         )
