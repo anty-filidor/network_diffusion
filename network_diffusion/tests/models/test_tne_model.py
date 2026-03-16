@@ -58,7 +58,7 @@ class TestTemporalNetworkEpistemologyModel(unittest.TestCase):
         )
 
     def test_experiment_results(self) -> None:
-        """Check if the experiment results are as expected."""
+        """Check whether the experiment results are as expected."""
         expected_global_stats = [
             {"layer_1": (("A", 5), ("B", 5))},
             {"layer_1": (("A", 7), ("B", 3))},

@@ -77,7 +77,7 @@ class Simulator:
 
     @staticmethod
     def _verify_network(net: TemporalNetwork, n_epochs: int) -> None:
-        """Verify if in each snapshot there is the same actor set."""
+        """Verify whether in each snapshot there is the same actor set."""
         actors_0 = {a.actor_id for a in net[0].get_actors()}
         for epoch in range(1, n_epochs + 1):
             actors_epoch = {a.actor_id for a in net[epoch].get_actors()}

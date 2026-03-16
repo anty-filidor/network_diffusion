@@ -229,7 +229,7 @@ class LocalImprovement:
         return candidates
 
     def _is_feasible(self, dominating_set: set[Any]) -> bool:
-        """Check if the dominating set is feasible across all layers."""
+        """Check whether the dominating set is feasible across all layers."""
         for _, l_graph in self.net.layers.items():
             dominated = set()
             for actor_id in dominating_set:
