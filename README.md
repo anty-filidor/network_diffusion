@@ -1,6 +1,6 @@
 # Network Diffusion - Spreading Models in Networks
 
-[![Licence](https://img.shields.io/github/license/anty-filidor/network_diffusion)](https://opensource.org/license/mit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/network-diffusion.svg)](https://badge.fury.io/py/network-diffusion)
 
 ![Tests](https://github.com/anty-filidor/network_diffusion/actions/workflows/tests.yml/badge.svg)
@@ -26,20 +26,20 @@ spreading_model = nd.models.MICModel(
     probability=0.5,  # probability of infection
 )
 
-# get the graph - a medium for spreading
+# get a graph - a medium for spreading
 network = nd.mln.functions.get_toy_network_piotr()
 
-# perform the simulation that lasts four epochs
+# perform the simulation for three epochs
 simulator = nd.Simulator(model=spreading_model, network=network)
 logs = simulator.perform_propagation(n_epochs=3)
 
-# obtain detailed logs for each actor in the form of JSON
+# obtain detailed logs for each actor in JSON format
 raw_logs_json = logs.get_detailed_logs()
 
-# or obtain aggregated logs for each of the network's layer
-aggregated_logs_json = logs.get_aggragated_logs()
+# or obtain aggregated logs for each of the network's layers
+aggregated_logs_json = logs.get_aggregated_logs()
 
-# or just save a summary of the experiment with all the experiment's details
+# or save a summary of the experiment with all its details
 logs.report(visualisation=True, path="my_experiment")
 ```
 
@@ -51,18 +51,18 @@ logs.report(visualisation=True, path="my_experiment")
   this library has you covered.
 
 - **Temporal Models**: You can work with temporal models, allowing you to
-  capture the dynamics of processes over time. These temporal models can be
-  created using regular time windows or leverage
+  capture the dynamics of processes over time. These models can be created
+  using regular time windows or by leveraging
   [CogSnet](https://www.researchgate.net/publication/348341904_Social_Networks_through_the_Prism_of_Cognition).
 
 - **Multilayer Networks**: The library supports multilayer networks, which are
   essential for modelling real-world systems with interconnected layers of
   complexity.
 
-- **Predefined Models**: You have the option to use predefined diffusion models
-  such as the Linear Threshold Model, Independent Cascade Model, and more.
-  These models simplify the simulation process, allowing you to focus on your
-  specific research questions.
+- **Predefined Models**: You can use predefined diffusion models such as the
+  Linear Threshold Model, Independent Cascade Model, and more. These models
+  simplify the simulation process, allowing you to focus on your specific
+  research questions.
 
 - **Custom Models**: Additionally, Network Diffusion allows you to define your
   own diffusion models using open interfaces, providing flexibility for
@@ -83,8 +83,8 @@ logs.report(visualisation=True, path="my_experiment")
 ## Package Installation
 
 To install the package, run this command: `pip install network_diffusion`.
-Please note that we currently support Linux, MacOS, and Windows, but the
-package is mostly tested and developed on Unix-based systems.
+Please note that the package is supported on Linux, macOS and Windows, and is
+mostly tested and developed on Unix-like systems.
 
 To contribute, please clone the repo, switch to a new feature branch, and
 install the environment:
@@ -161,7 +161,7 @@ in complex networks, please add the following reference:
 
 ## About Us
 
-This library is developed and maintained by Network Science Lab from Wroclaw
+This library is developed and maintained by the Network Science Lab at Wroclaw
 University of Science and Technology. For more information and updates, please
 visit our [website](https://networks.pwr.edu.pl/) or
 [GitHub](https://github.com/network-science-lab) page.

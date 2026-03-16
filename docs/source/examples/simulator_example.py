@@ -2,7 +2,7 @@
 # pylint: disable-all
 # isort: skip_file
 
-# 1st setcion
+# 1st section
 
 import networkx as nx
 import network_diffusion as nd
@@ -30,9 +30,9 @@ class SIR_UAModel(BaseModel):
         aware_seeds: float,
     ) -> None:
         """
-        A model SIR~UA.
+        An SIR~UA model.
 
-        :param alpha: weight prob. of S->I for unaware nodes
+        :param alpha: probability weight of S->I for unaware nodes
         :param alpha_prime: prob. of S->I for aware nodes
         :param beta: prob. of I->R for both unaware and aware nodes
         :param gamma: prob. of U->A for both suspected and removed nodes
@@ -62,13 +62,13 @@ class SIR_UAModel(BaseModel):
         ill_seeds: float,
         aware_seeds: float,
     ) -> CompartmentalGraph:
-        # define processes, allowed states and initial % of actors in that states
+        # define processes, allowed states and initial percentages of actors in those states
         phenomena: dict[str, tuple] = {
             "contagion": (["S", "I", "R"], [100 - ill_seeds, ill_seeds, 0]),
             "awareness": (["U", "A"], [100 - aware_seeds, aware_seeds]),
         }
 
-        # wrap them into a compartments
+        # wrap them into compartments
         cg = CompartmentalGraph()
         for phenomenon, (states, budget) in phenomena.items():
             cg.add(process_name=phenomenon, states=states)  # name of process
@@ -173,23 +173,23 @@ class SIR_UAModel(BaseModel):
     ) -> str:
         layer_graph: nx.Graph = net[layer_name]
 
-        # get possible transitions for state of the node
+        # Get possible transitions for the node's state
         current_state = layer_graph.nodes[agent]["status"]
         transitions = self._compartmental_graph.get_possible_transitions(
             net.get_actor(agent).states_as_compartmental_graph(), layer_name
         )
 
-        # if there is no possible transition don't do anything
+        # If there is no possible transition, return current state
         if len(transitions) == 0:
             return current_state
 
-        # if transition doesn't rely on interacitons with neighbours (i.e. I->R)
+        # If transition does not depend on interactions with neighbours (i.e. I->R)
         if layer_name == "contagion" and current_state == "I":
             new_state = "R"
             if self.flip_a_coin(transitions[new_state]):
                 return new_state
 
-        # otherwise iterate through neighours
+        # Otherwise iterate through neighbours
         else:
             for neighbour in nx.neighbors(layer_graph, agent):
                 new_state = layer_graph.nodes[neighbour]["status"]

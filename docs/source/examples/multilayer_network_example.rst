@@ -3,21 +3,81 @@
 Class ``nd.MultilayerNetwork``
 ==============================
 
-What is a multilayer network?
-=============================
-Multilayer network is a class to extend the functionality of ``networkx.Graph``
-library to store and manipulate multilayer networks, which are a fundamental
-structure in the library. The module also allows to read the network from
-``mpx`` text files, which store such structures.
+In many real-world systems, the same set of entities can interact in different
+contexts or through different types of relationships. A multilayer network
+provides a way to represent such heterogeneous systems by organising
+interactions into separate layers while keeping the underlying actors shared.
+
+Formally, a multilayer network can be defined as follows.
+
+.. admonition:: Multilayer network
+
+   A **multilayer network** is defined as a quadruple
+
+   .. math::
+
+      G = ([n], [\ell], V, E),
+
+   where:
+
+   * :math:`[n] = \{1, 2, \ldots, n\}` denotes a set of **actors**,
+   * :math:`[\ell] = \{1, 2, \ldots, \ell\}` denotes a set of **layers**,
+   * :math:`V \subseteq [n] \times [\ell]` is the set of **nodes**,
+   * :math:`E \subseteq \bigcup_{i \in [\ell]} (V_i \times V_i)` is the set of **edges**.
+
+   Each node is represented as a pair :math:`(a, i)`, indicating appearance of
+   the actor :math:`a` in layer :math:`i`. Also in such a system, edges
+   connect nodes belonging to the same layer.
+
+From this perspective, a multilayer network can be also understood as a
+collection of graphs:
+
+.. math::
+
+   G_i = (V_i, E_i)
+
+where each graph :math:`G_i` is **spanned on a subset of actors present in the
+system** within the relationship (layer) :math:`i \in [\ell]`.
+
+Example
+-------
+
+Consider a system describing interactions across several social media
+platforms. Suppose we observe a group of people who maintain accounts on
+different services such as LinkedIn, Twitter, or Facebook. In this setting,
+the set :math:`[n]` represents the people active on the Internet, while
+:math:`[\ell]` represents the social platforms.
+
+Each user account corresponds to a node in the multilayer network. For
+instance, a LinkedIn profile belonging to a particular person would be
+represented as the node :math:`(a, i)`, where :math:`a` denotes the person
+and :math:`i` corresponds to the LinkedIn layer.
+
+Edges capture interactions between users within the same platform, such as
+connections, follows, or messages. Consequently, each platform forms a
+separate graph describing interactions specific to that service.
+
+From this perspective, the multilayer network can be decomposed into
+:math:`\ell` interdependent graphs, each corresponding to a different
+social platform.
+
+Using multilayer networks in ``network_diffusion``
+==================================================
+
+``nd.MultilayerNetwork`` extends the functionality of the ``networkx.Graph``
+class to store and manipulate networks consisting of multiple relations
+grouped into distinct layers. This is a fundamental structure in
+``network_diffusion``.
 
 Available data
 ==============
-`Here <http://multilayer.it.uu.se/datasets.html>`_ is the exemplary repository
-with multilayer networks, which can be read by ``network_diffusion``.
+`Here <http://multilayer.it.uu.se/datasets.html>`_ is an example repository
+containing multilayer network datasets that can be read from
+``network_diffusion``.
 
 Example of usage
 ================
-Let's crete some multilayer networks in several ways.
+Create multilayer networks in several ways.
 
 1. By defining separate graphs and layer names
 
