@@ -1,6 +1,6 @@
 # Network Diffusion - Spreading Models in Networks
 
-[![Licence](https://img.shields.io/github/license/anty-filidor/network_diffusion)](https://opensource.org/license/mit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://badge.fury.io/py/network-diffusion.svg)](https://badge.fury.io/py/network-diffusion)
 
 ![Tests](https://github.com/anty-filidor/network_diffusion/actions/workflows/tests.yml/badge.svg)
@@ -59,10 +59,10 @@ logs.report(visualisation=True, path="my_experiment")
   essential for modelling real-world systems with interconnected layers of
   complexity.
 
-- **Predefined Models**: You can use predefined diffusion models
-  such as the Linear Threshold Model, Independent Cascade Model, and more.
-  These models simplify the simulation process, allowing you to focus on your
-  specific research questions.
+- **Predefined Models**: You can use predefined diffusion models such as the
+  Linear Threshold Model, Independent Cascade Model, and more. These models
+  simplify the simulation process, allowing you to focus on your specific
+  research questions.
 
 - **Custom Models**: Additionally, Network Diffusion allows you to define your
   own diffusion models using open interfaces, providing flexibility for
