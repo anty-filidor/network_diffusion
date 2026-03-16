@@ -34,7 +34,7 @@ class DegreeCentralitySelector(BaseSeedSelector):
         )
 
     def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
-        """Create nodewise ranking."""
+        """Create a per-node ranking."""
         raise NotImplementedError(
             "Nodewise ranking list is not implemented for this class!"
         )
@@ -66,7 +66,7 @@ class DegreeCentralityDiscountSelector(BaseSeedSelector):
         )
 
     def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
-        """Create nodewise ranking."""
+        """Create a per-node ranking."""
         return degree_discount_networkx(net=graph, k=len(graph.nodes))
 
     def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:

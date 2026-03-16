@@ -39,7 +39,7 @@ class NeighbourhoodSizeSelector(BaseSeedSelector):
         )
 
     def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
-        """Create nodewise ranking."""
+        """Create a per-node ranking."""
         raise NotImplementedError("Nodewise ranking list cannot be computed!")
 
     def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:
@@ -71,7 +71,7 @@ class NeighbourhoodSizeDiscountSelector(BaseSeedSelector):
         )
 
     def _calculate_ranking_list(self, graph: nx.Graph) -> list[Any]:
-        """Create nodewise ranking."""
+        """Create a per-node ranking."""
         raise NotImplementedError("Nodewise ranking list cannot be computed!")
 
     def actorwise(self, net: MultilayerNetwork) -> list[MLNetworkActor]:

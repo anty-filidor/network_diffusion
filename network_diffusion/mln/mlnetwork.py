@@ -6,7 +6,7 @@
 # of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
-"""A script where a multilayer network is defined."""
+"""A script defining a multilayer network."""
 
 import random
 import warnings
@@ -129,7 +129,7 @@ class MultilayerNetwork:
         return result
 
     def __len__(self) -> int:
-        """Return length of the network, i.e. num of actors."""
+        """Return the length of the network, i.e. the number of actors."""
         return self.get_actors_num()
 
     def __str__(self) -> str:
@@ -222,7 +222,7 @@ class MultilayerNetwork:
         return MultilayerNetwork(sub_layers)
 
     def is_multiplex(self) -> bool:
-        """Check if network is multiplex."""
+        """Check whether network is multiplex."""
         actors = {a.actor_id for a in self.get_actors()}
         for layer in self.layers:
             if len(actors.difference(self[layer])) > 0:
@@ -285,14 +285,14 @@ class MultilayerNetwork:
         return MLNetworkActor(actor_id=actor_id, layers_states=layers_states)
 
     def get_actors_num(self) -> int:
-        """Get number of actors that live in the network."""
+        """Get the number of actors in the network."""
         actors_set: set[Any] = set()
         for layer_graph in self.layers.values():
             actors_set = actors_set.union(set(layer_graph.nodes))
         return len(actors_set)
 
     def get_nodes_num(self) -> dict[str, int]:
-        """Get number of nodes that live in each layer of the network."""
+        """Get the number of nodes in each layer of the network."""
         nodes_num = {}
         for layer_name, layer_graph in self.layers.items():
             nodes_num[layer_name] = len(layer_graph.nodes)

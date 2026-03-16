@@ -93,7 +93,7 @@ class TestLogger(unittest.TestCase):
         self.logs = experiment.perform_propagation(70)
 
     def test_plot(self):
-        """Check if visualisation is being stored."""
+        """Check whether visualisation is being stored."""
         with TemporaryDirectory() as out_dir:
             self.logs.plot(True, out_dir)
             self.assertTrue(
@@ -103,7 +103,7 @@ class TestLogger(unittest.TestCase):
             )
 
     def test_report(self):
-        """Check if report function writes out all files that it should."""
+        """Check whether report function writes out all files that it should."""
         with TemporaryDirectory() as out_dir:
             self.logs.report(visualisation=True, path=out_dir)
             exp_files = {
@@ -124,7 +124,7 @@ class TestLogger(unittest.TestCase):
             )
 
     def test__convert_logs(self):
-        """Check if logs convention is done properly."""
+        """Check whether logs convention is done properly."""
         raw_logs = prepare_logs()
 
         model_hyperparams = {
@@ -252,7 +252,7 @@ class TestLogger(unittest.TestCase):
             )
 
     def test__add_log(self):
-        """Check if logs are being colledded proprely during simulation."""
+        """Check whether logs are being collected properly during simulation."""
         raw_logs = prepare_logs()
         logger = Logger("model", "network")
 

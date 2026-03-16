@@ -60,7 +60,7 @@ class TestCompartmentalGraph(unittest.TestCase):
         )
 
     def test_get_model_hyperparams(self):
-        """Check if get_model_hyperparams function behaves correctly."""
+        """Check whether get_model_hyperparams function behaves correctly."""
         model = get_compiled_model()
         self.assertEqual(
             {"1": ["A", "B", "C"], "2": ["A", "B"], "3": ["A", "B"]},
@@ -69,7 +69,7 @@ class TestCompartmentalGraph(unittest.TestCase):
         )
 
     def test_compile(self):
-        """Check if compilation runs correctly."""
+        """Check whether compilation runs correctly."""
         model = CompartmentalGraph()
         model.add("1", ["A", "B", "C"])
         model.add("2", ["A", "B"])
@@ -179,7 +179,7 @@ class TestCompartmentalGraph(unittest.TestCase):
         )
 
     def test_set_transitions_in_random_edges(self):
-        """Check if setting transitions in random way is possible."""
+        """Check whether setting transitions in random way is possible."""
         model = get_compiled_model()
         layer_1_w = {0.4: 0, 0.5: 0}
         layer_2_w = {0.3: 0, 0.2: 0, 0.1: 0}
@@ -211,7 +211,7 @@ class TestCompartmentalGraph(unittest.TestCase):
             )
 
     def test_get_possible_transitions(self):
-        """Check if possible transforms are gave correctly."""
+        """Check whether possible transforms are gave correctly."""
         model = get_compiled_model()
         case_1 = model.get_possible_transitions(
             state=("1.C", "2.B", "3.A"), layer="1"

@@ -6,13 +6,13 @@
 # of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
-"""Contains funcitons to handle actors of the multilayer network."""
+"""Contains functions to handle actors of the multilayer network."""
 
 from typing import Any
 
 
 class MLNetworkActor:
-    """Dataclass that contain data of actor in the network."""
+    """Dataclass that contains actor data in the network."""
 
     def __init__(self, actor_id: str, layers_states: dict[str, str]) -> None:
         """
@@ -28,7 +28,7 @@ class MLNetworkActor:
     @classmethod
     def from_dict(cls, base_dict: dict[str, Any]) -> "MLNetworkActor":
         """
-        Create an object from serialised dicitonary.
+        Create an object from serialised dictionary.
 
         :param dict: a dictionary with serialised attributes
         """
@@ -64,12 +64,12 @@ class MLNetworkActor:
 
     @property
     def layers(self) -> tuple[str, ...]:
-        """Get network layers where actor exists."""
+        """Retrieve network layers in which an actor exists."""
         return tuple(self._layers_states.keys())
 
     @property
     def states(self) -> dict[str, str]:
-        """Get actor's states for where actitor exists."""
+        """Retrieve an actor's states where the actor exists."""
         return self._layers_states
 
     @states.setter

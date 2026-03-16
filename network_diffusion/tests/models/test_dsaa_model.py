@@ -96,7 +96,7 @@ class TestDSAAModel(unittest.TestCase):
         }
 
     def test_set_initial_states(self) -> None:
-        """Check if set_initial_states appends good statuses to nodes."""
+        """Check whether set_initial_states appends good statuses to nodes."""
         expected_nodes_states = (
             self.model._compartmental_graph.get_seeding_budget_for_network(
                 self.network

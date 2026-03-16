@@ -6,7 +6,7 @@
 # of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
-"""A script where a temporal network is defined."""
+"""A script defining a temporal network."""
 
 from typing import Any
 
@@ -35,7 +35,7 @@ def cogsnet_snap_to_nxgraph(cogsnet_snap: list[list[float]]) -> nx.DiGraph:
 
 
 class TemporalNetwork:
-    """Container for a temporal network."""
+    """A container for temporal network."""
 
     def __init__(self, snaps: list[MultilayerNetwork]) -> None:
         """
@@ -50,7 +50,7 @@ class TemporalNetwork:
         return self.snaps[key]
 
     def __len__(self) -> int:
-        """Return length of the network, i.e. num of actors."""
+        """Return the length of the network, i.e. the number of actors."""
         return len(self.snaps)
 
     @classmethod
@@ -120,7 +120,7 @@ class TemporalNetwork:
         return list(self.snaps[snapshot_id].get_actors(shuffle))
 
     def get_actors_num(self) -> int:
-        """Get number of actors that live in the network."""
+        """Get the number of actors in the network."""
         return len(self.get_actors_from_snap(0))
 
     @classmethod

@@ -71,7 +71,7 @@ class LocalImprovement:
 
         The method uses a `ShareableListManager` to meet a timeout requirement.
         Namely, it tried to prune the `initial_set` for a given period of time
-        and stores loccaly optimised solutions in the instance of a
+        and stores loccaly optimused solutions in the instance of a
         `ShareableListManager` class.
 
         :param initial_set: initial dominating set obtained with the greedy
@@ -229,7 +229,7 @@ class LocalImprovement:
         return candidates
 
     def _is_feasible(self, dominating_set: set[Any]) -> bool:
-        """Check if the dominating set is feasible across all layers."""
+        """Check whether the dominating set is feasible across all layers."""
         for _, l_graph in self.net.layers.items():
             dominated = set()
             for actor_id in dominating_set:
