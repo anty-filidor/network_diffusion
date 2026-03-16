@@ -25,10 +25,10 @@ def _get_toy_network_cbim() -> nx.DiGraph:
     """
     Get a toy network.
 
-    The network was ised by the author of intitial implementation of the CBIM
+    The network was used by the author of initial implementation of the CBIM
     method (https://github.com/doublejv/CBIM-Implementation).
     """
-    adjecency_matrix = np.array(
+    adjacency_matrix = np.array(
         [
             [0, 0, 2, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0],
             [0, 0, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0],
@@ -47,13 +47,13 @@ def _get_toy_network_cbim() -> nx.DiGraph:
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         ],
     )
-    net = nx.from_numpy_matrix(adjecency_matrix, create_using=nx.DiGraph)
+    net = nx.from_numpy_matrix(adjacency_matrix, create_using=nx.DiGraph)
     net.remove_edges_from(nx.selfloop_edges(net))
     return net
 
 
 def _printd(statement: str, debug: bool = False) -> None:
-    """Hepler function to print statements in the debug mode."""
+    """Print statements in the debug mode."""
     if debug:
         print(statement)
 
