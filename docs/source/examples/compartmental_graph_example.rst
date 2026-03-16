@@ -5,12 +5,12 @@ Class ``nd.models.CompartmentalGraph``
 
 What is a compartmental graph?
 ==============================
-If the experiment includes more than two phenomena interacting with themselves,
-a description of the propagation model becomes complicated. E.g., model with two
-phenomena with two local steps each one:
+If the experiment includes more than two phenomena interacting with one another,
+a description of the propagation model becomes more complex. For example, a
+model with two phenomena, each with two local steps:
 
-* Suspected-Infected (phenomena Illness),
-* Aware-Unaware (phenomena"Awareness),
+* Suspected-Infected (phenomenon Illness),
+* Aware-Unaware (phenomenon "Awareness"),
 
 has four possible global states (i.e., each agent has to be in one of those
 states):
@@ -32,7 +32,7 @@ states):
 * Suspected~Unaware -> Infected~Unaware,
 * Suspected~Unaware <- Infected~Unaware.
 
-This can be easily visualised by a following graph:
+This can be easily visualised by the following graph:
 
 .. figure:: propagation.png
     :align: center
@@ -40,16 +40,16 @@ This can be easily visualised by a following graph:
 
 Note that with three interacting phenomena of respectively two, two, and three
 local states, we have twelve global states with (sic!) 48 possible transitions.
-Thus, the library contains a class ``CompartmentalGraph`` to define a model in a
-semiautomatic way with no limits regarding a number of phenomena and a number of
-states. The user needs to determine the names of phenomena, local states, and
-only the transitions relevant to the simulation.
+Thus, the library includes the class ``CompartmentalGraph`` to define a model
+semi-automatically with no limit on the number of phenomena or states. The user
+must determine the names of phenomena, local states, and only the transitions
+relevant to the simulation.
 
 Example of usage
 ================
-Let's define a ``CompartmentalGraph`` with three phenomena. Two of them
-(``phenomena_1``, ``phenomena_2``) with two local states, and one
-(``phenomena_3``) with three local states. Then, we will assign probabilities of
+Define a ``CompartmentalGraph`` with three phenomena, where two of them
+(``phenomena_1``, ``phenomena_2``) have two local states, and one
+(``phenomena_3``) has three local states. Then assign probabilities of
 transitions between the states.
 
 Define the object to store states and transitions:
@@ -59,7 +59,7 @@ Define the object to store states and transitions:
     import network_diffusion as nd
     compartments = nd.models.CompartmentalGraph()
 
-Assign phenomena and local states. Then compile it ad see results:
+Assign phenomena and local states; then compile it and review the results:
 
 .. code-block:: python
 
@@ -84,10 +84,10 @@ Assign phenomena and local states. Then compile it ad see results:
     process 'phenomenon_3' transitions with nonzero weight:
     ============================================
 
-Since we set up a ``background_weight`` to 0.0, no transitions are made during
-the compilation process. However, when given, the resulting compartmental graph
-contains all possible transitions with the same probability of occurrence (i.e.,
-a value of the parameter ``background_weight``). In this example, we will set up
+Since the ``background_weight`` is set to 0.0, no transitions are made during
+the compilation process. However, if provided, the resulting compartmental graph
+contains all possible transitions with the same probability of occurrence (that
+is, the value of the parameter ``background_weight``). In this example, set up
 the transition weights manually:
 
 .. code-block:: python
@@ -145,7 +145,7 @@ We can also do it in a faster way:
         from A to B with probability 0.6 and constrains ['phenomenon_1.B' 'phenomenon_2.B']
     ============================================
 
-There is also a functionality of assigning transition weights randomly:
+There is also functionality for assigning transition weights at random:
 
 .. code-block:: python
 
@@ -173,9 +173,9 @@ There is also a functionality of assigning transition weights randomly:
         from A to B with probability 0.6 and constrains ['phenomenon_1.B' 'phenomenon_2.B']
     ============================================
 
-The propagation model is stored as a dictionary of ``networkx`` graphs. Hence, we
-can draw it, but as the model grows bigger, the readability of visualisation is
-less:
+The propagation model is stored as a dictionary of ``networkx`` graphs. Hence,
+we can draw it, but as the model grows larger, the readability of the visualisation
+decreases:
 
 .. code-block:: python
 

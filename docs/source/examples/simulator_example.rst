@@ -2,19 +2,19 @@
 Performing simulations
 ======================
 
-How the simulator works?
+How does the simulator work?
 ______________________________
-Simulator is a class that allows to perform previously designed experiment. To
-run it we need a network (multilayer or temporal, note that it can as well have
-one layer) and a corresponding model. After the experiment is completed, user is
-able to see results in form of report and visualisation of global states of the
-nodes.
+The simulator is a class that allows previously designed experiments to be
+executed. To run it, we need a network (multilayer or temporal; it may have
+single layer as well) and a corresponding model. After the experiment is
+completed, the user can view the results as a report and a visualisation of
+the actor states.
 
-In a following example we will consider a custom SIR~UA model, i.e. spreading of
-two processes in separate layers but dependent on each other:
-* "contagion" process with states S (suspected), I (infecetd), R (removed),
+The following example considers a custom SIR~UA model: the spread of two
+processes in separate layers that are dependent on each other.
+* "contagion" process with states S (suspected), I (infected), R (removed),
 * "awareness" process with states U (unaware), A (aware).
-The possible transitions can be desctibed on a following graph:
+The possible transitions can be described by the following graph:
 
 .. code-block:: text
 
@@ -24,10 +24,10 @@ The possible transitions can be desctibed on a following graph:
                          v       v       v
                         S·A---->I·A---->R·A
 
-All transitions except I->R are determined by interactions between  neighbouring
-nodes. Nodes can transit from I to R without any external  impulses. Parameters
-of the constructor are paobabilities of transitions and initial %s of infected
-and aware nodes.
+All transitions except I->R are determined by interactions between neighbouring
+nodes. Nodes can transition from I to R without any external stimuli. The
+constructor parameters are probabilities of transitions and the initial
+percentages of infected and aware nodes.
 
 Example of usage
 ________________
@@ -132,14 +132,14 @@ The logs contain:
 .. figure:: experiment_vis.png
     :width: 600
 
-In case of need to process the results directly in the Python, one can extract them with two
-functions. For aggregated results for each process
+If you need to process the results directly in Python, you can extract them
+with two functions. For aggregated results for each process
 
 .. literalinclude:: simulator_example.py
    :language: python
    :lines: 253
 
-or for the detailed logs concerning all nodes
+or for detailed logs concerning all nodes.
 
 .. literalinclude:: simulator_example.py
    :language: python
