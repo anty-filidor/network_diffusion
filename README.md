@@ -97,7 +97,7 @@ pip install -e .
 
 ## Documentation
 
-<p align="centre"> <b>Reference guide</b> is available <a href="https://network-diffusion.readthedocs.io/en/latest/">here</a>! </p>
+<p align="center"> <b>Reference guide</b> is available <a href="https://network-diffusion.readthedocs.io/en/latest/">here</a>! </p>
 
 Please note that **this project is still under development**, and the API may
 vary between versions. Nevertheless, the code is thoroughly commented and the
