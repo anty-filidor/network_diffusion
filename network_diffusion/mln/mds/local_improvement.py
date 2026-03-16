@@ -71,7 +71,7 @@ class LocalImprovement:
 
         The method uses a `ShareableListManager` to meet a timeout requirement.
         Namely, it tried to prune the `initial_set` for a given period of time
-        and stores loccaly optimised solutions in the instance of a
+        and stores loccaly optimused solutions in the instance of a
         `ShareableListManager` class.
 
         :param initial_set: initial dominating set obtained with the greedy

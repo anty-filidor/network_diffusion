@@ -6,7 +6,7 @@
 # of the License at https://opensource.org/licenses/MIT
 # =============================================================================
 
-"""A module with funcitons related to the Minimal Dominating Sed."""
+"""A module with functions related to the Minimal Dominating Sed."""
 
 # flake8: noqa
 
