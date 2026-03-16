@@ -75,6 +75,12 @@ REPLACEMENTS = {
     "fist": "first",
     "choosen": "chosen",
     "alghorithm": "algorithm",
+    "infecetd": "infected",
+    "desctibed": "described",
+    "paobabilities": "probabilities",
+    "in case of need": "if needed",
+    "As well have": "can also have",
+    "visualization": "visualisation",
 }
 
 WORD_RE = re.compile(r"\b(" + "|".join(re.escape(k) for k in sorted(REPLACEMENTS.keys(), key=len, reverse=True)) + r")\b", re.IGNORECASE)
@@ -94,7 +100,28 @@ PHRASE_REPLACEMENTS = [
     (re.compile(r"\bReturn value of mean centrality for actors\b", re.IGNORECASE), "Return the mean centrality value for actors"),
     (re.compile(r"\bA script where (.*) is defined\b", re.IGNORECASE), r"A script defining \1"),
     (re.compile(r"\bContainer for a (.*)\b", re.IGNORECASE), r"A container for \1"),
-    (re.compile(r"\bGet .* for the given .*\b", re.IGNORECASE), lambda m: m.group(0).replace("Get", "Retrieve",1)),
+    (re.compile(r"\bGet .* for the given .*\b", re.IGNORECASE), lambda m: m.group(0).replace("Get", "Retrieve", 1)),
+    (re.compile(r"\bIn a following example\b", re.IGNORECASE), "In the following example"),
+    (re.compile(r"\bBy a following graph\b", re.IGNORECASE), "by the following graph"),
+    (re.compile(r"\ba following graph\b", re.IGNORECASE), "the following graph"),
+    (re.compile(r"\bat this steps\b", re.IGNORECASE), "at this stage"),
+    (re.compile(r"\binteracting with themselves\b", re.IGNORECASE), "interacting with one another"),
+    (re.compile(r"\bThe user is able to\b", re.IGNORECASE), "The user can"),
+    (re.compile(r"\bhas to be in one of those states\b", re.IGNORECASE), "must be in one of those states"),
+    (re.compile(r"\bTo create a spreading model, we have to extend\b", re.IGNORECASE), "To create a spreading model, we must extend"),
+    (re.compile(r"\bimplementing following methods\b", re.IGNORECASE), "implementing the following methods"),
+    (re.compile(r"\bprovide following class attributes\b", re.IGNORECASE), "provide the following class attributes"),
+    (re.compile(r"\bfor the reporting purpose\b", re.IGNORECASE), "for reporting"),
+    (re.compile(r"\bThey are bonded\b", re.IGNORECASE), "They are bound"),
+    (re.compile(r"\bone or plenty of phenomena\b", re.IGNORECASE), "one or several phenomena"),
+    (re.compile(r"\bIt is good to know that the spreading model does not treat a network as its internal parameter\b", re.IGNORECASE), "It is important to note that the spreading model does not treat a network as its internal parameter"),
+    (re.compile(r"\bcompiled\b", re.IGNORECASE), "compiled"),
+    (re.compile(r"\bA model SIR~UA\b", re.IGNORECASE), "An SIR~UA model"),
+    (re.compile(r"\bcan be easily read from\b", re.IGNORECASE), "can be readily derived from"),
+    (re.compile(r"\bcan be read by\b", re.IGNORECASE), "can be read from"),
+    (re.compile(r"\bbecomes complicated\b", re.IGNORECASE), "becomes more complex"),
+    (re.compile(r"\bperformance [a-z]+\b", re.IGNORECASE), "performance"),
+    (re.compile(r"\bIf the experiment includes more than two phenomena interacting with one another\b", re.IGNORECASE), "If the experiment includes more than two phenomena interacting with one another"),
 ]
 
 
@@ -235,7 +262,7 @@ def process_rst_file(path, dry_run=True):
             if i % 2 == 1:
                 rewritten.append(part)
             else:
-                rewritten.append(WORD_RE.sub(britishise_word, part))
+                rewritten.append(britishise_text(part))
         processed = ''.join(rewritten)
         if processed != line:
             changed += 1
