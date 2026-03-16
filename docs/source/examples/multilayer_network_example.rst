@@ -10,7 +10,7 @@ interactions into separate layers while keeping the underlying actors shared.
 
 Formally, a multilayer network can be defined as follows.
 
-.. definition:: Multilayer network
+.. admonition:: Multilayer network
 
    A **multilayer network** is defined as a quadruple
 
@@ -26,7 +26,7 @@ Formally, a multilayer network can be defined as follows.
    * :math:`E \subseteq \bigcup_{i \in [\ell]} (V_i \times V_i)` is the set of **edges**.
 
    Each node is represented as a pair :math:`(a, i)`, indicating appearance of
-   the actor :math:`(a, i)` in layer :math:`i`. Also in such a system, edges
+   the actor :math:`a` in layer :math:`i`. Also in such a system, edges
    connect nodes belonging to the same layer.
 
 From this perspective, a multilayer network can be also understood as a
@@ -42,22 +42,27 @@ system** within the relationship (layer) :math:`i \in [\ell]`.
 Example
 -------
 
-Consider a system describing interactions across multiple social media
-platforms:
+Consider a system describing interactions across several social media
+platforms. Suppose we observe a group of people who maintain accounts on
+different services such as LinkedIn, Twitter, or Facebook. In this setting,
+the set :math:`[n]` represents the people active on the Internet, while
+:math:`[\ell]` represents the social platforms.
 
-* :math:`[n]` represents people active on the Internet,
-* :math:`[\ell]` represents social platforms (e.g. LinkedIn, Twitter, Facebook),
-* :math:`V` represents user accounts on these platforms,
-* a node :math:`(a, i)` represents actor :math:`a` on platform :math:`i`
-  (for example, a LinkedIn account belonging to a particular user),
-* edges represent interactions between users within the same platform.
+Each user account corresponds to a node in the multilayer network. For
+instance, a LinkedIn profile belonging to a particular person would be
+represented as the node :math:`(a, i)`, where :math:`a` denotes the person
+and :math:`i` corresponds to the LinkedIn layer.
 
-In this representation, the multilayer network can therefore be decomposed
-into :math:`\ell` interdependent graphs, each corresponding to a different
-interaction layer.
+Edges capture interactions between users within the same platform, such as
+connections, follows, or messages. Consequently, each platform forms a
+separate graph describing interactions specific to that service.
 
-What is a multilayer network?
-=============================
+From this perspective, the multilayer network can be decomposed into
+:math:`\ell` interdependent graphs, each corresponding to a different
+social platform.
+
+Using multilayer networks in ``network_diffusion``
+==================================================
 
 ``nd.MultilayerNetwork`` extends the functionality of the ``networkx.Graph``
 class to store and manipulate networks consisting of multiple relations
